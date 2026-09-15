@@ -1,0 +1,13 @@
+# تک‌راه — robots.txt
+# بعد از خرید دامنه واقعی، خط Sitemap را با دامنه خودتان به‌روز کنید
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: *
+Allow: /
+
+Sitemap: https://takrah.ir/sitemap.xml
