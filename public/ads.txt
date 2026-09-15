@@ -1,0 +1,5 @@
+# ads.txt — فایل اعتبارسنجی ادسنس
+# بعد از تایید شدن در گوگل ادسنس، خط زیر را از حالت کامنت خارج کنید
+# و pub-XXXXXXXXXXXXXXXX را با شناسه ناشر خود جایگزین کنید.
+
+# google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
