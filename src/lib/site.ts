@@ -11,7 +11,7 @@ export const siteConfig = {
   // شناسه ناشر گوگل ادسنس — مثال: ca-pub-1234567890123456
   // بعد از تایید ادسنس این مقدار را پر کنید تا اسکریپت تبلیغات فعال شود
   adsenseClientId: "",
-  email: "info@takrah.ir",
+  email: "soheil.handsome@gmail.com",
   founded: "۱۴۰۵",
 };
 
