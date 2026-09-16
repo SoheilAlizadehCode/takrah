@@ -1,7 +1,6 @@
-"use client";
-
+import Link from "next/link";
 import { Route, Mail } from "lucide-react";
-import { categories, siteConfig, staticPages } from "@/lib/site";
+import { categories, hrefs, siteConfig, staticPages } from "@/lib/site";
 
 export function Footer() {
   return (
@@ -27,12 +26,12 @@ export function Footer() {
             <ul className="grid grid-cols-2 gap-x-4 gap-y-2">
               {categories.map((c) => (
                 <li key={c.id}>
-                  <a
-                    href={`#/category/${c.id}`}
+                  <Link
+                    href={hrefs.category(c.id)}
                     className="text-sm text-muted-foreground transition-colors hover:text-primary"
                   >
                     {c.name}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -45,12 +44,12 @@ export function Footer() {
               <ul className="space-y-2">
                 {staticPages.map((p) => (
                   <li key={p.id}>
-                    <a
-                      href={`#/page/${p.id}`}
+                    <Link
+                      href={hrefs.page(p.id)}
                       className="text-sm text-muted-foreground transition-colors hover:text-primary"
                     >
                       {p.title}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>

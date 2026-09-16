@@ -1,8 +1,7 @@
-"use client";
-
+import Link from "next/link";
 import { BookOpen, Sparkles, Users, GraduationCap } from "lucide-react";
 import { articles, getFeatured } from "@/data";
-import { categories } from "@/lib/site";
+import { categories, hrefs } from "@/lib/site";
 import { ArticleCard, FeaturedCard } from "./cards";
 import { AdSlot } from "./ad-slot";
 import { CategoryIcon } from "./category-icon";
@@ -87,9 +86,9 @@ export function HomeView() {
         </p>
         <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map((c) => (
-            <a
+            <Link
               key={c.id}
-              href={`#/category/${c.id}`}
+              href={hrefs.category(c.id)}
               className="group rounded-xl border border-border/70 bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
             >
               <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
@@ -101,7 +100,7 @@ export function HomeView() {
               <p className="mt-1.5 line-clamp-2 text-sm leading-7 text-muted-foreground">
                 {c.description}
               </p>
-            </a>
+            </Link>
           ))}
         </div>
       </section>

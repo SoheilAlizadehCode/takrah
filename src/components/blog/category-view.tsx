@@ -1,5 +1,3 @@
-"use client";
-
 import { getByCategory } from "@/data";
 import { getCategory } from "@/lib/site";
 import { ArticleCard } from "./cards";

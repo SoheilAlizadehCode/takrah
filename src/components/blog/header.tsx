@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useTheme } from "next-themes";
 import { Route, Search, Menu, X, Sun, Moon, Home } from "lucide-react";
-import { categories } from "@/lib/site";
+import { categories, hrefs } from "@/lib/site";
 import { CategoryIcon } from "./category-icon";
 
 interface HeaderProps {
@@ -25,8 +26,8 @@ export function Header({ onOpenSearch }: HeaderProps) {
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-md supports-[backdrop-filter]:bg-background/70">
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-4 sm:px-6">
         {/* لوگو */}
-        <a
-          href="#/"
+        <Link
+          href="/"
           className="flex items-center gap-2.5"
           aria-label="تک‌راه — صفحه اصلی"
           onClick={() => setMenuOpen(false)}
@@ -40,23 +41,23 @@ export function Header({ onOpenSearch }: HeaderProps) {
               مسیر تو به دنیای تکنولوژی
             </span>
           </span>
-        </a>
+        </Link>
 
         {/* ناوبری دسکتاپ */}
         <nav className="mx-auto hidden items-center gap-1 lg:flex" aria-label="ناوبری اصلی">
-          <a href="#/" className={navLink}>
+          <Link href="/" className={navLink}>
             <span className="flex items-center gap-1.5">
               <Home className="h-3.5 w-3.5" aria-hidden="true" />
               خانه
             </span>
-          </a>
+          </Link>
           {categories.map((c) => (
-            <a key={c.id} href={`#/category/${c.id}`} className={navLink}>
+            <Link key={c.id} href={hrefs.category(c.id)} className={navLink}>
               <span className="flex items-center gap-1.5">
                 <CategoryIcon id={c.id} className="h-3.5 w-3.5" />
                 {c.name}
               </span>
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -108,25 +109,25 @@ export function Header({ onOpenSearch }: HeaderProps) {
         >
           <ul className="grid grid-cols-2 gap-1.5">
             <li>
-              <a
-                href="#/"
+              <Link
+                href="/"
                 className={`flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground ${navLink}`}
                 onClick={() => setMenuOpen(false)}
               >
                 <Home className="h-4 w-4" aria-hidden="true" />
                 خانه
-              </a>
+              </Link>
             </li>
             {categories.map((c) => (
               <li key={c.id}>
-                <a
-                  href={`#/category/${c.id}`}
+                <Link
+                  href={hrefs.category(c.id)}
                   className={`flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground ${navLink}`}
                   onClick={() => setMenuOpen(false)}
                 >
                   <CategoryIcon id={c.id} className="h-4 w-4" />
                   {c.name}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>

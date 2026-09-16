@@ -6,22 +6,28 @@ export const siteConfig = {
   tagline: "مسیر تو به دنیای تکنولوژی",
   description:
     "تک‌راه مرجع فارسی‌زبان آموزش تکنولوژی است؛ مقالات ساده و کاربردی درباره هوش مصنوعی، موبایل، امنیت، برنامه‌نویسی و ابزارهای اینترنتی برای کاربران ایرانی.",
-  // دامنه واقعی خود را بعد از خرید جایگزین کنید
-  url: "https://takrah.vercel.app",
+  // دامنه سایت: پیش‌فرض همان دامنه فعلی vercel است.
+  // بعد از خرید دامنه اختصاصی، در پنل Vercel متغیر محیطی
+  // NEXT_PUBLIC_SITE_URL=https://دامنه-شما.ir را تنظیم کنید (بدون نیاز به تغییر کد)
+  url:
+    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
+    "https://takrah.vercel.app",
   // شناسه ناشر گوگل ادسنس — مثال: ca-pub-1234567890123456
   // بعد از تایید ادسنس این مقدار را پر کنید تا اسکریپت تبلیغات فعال شود
   adsenseClientId: "",
-  email: "soheil.handsome@gmail.com",
+  email: "info@takrah.ir",
   founded: "۱۴۰۵",
 };
 
-export type Route =
-  | { name: "home" }
-  | { name: "category"; id: string }
-  | { name: "article"; slug: string }
-  | { name: "page"; id: PageId };
-
 export type PageId = "about" | "contact" | "privacy" | "terms";
+
+/** ساخت آدرس‌های واقعی سایت (به‌جای مسیرهای هش‌دار قبلی) */
+export const hrefs = {
+  home: "/",
+  category: (id: string) => `/category/${id}`,
+  article: (slug: string) => `/article/${slug}`,
+  page: (id: PageId) => `/${id}`,
+};
 
 export interface Category {
   id: string;
