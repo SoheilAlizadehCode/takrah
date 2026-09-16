@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { Search, FileText } from "lucide-react";
 import {
   Dialog,
@@ -10,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { searchArticles } from "@/data";
-import { getCategory } from "@/lib/site";
+import { getCategory, hrefs } from "@/lib/site";
 import { CategoryIcon } from "./category-icon";
 
 interface SearchDialogProps {
@@ -63,8 +64,8 @@ export function SearchDialog({ open, onOpenChange, onNavigate }: SearchDialogPro
             <ul className="space-y-1">
               {results.map((a) => (
                 <li key={a.slug}>
-                  <a
-                    href={`#/article/${a.slug}`}
+                  <Link
+                    href={hrefs.article(a.slug)}
                     onClick={() => {
                       setQuery("");
                       onNavigate();
@@ -84,7 +85,7 @@ export function SearchDialog({ open, onOpenChange, onNavigate }: SearchDialogPro
                       className="ms-auto mt-1 h-4 w-4 shrink-0 text-muted-foreground/50"
                       aria-hidden="true"
                     />
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>

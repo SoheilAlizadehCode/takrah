@@ -1,8 +1,23 @@
 import type { Metadata, Viewport } from "next";
+import localFont from "next/font/local";
+import Script from "next/script";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/toaster";
+import { SiteChrome } from "@/components/blog/site-chrome";
+import { Footer } from "@/components/blog/footer";
 import { siteConfig } from "@/lib/site";
 import "./globals.css";
+
+// فونت وزیرمتن به‌صورت متغیر (همه وزن‌ها در یک فایل) سلف‌هاست شده است؛
+// next/font خودش CSS فونت را inline و فایل را preload می‌کند — بدون درخواست خارجی
+const vazirmatn = localFont({
+  src: "./fonts/Vazirmatn-Variable.woff2",
+  weight: "100 900",
+  display: "swap",
+  variable: "--font-vazirmatn",
+  fallback: ["Tahoma", "Arial", "sans-serif"],
+  preload: true,
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -31,9 +46,6 @@ export const metadata: Metadata = {
   icons: {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
     apple: [{ url: "/favicon.svg" }],
-  },
-  alternates: {
-    canonical: "/",
   },
   openGraph: {
     type: "website",
@@ -105,30 +117,28 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fa" dir="rtl" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
-        <link
-          rel="stylesheet"
-          precedence="default"
-          href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css"
-        />
+    <html lang="fa" dir="rtl" className={vazirmatn.variable} suppressHydrationWarning>
+      <body className="antialiased bg-background text-foreground">
         {/* اسکریپت گوگل ادسنس — بعد از دریافت شناسه ناشر، در src/lib/site.ts مقدار adsenseClientId را پر کنید */}
-        {siteConfig.adsenseClientId && (
-          <script
-            async
+        {siteConfig.adsenseClientId ? (
+          <Script
+            strategy="afterInteractive"
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${siteConfig.adsenseClientId}`}
             crossOrigin="anonymous"
           />
-        )}
-      </head>
-      <body className="antialiased bg-background text-foreground">
+        ) : null}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          {children}
+          <div className="flex min-h-screen flex-col">
+            <SiteChrome />
+            <main className="flex-1" id="main-content">
+              {children}
+            </main>
+            <Footer />
+          </div>
         </ThemeProvider>
         <Toaster />
       </body>

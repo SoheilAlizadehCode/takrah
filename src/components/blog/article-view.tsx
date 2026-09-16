@@ -1,15 +1,14 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Clock, User, Lightbulb, ChevronLeft, Home, ListTree } from "lucide-react";
 import type { Article } from "@/lib/blog-types";
-import { getCategory, siteConfig } from "@/lib/site";
+import { getCategory, hrefs } from "@/lib/site";
 import { getRelated } from "@/data";
 import { toFaDigits } from "@/lib/format";
 import { CategoryIcon } from "./category-icon";
 import { AdSlot } from "./ad-slot";
 import { ArticleCard } from "./cards";
+import { ReadingProgress } from "./reading-progress";
 
 // ─── نمایش یک بلوک محتوایی ───
 function BlockView({ block, id }: { block: Article["blocks"][number]; id?: string }) {
@@ -104,7 +103,7 @@ function BlockView({ block, id }: { block: Article["blocks"][number]; id?: strin
   }
 }
 
-// ─── فهرست مطالب ───
+// ─── فهرست مطالب (لینک‌های بومی مرورگر — بدون جاوااسکریپت) ───
 function TableOfContents({ headings }: { headings: { id: string; text: string }[] }) {
   if (headings.length === 0) return null;
   return (
@@ -118,10 +117,6 @@ function TableOfContents({ headings }: { headings: { id: string; text: string }[
           <li key={h.id}>
             <a
               href={`#${h.id}`}
-              onClick={(e) => {
-                e.preventDefault();
-                document.getElementById(h.id)?.scrollIntoView({ behavior: "smooth" });
-              }}
               className="flex gap-2 text-sm leading-6 text-muted-foreground transition-colors hover:text-primary"
             >
               <span className="font-bold text-primary/60">{toFaDigits(i + 1)}.</span>
@@ -131,29 +126,6 @@ function TableOfContents({ headings }: { headings: { id: string; text: string }[
         ))}
       </ol>
     </nav>
-  );
-}
-
-// ─── نوار پیشرفت مطالعه ───
-function ReadingProgress() {
-  const [progress, setProgress] = useState(0);
-  useEffect(() => {
-    const onScroll = () => {
-      const el = document.documentElement;
-      const total = el.scrollHeight - el.clientHeight;
-      setProgress(total > 0 ? Math.min(100, (el.scrollTop / total) * 100) : 0);
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-  return (
-    <div className="fixed inset-x-0 top-0 z-50 h-1 bg-transparent" aria-hidden="true">
-      <div
-        className="h-full bg-primary transition-[width] duration-150"
-        style={{ width: `${progress}%` }}
-      />
-    </div>
   );
 }
 
@@ -167,53 +139,33 @@ export function ArticleView({ article }: { article: Article }) {
     .filter((x): x is { id: string; text: string } => x !== null);
   const related = getRelated(article);
 
-  // داده ساختاریافته Article برای گوگل
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: article.title,
-    description: article.excerpt,
-    image: `${siteConfig.url}${article.cover}`,
-    inLanguage: "fa-IR",
-    author: { "@type": "Organization", name: `تحریریه ${siteConfig.name}`, url: siteConfig.url },
-    publisher: {
-      "@type": "Organization",
-      name: siteConfig.name,
-      url: siteConfig.url,
-    },
-    mainEntityOfPage: `${siteConfig.url}/article/${article.slug}`,
-    articleSection: category.name,
-    keywords: article.tags.join("، "),
-  };
-
   return (
     <>
       <ReadingProgress />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
 
       <article className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
         {/* مسیر راهنما (Breadcrumb) */}
         <nav aria-label="مسیر صفحه" className="mb-6">
           <ol className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground sm:text-sm">
             <li>
-              <a href="#/" className="flex items-center gap-1 transition-colors hover:text-primary">
+              <Link
+                href="/"
+                className="flex items-center gap-1 transition-colors hover:text-primary"
+              >
                 <Home className="h-3.5 w-3.5" aria-hidden="true" />
                 خانه
-              </a>
+              </Link>
             </li>
             <li aria-hidden="true">
               <ChevronLeft className="h-3.5 w-3.5" />
             </li>
             <li>
-              <a
-                href={`#/category/${category.id}`}
+              <Link
+                href={hrefs.category(category.id)}
                 className="transition-colors hover:text-primary"
               >
                 {category.name}
-              </a>
+              </Link>
             </li>
             <li aria-hidden="true">
               <ChevronLeft className="h-3.5 w-3.5" />
@@ -229,20 +181,20 @@ export function ArticleView({ article }: { article: Article }) {
           <div className="min-w-0">
             {/* سربرگ مقاله */}
             <header className="space-y-5">
-              <a
-                href={`#/category/${category.id}`}
+              <Link
+                href={hrefs.category(category.id)}
                 className="flex w-fit items-center gap-1.5 rounded-full bg-primary/10 px-3.5 py-1.5 text-xs font-bold text-primary transition-colors hover:bg-primary/15"
               >
                 <CategoryIcon id={category.id} className="h-3.5 w-3.5" />
                 {category.name}
-              </a>
+              </Link>
               <h1 className="text-2xl font-extrabold leading-[1.7] sm:text-3xl sm:leading-[1.75]">
                 {article.title}
               </h1>
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground sm:text-sm">
                 <span className="flex items-center gap-1.5">
                   <User className="h-4 w-4" aria-hidden="true" />
-                  تحریریه {siteConfig.name}
+                  تحریریه تک‌راه
                 </span>
                 <span aria-hidden="true">·</span>
                 <span>{article.date}</span>

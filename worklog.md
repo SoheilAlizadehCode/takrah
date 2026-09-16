@@ -24,3 +24,26 @@ Stage Summary:
 - برای فعال‌سازی ادسنس کاربر فقط باید siteConfig.adsenseClientId را پر کند و ads.txt را به‌روز کند
 - تصاویر کاور در public/images/covers/ و اسکریپت تولیدشان در scripts/generate-covers.sh ذخیره است
 - محدودیت محیط: فقط مسیر "/" قابل پیش‌نمایش است؛ برای دیپلوی واقعی با سئوی حداکثری پیشنهاد شد ساختار SPA به routeهای واقعی تبدیل شود
+
+---
+Task ID: 2
+Agent: Main agent (Super Z)
+Task: رفع مشکلات پرفورمنس PageSpeed سایت تک‌راه (فونت CDN، LCP، معماری SPA)
+
+Work Log:
+- تحلیل گزارش PageSpeed کاربر: رندر-بلاک شدن توسط CSS فونت jsDelivr (۲ ثانیه)، CLS فونت (۰.۱۰۲)، LCP lazy، TBT بالا (۹۵۰ms) به‌خاطر SPA تک‌باندل
+- دانلود فونت وزیرمتن Variable (woff2 تک‌فایل ۱۱۱KB) به src/app/fonts/ و سلف‌هاست با next/font/local (CSS فونت inline + preload خودکار، حذف کامل درخواست خارجی)
+- بازنویسی layout.tsx: حذف تگ head دستی (خطای هیدریشن whitespace)، انتقال اسکریپت ادسنس به next/script با strategy=afterInteractive، افزودن SiteChrome و Footer به layout مشترک
+- تبدیل SPA هش‌دار به مسیرهای واقعی App Router: /article/[slug] و /category/[id] با generateStaticParams + dynamicParams=false، صفحات /about /contact /privacy /terms، not-found.tsx فارسی
+- متادیتای اختصاصی هر صفحه: generateMetadata با canonical/OG/Twitter برای هر مقاله و دسته، JSON-LD مقاله + BreadcrumbList در صفحه مقاله
+- تبدیل ویوها به Server Component: home-view, category-view, cards, footer, static-pages, ad-slot؛ آیلندهای کلاینت: site-chrome (هدر+جستجو)، reading-progress، contact-page
+- جایگزینی همه لینک‌های هش‌دار (#/) با next/link به آدرس‌های واقعی؛ TOC مقاله به لینک بومی مرورگر (بدون JS)
+- سایت‌مپ و robots پویا با app/sitemap.ts و app/robots.ts (حذف نسخه‌های static از public) — ۲۱ URL خودکار
+- url سایت از env متغیر NEXT_PUBLIC_SITE_URL خوانده می‌شود (پیش‌فرض takrah.vercel.app؛ برای دامنه آینده بدون تغییر کد)
+- رفع خطاها: hydration whitespace در head، fetchPriority تکراری با priority
+- تایید کامل با agent-browser: صفحه اصلی، مقاله (URL واقعی + تایتل اختصاصی)، TOC anchor scroll، دارک مود، جستجو→کلیک نتیجه→ناوبری، دسته‌بندی، صفحات ثابت، فرم تماس (توست اعتبارسنجی)، 404، منوی موبایل، فوتر چسبان (viewport بلند)، موبایل ۳۹۰px؛ کنسول تازه کاملاً بدون خطا؛ lint بدون خطا
+
+Stage Summary:
+- هر صفحه مقاله/دسته حالا HTML استاتیک اختصاصی با متادیتای کامل دارد — سئو و شانس تایید ادسنس به‌طور قابل‌توجه بهتر شد
+- گلوگاه‌های پرفورمنس رفع شد: بدون درخواست خارجی فونت، بدون رندر-بلاک، LCP با priority+preload، JS سمت کلاینت به آیلندهای کوچک محدود شد
+- برای دیپلوی: push به GitHub → Vercel خودکار دیپلوی می‌کند؛ بعد از خرید دامنه فقط NEXT_PUBLIC_SITE_URL را در Vercel تنظیم کند

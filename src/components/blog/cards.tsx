@@ -1,9 +1,8 @@
-"use client";
-
 import Image from "next/image";
+import Link from "next/link";
 import { Clock, ArrowLeft } from "lucide-react";
 import type { Article } from "@/lib/blog-types";
-import { getCategory } from "@/lib/site";
+import { getCategory, hrefs } from "@/lib/site";
 import { CategoryIcon } from "./category-icon";
 import { toFaDigits } from "@/lib/format";
 
@@ -29,7 +28,10 @@ function Meta({ article, className = "" }: { article: Article; className?: strin
 export function ArticleCard({ article }: { article: Article }) {
   return (
     <article className="group">
-      <a href={`#/article/${article.slug}`} className="block focus-visible:outline-none">
+      <Link
+        href={hrefs.article(article.slug)}
+        className="block focus-visible:outline-none"
+      >
         <div className="relative aspect-[16/9] overflow-hidden rounded-xl border border-border/60 bg-muted">
           <Image
             src={article.cover}
@@ -48,17 +50,17 @@ export function ArticleCard({ article }: { article: Article }) {
             {article.excerpt}
           </p>
         </div>
-      </a>
+      </Link>
     </article>
   );
 }
 
-/** کارت بزرگ مقاله ویژه (صفحه اصلی) */
+/** کارت بزرگ مقاله ویژه (صفحه اصلی) — LCP صفحه است و باید با اولویت لود شود */
 export function FeaturedCard({ article }: { article: Article }) {
   return (
     <article className="group overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm">
-      <a
-        href={`#/article/${article.slug}`}
+      <Link
+        href={hrefs.article(article.slug)}
         className="grid gap-0 md:grid-cols-2"
         aria-label={`خواندن مقاله: ${article.title}`}
       >
@@ -88,7 +90,7 @@ export function FeaturedCard({ article }: { article: Article }) {
             <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" aria-hidden="true" />
           </span>
         </div>
-      </a>
+      </Link>
     </article>
   );
 }
