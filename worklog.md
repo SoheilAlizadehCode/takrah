@@ -65,3 +65,19 @@ Work Log:
 Stage Summary:
 - فعال‌سازی آنالیتیکس بدون تغییر کد: فقط دو متغیر محیطی در Vercel تنظیم شود و دیپلوی مجدد گرفته شود
 - وقتی env تنظیم نشده باشد هیچ اسکریپتی لود نمی‌شود و پرفورمنس حفظ می‌شود
+
+---
+Task ID: 4
+Agent: Main agent (Super Z)
+Task: شفاف‌سازی دسترسی Vercel + آماده‌سازی ZIP قابل انتقال
+
+Work Log:
+- بررسی صادقانه: به اکانت Vercel کاربر دسترسی وجود ندارد؛ تغییرات GA4/سرچ‌کنسول فقط در کد پروژه محلی اعمال شده
+- تایید با curl که سایت زنده هنوز نسخه قدیم است (بدون gtag)
+- حذف فایل‌های استاتیک قدیمی public/robots.txt (اشاره‌دهنده به takrah.ir) و public/sitemap.xml که با نسخه پویا app/robots.ts و app/sitemap.ts تداخل داشتند
+- build مجدد موفق — مسیرهای پویا robots.txt و sitemap.xml سالم
+- ساخت download/takrah-source-updated.zip (1.2MB، ۱۳۳ فایل: src کامل + covers + فونت + کانفیگ‌ها، بدون node_modules)
+
+Stage Summary:
+- کاربر برای انتشار تغییرات باید ZIP را دریافت و با روش قبلی خودش (GitHub/آپلود) دیپلوی کند
+- سپس دو متغیر محیطی NEXT_PUBLIC_GA_ID و NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION را در Vercel تنظیم کند
