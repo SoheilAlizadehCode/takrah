@@ -5,8 +5,16 @@ import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/toaster";
 import { SiteChrome } from "@/components/blog/site-chrome";
 import { Footer } from "@/components/blog/footer";
+import { GAPageView } from "@/components/analytics";
 import { siteConfig } from "@/lib/site";
 import "./globals.css";
+
+// ─── گوگل آنالیتیکس ۴ ───
+// بعد از ساخت پراپرتی در analytics.google.com، شناسه G-XXXXXXXXXX را
+// در پنل Vercel (Settings → Environment Variables) با نام NEXT_PUBLIC_GA_ID
+// تنظیم کنید و دوباره دیپلوی بگیرید — بدون نیاز به تغییر کد.
+// اگر تنظیم نشود، هیچ اسکریپتی لود نمی‌شود و سرعت سایت حفظ می‌شود.
+const gaId = process.env.NEXT_PUBLIC_GA_ID ?? "";
 
 // فونت وزیرمتن به‌صورت متغیر (همه وزن‌ها در یک فایل) سلف‌هاست شده است؛
 // next/font خودش CSS فونت را inline و فایل را preload می‌کند — بدون درخواست خارجی
@@ -80,6 +88,14 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+  // ─── تایید مالکیت در Google Search Console ───
+  // در سرچ کنسول روش «HTML tag» را انتخاب کنید و مقدار content را
+  // در Vercel با نام NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION تنظیم کنید.
+  // مثال: اگر کد گوگل این بود <meta name="google-site-verification" content="abc123" />
+  // فقط abc123 را در متغیر محیطی قرار دهید.
+  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? { verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION } }
+    : {}),
 };
 
 export const viewport: Viewport = {
@@ -119,6 +135,24 @@ export default function RootLayout({
   return (
     <html lang="fa" dir="rtl" className={vazirmatn.variable} suppressHydrationWarning>
       <body className="antialiased bg-background text-foreground">
+        {/* ─── گوگل آنالیتیکس ۴ (فقط وقتی NEXT_PUBLIC_GA_ID تنظیم شده باشد) ─── */}
+        {gaId ? (
+          <>
+            <Script
+              strategy="afterInteractive"
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+            />
+            <Script id="ga4-init" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${gaId}');
+              `}
+            </Script>
+            <GAPageView gaId={gaId} />
+          </>
+        ) : null}
         {/* اسکریپت گوگل ادسنس — بعد از دریافت شناسه ناشر، در src/lib/site.ts مقدار adsenseClientId را پر کنید */}
         {siteConfig.adsenseClientId ? (
           <Script
