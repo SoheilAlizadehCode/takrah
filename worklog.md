@@ -114,3 +114,18 @@ Work Log:
 Stage Summary:
 - هر دو فایل تایید روی سایت زنده‌اند؛ کاربر باید مجدد Verify بزند و سپس sitemap.xml را سابمیت کند
 - نکته: اگر باز خطا داد، باید URL پراپرتی بررسی شود (دقیقاً https://takrah.vercel.app)
+
+---
+Task ID: 7
+Agent: Main agent (Super Z)
+Task: فعال‌سازی GA4 با شناسه کاربر
+
+Work Log:
+- دریافت Measurement ID از کاربر: G-D24JYMP9ME
+- افزودن gaMeasurementId به siteConfig در src/lib/site.ts (با اولویت env یعنی NEXT_PUBLIC_GA_ID برای آینده)
+- layout.tsx از siteConfig.gaMeasurementId تغذیه شد
+- lint و build بدون خطا؛ commit abdf447 و push
+- تایید زنده بودن: gtag/js و G-D24JYMP9ME در HTML سایت
+
+Stage Summary:
+- آمارگیر GA4 به‌طور کامل فعال است؛ زنجیره ابزارها کامل شد: سرچ کنسول (تاییدشده) + آنالیتیکس (زنده) + سئوی فنی
