@@ -81,3 +81,20 @@ Work Log:
 Stage Summary:
 - کاربر برای انتشار تغییرات باید ZIP را دریافت و با روش قبلی خودش (GitHub/آپلود) دیپلوی کند
 - سپس دو متغیر محیطی NEXT_PUBLIC_GA_ID و NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION را در Vercel تنظیم کند
+
+---
+Task ID: 5
+Agent: Main agent (Super Z)
+Task: اتصال مستقیم به گیت‌هاب کاربر و push تغییرات
+
+Work Log:
+- دریافت توکن fine-grained (فقط Contents:RW روی ریپو takrah) و آدرس SoheilAlizadehCode/takrah از کاربر
+- چک‌های امنیتی پیش از push: ۱۵۹ فایل، بدون node_modules/.next، .gitignore موجود
+- fetch ریموت و مقایسه: فایل‌های فقط-ریموت شناسایی شدند (README.md ساختگی، google4891c5e4782b0f28.html تایید سرچ کنسول، robots/sitemap استاتیک قدیمی)
+- حفظ فایل تایید گوگل در public/ ؛ نگارش README واقعی پروژه؛ حذف .env بی‌ضرر از ریپو (ریپو عمومی است)
+- force-with-lease push به main موفق: bc8c171
+- git identity به SoheilAlizadehCode تنظیم شد؛ توکن فقط در .git/config محلی است
+
+Stage Summary:
+- از این به بعد push مستقیم ممکن است؛ Vercel از همین ریپو خودکار دیپلوی می‌کند
+- کاربر برای GA4 فقط شناسه G-XXXX را می‌دهد تا در کد قرار گیرد، یا متغیر NEXT_PUBLIC_GA_ID را در Vercel ست می‌کند
