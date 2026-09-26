@@ -10,11 +10,10 @@ import { siteConfig } from "@/lib/site";
 import "./globals.css";
 
 // ─── گوگل آنالیتیکس ۴ ───
-// بعد از ساخت پراپرتی در analytics.google.com، شناسه G-XXXXXXXXXX را
-// در پنل Vercel (Settings → Environment Variables) با نام NEXT_PUBLIC_GA_ID
-// تنظیم کنید و دوباره دیپلوی بگیرید — بدون نیاز به تغییر کد.
-// اگر تنظیم نشود، هیچ اسکریپتی لود نمی‌شود و سرعت سایت حفظ می‌شود.
-const gaId = process.env.NEXT_PUBLIC_GA_ID ?? "";
+// شناسه در src/lib/site.ts (gaMeasurementId) نگهداری می‌شود؛
+// اگر متغیر محیطی NEXT_PUBLIC_GA_ID در Vercel تنظیم شود بر آن اولویت دارد.
+// اگر خالی باشد هیچ اسکریپتی لود نمی‌شود و سرعت سایت حفظ می‌شود.
+const gaId = siteConfig.gaMeasurementId ?? "";
 
 // فونت وزیرمتن به‌صورت متغیر (همه وزن‌ها در یک فایل) سلف‌هاست شده است؛
 // next/font خودش CSS فونت را inline و فایل را preload می‌کند — بدون درخواست خارجی
