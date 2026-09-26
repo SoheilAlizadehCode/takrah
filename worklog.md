@@ -98,3 +98,19 @@ Work Log:
 Stage Summary:
 - از این به بعد push مستقیم ممکن است؛ Vercel از همین ریپو خودکار دیپلوی می‌کند
 - کاربر برای GA4 فقط شناسه G-XXXX را می‌دهد تا در کد قرار گیرد، یا متغیر NEXT_PUBLIC_GA_ID را در Vercel ست می‌کند
+
+---
+Task ID: 6
+Agent: Main agent (Super Z)
+Task: رفع خطای تایید سرچ کنسول کاربر
+
+Work Log:
+- فایل‌های آپلودی کاربر (googleff387b776c10fec8.html + اسکرین‌شات خطا) به سرور نرسیدند — پوشه upload خالی بود
+- تشخیص: محتوای فایل تایید GSC استاندارد است (google-site-verification: <نام فایل>)؛ فایل از روی نام اعلامی بازسازی شد
+- علت خطای Verify: کاربر قبل از انتشار فایل روی سایت دکمه Verify را زده بود (۴۰۴)
+- ساخت public/googleff387b776c10fec8.html + commit 4670ae9 + push + تایید زنده بودن با curl (HTTP 200)
+- فایل قدیمی google4891c5e4782b0f28.html هم همچنان زنده و سالم
+
+Stage Summary:
+- هر دو فایل تایید روی سایت زنده‌اند؛ کاربر باید مجدد Verify بزند و سپس sitemap.xml را سابمیت کند
+- نکته: اگر باز خطا داد، باید URL پراپرتی بررسی شود (دقیقاً https://takrah.vercel.app)
