@@ -15,6 +15,11 @@ export const siteConfig = {
   // شناسه ناشر گوگل ادسنس — مثال: ca-pub-1234567890123456
   // بعد از تایید ادسنس این مقدار را پر کنید تا اسکریپت تبلیغات فعال شود
   adsenseClientId: "",
+  // شناسه گوگل آنالیتیکس ۴ (Measurement ID)
+  // برای تغییر در آینده فقط همین مقدار را عوض کنید؛ اگر متغیر محیطی
+  // NEXT_PUBLIC_GA_ID در Vercel تنظیم شود، بر این مقدار اولویت دارد.
+  gaMeasurementId:
+    process.env.NEXT_PUBLIC_GA_ID ?? "G-D24JYMP9ME",
   email: "info@takrah.ir",
   founded: "۱۴۰۵",
 };
