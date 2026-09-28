@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Route, Mail } from "lucide-react";
+import { Route, Mail, Send } from "lucide-react";
 import { categories, hrefs, siteConfig, staticPages } from "@/lib/site";
 
 export function Footer() {
@@ -61,6 +61,17 @@ export function Footer() {
               <Mail className="h-4 w-4" aria-hidden="true" />
               {siteConfig.email}
             </a>
+            {siteConfig.telegramChannel ? (
+              <a
+                href={siteConfig.telegramChannel}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-primary"
+              >
+                <Send className="h-4 w-4" aria-hidden="true" />
+                کانال تلگرام تک‌راه
+              </a>
+            ) : null}
           </div>
         </div>
 
