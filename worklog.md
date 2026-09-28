@@ -159,3 +159,20 @@ Work Log:
 
 Stage Summary:
 - ۱۲ مقاله فعال؛ سری درآمد از AI دو مقاله دارد؛ لینک‌سازی داخلی بین مقالات سری شروع شد
+
+---
+Task ID: 9
+Agent: Super Z (main)
+Task: بررسی وضعیت دامنه جدید، Search Console و Analytics پس از خرید دامنه توسط کاربر
+
+Work Log:
+- takrah.ir چک شد → متعلق به کاربر نیست، پارک دامنه domaincity.ir است (اشتباه فهمیده شد، کد دست نخورد)
+- دامنه واقعی کاربر: takrah.top — تایید شد روی Vercel وصل است و سایت را سرو می‌کند
+- آدیت سئو روی takrah.top: canonical و sitemap و robots به vercel.app اشاره می‌کردند (چون NEXT_PUBLIC_SITE_URL ست نشده بود)
+- site.ts اصلاح شد: url پیش‌فرض → https://takrah.top ، email → info@takrah.top
+- lint + build موفق، کامیت 1a7d680 و push به origin main، دیپلوی Vercel تایید شد
+- پست-دیپلوی: canonical صفحه اصلی و مقاله‌ها → takrah.top ✓ ، sitemap → takrah.top ✓ ، GA4 (G-D24JYMP9ME) زنده ✓
+
+Stage Summary:
+- دامنه رسمی سایت از این پس takrah.top است (کانونیکال/سایت‌مپ/robots همه هماهنگ شدند)
+- کارهای باقی‌مانده دستی کاربر: ریدایرکت www و vercel.app در پنل Vercel، Property جدید GSC برای takrah.top + سابمیت سایت‌مپ + Request Indexing، آپدیت URL استریم GA4
