@@ -6,12 +6,12 @@ export const siteConfig = {
   tagline: "مسیر تو به دنیای تکنولوژی",
   description:
     "تک‌راه مرجع فارسی‌زبان آموزش تکنولوژی است؛ مقالات ساده و کاربردی درباره هوش مصنوعی، موبایل، امنیت، برنامه‌نویسی و ابزارهای اینترنتی برای کاربران ایرانی.",
-  // دامنه سایت: پیش‌فرض همان دامنه فعلی vercel است.
-  // بعد از خرید دامنه اختصاصی، در پنل Vercel متغیر محیطی
-  // NEXT_PUBLIC_SITE_URL=https://دامنه-شما.ir را تنظیم کنید (بدون نیاز به تغییر کد)
+  // دامنه رسمی سایت — دامنه اختصاصی خریداری‌شده (۱۴۰۵).
+  // اگر خواستید دوباره عوضش کنید، یا متغیر محیطی
+  // NEXT_PUBLIC_SITE_URL در Vercel را تنظیم کنید (اولویت دارد) یا همین پیش‌فرض را تغییر دهید.
   url:
     process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
-    "https://takrah.vercel.app",
+    "https://takrah.top",
   // شناسه ناشر گوگل ادسنس — مثال: ca-pub-1234567890123456
   // بعد از تایید ادسنس این مقدار را پر کنید تا اسکریپت تبلیغات فعال شود
   adsenseClientId: "",
@@ -20,7 +20,7 @@ export const siteConfig = {
   // NEXT_PUBLIC_GA_ID در Vercel تنظیم شود، بر این مقدار اولویت دارد.
   gaMeasurementId:
     process.env.NEXT_PUBLIC_GA_ID ?? "G-D24JYMP9ME",
-  email: "info@takrah.ir",
+  email: "info@takrah.top",
   founded: "۱۴۰۵",
 };
 
