@@ -1,7 +1,7 @@
 #!/bin/bash
 # ارسال پیام به کانال تلگرام تک‌راه (@takrahTop)
 # Usage:
-#   telegram-post.sh <message-file.html> [--pin] [--silent]
+#   telegram-post.sh <message-file.html> [--pin] [--silent] [--schedule "TZ=\"Asia/Tehran\" 2026-09-30 21:00"]
 # فایل پیام باید HTML معتبر تلگرام باشد (<b>, <i>, <a> و...)
 
 set -euo pipefail
@@ -14,29 +14,36 @@ API="https://api.telegram.org/bot${TOKEN}"
 MSG_FILE=""
 PIN=0
 SILENT=0
+SCHEDULE=""
 
-for arg in "$@"; do
-  case "$arg" in
+while [[ $# -gt 0 ]]; do
+  case "$1" in
     --pin) PIN=1 ;;
     --silent) SILENT=1 ;;
-    *) MSG_FILE="$arg" ;;
+    --schedule) SCHEDULE="$2"; shift ;;
+    *) MSG_FILE="$1" ;;
   esac
+  shift
 done
 
 if [[ -z "$MSG_FILE" || ! -f "$MSG_FILE" ]]; then
-  echo "خطا: فایل پیام پیدا نشد. Usage: $0 <message-file.html> [--pin] [--silent]"
+  echo "خطا: فایل پیام پیدا نشد. Usage: $0 <message-file.html> [--pin] [--silent] [--schedule ...]"
   exit 1
 fi
 
-EXTRA=""
-[[ $SILENT -eq 1 ]] && EXTRA="&disable_notification=true"
+PARAMS=(--data-urlencode "chat_id=${CHAT_ID}" \
+        --data-urlencode "text@${MSG_FILE}" \
+        --data-urlencode "parse_mode=HTML")
 
-RESPONSE=$(curl -s -m 30 -X POST "${API}/sendMessage" \
-  --data-urlencode "chat_id=${CHAT_ID}" \
-  --data-urlencode "text@${MSG_FILE}" \
-  --data-urlencode "parse_mode=HTML" \
-  --data-urlencode "link_preview_options={"is_disabled":false}${EXTRA}")
+[[ $SILENT -eq 1 ]] && PARAMS+=(--data-urlencode "disable_notification=true")
 
+if [[ -n "$SCHEDULE" ]]; then
+  EPOCH=$(date -d "$SCHEDULE" +%s)
+  PARAMS+=(--data-urlencode "schedule_date=${EPOCH}")
+  echo "زمان‌بندی: $SCHEDULE (epoch: $EPOCH)"
+fi
+
+RESPONSE=$(curl -s -m 30 -X POST "${API}/sendMessage" "${PARAMS[@]}")
 echo "$RESPONSE"
 
 # اگر موفق بود و پرچم pin داشت، پیام را پین کن
