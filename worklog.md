@@ -291,3 +291,19 @@ Stage Summary:
 - آواتار قبلی (takrah-telegram-avatar.png) حفظ شد برای مقایسه
 - تکمیل Task 16: چون کاربر به فایل‌های پروژه دسترسی مستقیم نداشت، هر ۳ آواتار با sendPhoto به چت خصوصی کاربر (chat_id 5289089807، @arashArash1136) از طریق بات @TakrahTop_bot ارسال شد — هر ۳ موفق ("ok":true)
 - اسکریپت: scripts/send-avatars-tg.sh — چت خصوصی بات+کاربر به‌عنوان کانال تحویل فایل در آینده قابل استفاده است
+---
+Task ID: 17
+Agent: Super Z (main)
+Task: ساخت پست‌های مقایسه‌ای (درخواست کاربر: مقایسه ترندهای هوش مصنوعی)
+
+Work Log:
+- مقاله ۱: chatgpt-vs-gemini-vs-claude («مقایسه ChatGPT، Gemini و Claude») — جدول مقایسه ۶ معیاره، فارسی، نسخه رایگان، پرسوناها؛ لینک داخلی به chatgpt-pro-tips/free-ai-tools/learn-ai-from-zero
+- مقاله ۲: ai-income-methods-comparison («مقایسه ۵ مسیر درآمد از AI») — جدول سرعت/سقف/سختی، تحلیل صادقانه هر مسیر، قانون تک‌مسیر؛ لینک به make-money-with-ai/freelancing-with-ai-guide/ai-income-iran
+- ۲ کاور جدید سبک برند: chatbot-comparison.png و ai-income-comparison.png (۱۳۴۴x۷۶۸)
+- ثبت در index.ts → سایت ۱۷ مقاله شد؛ بیلد موفق؛ کامیت fe3cd61 و پوش؛ هر دو URL لایو HTTP 200 و در سایت‌مپ
+- ۲ پست تلگرام زمان‌بندی شد: message_id 11 (۵ اکتبر ۲۱:۰۰ تهران — جنگ غول‌ها) و message_id 12 (۶ اکتبر ۲۱:۰۰ تهران — مقایسه مسیرهای درآمد)
+
+Stage Summary:
+- خوشه مقایسه‌ای راه افتاد؛ دو مقاله جدید هم به شبکه لینک داخلی ۷ مقاله‌ای AI وصل شدند
+- صف کانال تلگرام تا ۶ اکتبر پر است (۷ پست زمان‌بندی‌شده)
+- پیشنهاد مقاله‌های مقایسه‌ای بعدی: Midjourney vs DALL-E، بهترین ابزار تولید ویدیو AI، ادسنس vs یکتانت
