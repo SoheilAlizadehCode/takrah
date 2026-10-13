@@ -411,3 +411,20 @@ Stage Summary:
 - کانال: کامل و منظم — هیچ مقاله‌ای بدون پست نمانده
 - کاربر باید ۴ مقاله جدید را اولویت Request Indexing بدهد
 - درس فنی ثبت شد: هرگز از schedule_date استفاده نشود (نادیده گرفته می‌شود)
+---
+Task ID: 22
+Agent: Super Z (main)
+Task: بررسی وضعیت ایندکس شدن URLهای takrah.top در گوگل (درخواست کاربر بعد از Request Indexing)
+
+Work Log:
+- سایت‌مپ fetch شد: HTTP 200، ۳۷ URL (۲۶ مقاله + خانه + ۶ دسته + ۴ صفحه ثابت)
+- جستجو با اپراتور site:takrah.top + چک تک‌تک ۲۶ مقاله با اسکریپت scripts/check-indexing.py (خروجی: scripts/indexing-report.json)
+- تایید ایندکس‌شده (URL دقیق در نتایج جستجو): صفحه اصلی، about، contact، privacy، دسته security + مقالات phishing-awareness، programming-roadmap، battery-life-tips، strong-password-guide، adsense-vs-yektanet، excel-for-everyday (≈۱۱ URL از ۳۷)
+- چک سلامت: robots.txt سالم (Allow all + sitemap)، متا تگ مقالات index,follow، کانونیکال صحیح سلف-ریفرنس، GA4 زنده — هیچ مانع فنی برای ایندکس وجود ندارد
+- کاوت: ایندکس موتور جستجوی web_search با گوگل ۱۰۰٪ یکی نیست؛ منبع رسمی: GSC → Indexing → Pages
+- تفسیر: سایت ~۱۰ روز در GSC بوده؛ ایندکس تدریجی ~۳۰٪ طبیعی و حتی خوب است؛ ۱۹ مقاله باقی‌مانده اولویت Request Indexing روزانه ۵-۶ تا
+
+Stage Summary:
+- وضعیت: ایندکس پیش‌رونده و سالم — هیچ مشکل فنی؛ ۱۱/۳۷ URL تایید، ۲۶ مورد در صف/در انتظار (طبیعی)
+- لیست اولویت ۱۹ URL باقی‌مانده به کاربر اعلام شد (مقالات AI درآمدزا اول)
+- توصیه‌ها: چک هفتگی Indexing→Pages، ادامه Request Indexing روزانه، صبر ۲-۴ هفته برای ایندکس کامل دامنه نو
