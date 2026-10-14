@@ -15,7 +15,7 @@ export const articles13: Article[] = [
       "کسب درآمد",
       "ترند ۲۰۲۶",
     ],
-    date: "۱۴ مهر ۱۴۰۵",
+    date: "۲۱ مهر ۱۴۰۵",
     readMinutes: 13,
     cover: "/images/covers/ai-agents.png",
     blocks: [
@@ -148,7 +148,7 @@ export const articles13: Article[] = [
       "Cursor",
       "هوش مصنوعی",
     ],
-    date: "۱۴ مهر ۱۴۰۵",
+    date: "۲۱ مهر ۱۴۰۵",
     readMinutes: 12,
     cover: "/images/covers/vibe-coding.png",
     blocks: [
@@ -268,7 +268,7 @@ export const articles13: Article[] = [
       "موزیک",
       "هوش مصنوعی",
     ],
-    date: "۱۴ مهر ۱۴۰۵",
+    date: "۲۱ مهر ۱۴۰۵",
     readMinutes: 12,
     cover: "/images/covers/ai-music-income.png",
     blocks: [
@@ -371,7 +371,7 @@ export const articles13: Article[] = [
       "تشخیص ویدیوی جعلی",
       "هوش مصنوعی",
     ],
-    date: "۱۴ مهر ۱۴۰۵",
+    date: "۲۱ مهر ۱۴۰۵",
     readMinutes: 11,
     cover: "/images/covers/deepfake-guide.png",
     blocks: [

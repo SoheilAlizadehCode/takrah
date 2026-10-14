@@ -12,6 +12,7 @@ import { articles10 } from "./articles-10";
 import { articles11 } from "./articles-11";
 import { articles12 } from "./articles-12";
 import { articles13 } from "./articles-13";
+import { articles14 } from "./articles-14";
 
 export const articles: Article[] = [
   ...articles1,
@@ -27,6 +28,7 @@ export const articles: Article[] = [
   ...articles11,
   ...articles12,
   ...articles13,
+  ...articles14,
 ];
 
 export const getArticle = (slug: string): Article | undefined =>
