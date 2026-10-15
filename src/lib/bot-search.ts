@@ -1,8 +1,12 @@
-// Shared search logic for the @TakrahTop_bot article-search feature.
+// Shared logic for the @TakrahTop_bot — search + growth engine for takrah.top
 import { articles } from "@/data";
 import type { Article } from "@/lib/blog-types";
 
 const SITE = "https://takrah.top";
+export const CHANNEL_URL = "https://t.me/takrahTop";
+export const BOT_USERNAME = "TakrahTop_bot";
+
+/* ─── نرمال‌سازی فارسی ─────────────────────────────────────────── */
 
 /** Normalize Persian text for matching (ZWNJ, diacritics, Arabic variants, Persian digits). */
 export function normalizeFa(input: string): string {
@@ -21,6 +25,8 @@ export function normalizeFa(input: string): string {
 function escapeHtml(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
+
+/* ─── جستجو ────────────────────────────────────────────────────── */
 
 /** Score & rank articles against a free-text query; returns top matches. */
 export function searchArticles(query: string, limit = 5): Article[] {
@@ -54,7 +60,83 @@ export function recentArticles(limit = 5): Article[] {
   return [...articles].slice(-limit).reverse();
 }
 
-/** Format one article line for Telegram HTML messages. */
+/**
+ * محبوب‌ترین مقاله‌ها — دستچین‌شده بر اساس بازدید واقعی پست‌های کانال
+ * (اکسل/ابزارها/نقشه‌راه/سایت‌سازی بالاترین ویو؛ پایتون هم روند صعودی).
+ * هر ماه می‌شود این لیست را با دیتای جدید کانال به‌روز کرد.
+ */
+export function popularArticles(limit = 5): Article[] {
+  const popularSlugs = [
+    "build-website-with-wordpress",
+    "programming-roadmap",
+    "free-productivity-tools",
+    "excel-for-everyday",
+    "learn-python-from-zero",
+  ];
+  const found = popularSlugs
+    .map((slug) => articles.find((a) => a.slug === slug))
+    .filter((a): a is Article => Boolean(a));
+  return found.slice(0, limit);
+}
+
+/* ─── لینک‌های اشتراک‌گذاری (بدون نیاز به inline mode) ─────────── */
+
+function tmeShare(url: string, text: string): string {
+  return `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+}
+
+/** دکمه «معرفی ربات به دوستان». */
+export function shareBotUrl(): string {
+  return tmeShare(
+    `https://t.me/${BOT_USERNAME}`,
+    "ربات تک‌راه 🤖\nهر مقاله‌ای درباره هوش مصنوعی، برنامه‌نویسی و درآمد اینترنتی داری، اینجا جستجو کن:\n\n🌐 takrah.top\n📢 @takrahTop",
+  );
+}
+
+/** دکمه «اشتراک‌گذاری این مقاله». */
+export function shareArticleUrl(a: Article): string {
+  return tmeShare(
+    `${SITE}/article/${a.slug}`,
+    `${a.title}\n\n📖 از تک‌راه — مرجع فارسی هوش مصنوعی`,
+  );
+}
+
+/* ─── کیبورد اصلی ──────────────────────────────────────────────── */
+
+export type InlineButton = { text: string; url?: string; callback_data?: string };
+export type InlineKeyboard = { inline_keyboard: InlineButton[][] };
+
+export function mainKeyboard(): InlineKeyboard {
+  return {
+    inline_keyboard: [
+      [
+        { text: "🌐 سایت تک‌راه", url: SITE },
+        { text: "📢 عضویت در کانال", url: CHANNEL_URL },
+      ],
+      [
+        { text: "🏆 محبوب‌ترین مقاله‌ها", callback_data: "top" },
+        { text: "🆕 جدیدترین مقاله‌ها", callback_data: "new" },
+      ],
+      [{ text: "📤 معرفی تک‌راه به دوستان", url: shareBotUrl() }],
+    ],
+  };
+}
+
+/** کیبورد با دکمه اشتراک‌گذاری مقاله مشخص. */
+export function articleKeyboard(a: Article): InlineKeyboard {
+  return {
+    inline_keyboard: [
+      [
+        { text: "📖 خواندن مقاله", url: `${SITE}/article/${a.slug}` },
+        { text: "📤 برای دوستت بفرست", url: shareArticleUrl(a) },
+      ],
+      ...mainKeyboard().inline_keyboard.slice(0, 2),
+    ],
+  };
+}
+
+/* ─── متن‌های پاسخ ─────────────────────────────────────────────── */
+
 function line(a: Article): string {
   const meta = `${a.readMinutes} دقیقه مطالعه`;
   return `<b><a href="${SITE}/article/${a.slug}">${escapeHtml(a.title)}</a></b>\n${meta}`;
@@ -71,24 +153,44 @@ export function searchReplyMessage(query: string): string {
   return `🔍 نتیجه‌ی جستجوی «${escapeHtml(query)}»:\n\n${body}\n\n🌐 takrah.top`;
 }
 
-export function recentReplyMessage(): string {
-  const hits = recentArticles();
+export function topReplyMessage(): string {
+  const hits = popularArticles();
   const body = hits.map(line).join("\n\n");
-  return `🆕 تازه‌ترین مقاله‌های تک‌راه:\n\n${body}\n\n🌐 takrah.top`;
+  return `🏆 محبوب‌ترین مقاله‌های تک‌راه (انتخاب مخاطب‌ها):\n\n${body}\n\n💡 موضوع بنویس تا دقیق‌تر جستجو کنم!`;
 }
 
-export const WELCOME = [
-  "سلام! 👋 من ربات تک‌راه هستم.",
-  "",
-  "مقاله‌های سایت takrah.top رو برات جستجو می‌کنم.",
-  "",
-  "طریقه استفاده:",
-  "• هر موضوعی رو بنویس: «پایتون»، «درآمد با هوش مصنوعی»، «صرافی»، «امنیت» و...",
-  "• /recent — تازه‌ترین مقاله‌ها",
-  "• /help — راهنما",
-  "",
-  "🌐 https://takrah.top",
-  "📢 @takrahTop",
-].join("\n");
+export function newReplyMessage(): string {
+  const hits = recentArticles();
+  const body = hits.map(line).join("\n\n");
+  return `🆕 تازه‌ترین مقاله‌های تک‌راه:\n\n${body}`;
+}
 
-export const HELP = WELCOME;
+export function welcomeText(isMember: boolean | null): string {
+  const memberLine =
+    isMember === false
+      ? "\n❗️به‌نظر می‌رسه هنوز عضو کانال نشدی؛ جدیدترین مقاله‌ها اونجا منتشر می‌شن!"
+      : "";
+  return [
+    "سلام! 👋 من ربات تک‌راه هستم.",
+    "",
+    "هر موضوعی درباره‌ی هوش مصنوعی، برنامه‌نویسی و درآمد اینترنتی داشته باشی، برات مقاله‌ش رو پیدا می‌کنم. کافیه کلمه‌ش رو بنویسی: «پایتون»، «درآمد»، «صرافی»، «امنیت» و...",
+    memberLine,
+    "",
+    "🌐 takrah.top | 📢 @takrahTop",
+  ].join("\n");
+}
+
+/** سلام عمیق‌لینکی: /start ref_<slug> — وقتی کسی مقاله را از دوستش گرفته. */
+export function refWelcomeText(a: Article): string {
+  return [
+    "سلام! 👋 یه دوستت این مقاله رو برات فرستاده:",
+    "",
+    `<b><a href="${SITE}/article/${a.slug}">${escapeHtml(a.title)}</a></b>`,
+    "",
+    "من ربات تک‌راه هستم؛ هر موضوعی درباره هوش مصنوعی، برنامه‌نویسی و درآمد اینترنتی داشته باشی، بنویس تا مقاله‌ش رو پیدا کنم!",
+    "",
+    "🌐 takrah.top | 📢 @takrahTop",
+  ].join("\n");
+}
+
+export const HELP = welcomeText(null);
