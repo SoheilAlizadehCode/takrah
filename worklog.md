@@ -507,3 +507,23 @@ Stage Summary:
 - پست ۶۴ کانال و صفحه مقاله + og:image سایت هر دو با کاور فارسی جدید لایو
 - درس: تصویرساز گاهی نادیده «no text» می‌گیرد → بعد از هر تولید کاور، حتماً بازبینی بصری قبل از ارسال
 - اسکریپت قابل استفاده مجدد: scripts/compose-cover-64.py (الگوی افزودن عنوان فارسی به کاور) + scripts/edit-post-64.py (ویرایش عکس پست کانال)
+
+---
+Task ID: 27
+Agent: main
+Task: بات رشد تلگرام + تحلیل جذابیت محتوا از دیتای ویو کانال + استراتژی ویدیو
+
+Work Log:
+- ویو همه پست‌های کانال از t.me/s/takrahTop پارس شد → scripts/views-data.json
+- آموزش عملی برنده: سایت‌سازی ۶۵ / نقشه‌راه ۶۰ / ابزارها ۵۵ / اکسل ۴۳؛ جزوه‌ها ۳۳-۸۶ (وایرال گروه کلاسی)؛ ترندها ۱۹-۳۰؛ پایتون ۱۵-۱۶ (تازه)؛ درآمدی ۵-۶ (تازه‌ترین)
+- بات آپگرید شد: bot-search.ts (mainKeyboard دکمه‌ای، share links t.me/share بدون نیاز به inline mode، deep link /start ref_<slug>، welcomeText با چک عضویت getChatMember، popularArticles دستچین) + route.ts (callback_query top/new، setMyCommands)
+- بدون دیتابیس: SQLite روی Vercel ابدیت نیست → طراحی stateless؛ آمار فقط console.log
+- سایت: siteConfig.telegramBot + لینک بات در footer + CTA باکس ربات/کانال انتهای همه مقاله‌ها (article-view.tsx)
+- bun lint+build OK → push → GET /api/telegram-bot دکمه‌ها OK، POST با secret ok:true، بدون secret forbidden
+- setMyCommands ثبت شد (start/top/new/help فارسی)
+- تست محلی scripts/test-bot-logic.ts: کیبورد ۵ دکمه، top ۷۹۳ کاراکتر، سرچ «پایتون» و «درآمد اینترنت» مرتبط
+
+Stage Summary:
+- بات @TakrahTop_bot حالا موتور رشد: منو دکمه‌ای + اشتراک‌گذاری یک‌کلیکی + دیپ‌لینک دوستانه + قیف عضویت کانال
+- CTA بات لایو در فوتر و انتهای ۳۶ مقاله → بازدیدکننده سایت به بات/کانال هدایت می‌شود
+- تحلیل: محتوای آموزشی عملی بیشترین جذابیت؛ ویدیو = آپارات اول + یوتیوب دوم + ریلز از همین خروجی
