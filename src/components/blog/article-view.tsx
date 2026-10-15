@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Clock, User, Lightbulb, ChevronLeft, Home, ListTree } from "lucide-react";
+import { Clock, User, Lightbulb, ChevronLeft, Home, ListTree, Bot, Send } from "lucide-react";
 import type { Article } from "@/lib/blog-types";
-import { getCategory, hrefs } from "@/lib/site";
+import { getCategory, hrefs, siteConfig } from "@/lib/site";
 import { getRelated } from "@/data";
 import { toFaDigits } from "@/lib/format";
 import { CategoryIcon } from "./category-icon";
@@ -246,6 +246,35 @@ export function ArticleView({ article }: { article: Article }) {
                 </span>
               ))}
             </div>
+
+            {/* دعوت به ربات و کانال تلگرام */}
+            {siteConfig.telegramBot ? (
+              <div className="mt-8 flex flex-col items-start gap-3 rounded-xl border border-border/70 bg-muted/30 p-5 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm leading-7 text-muted-foreground">
+                  💬 این مقاله رو با کلمه‌ی کلیدی توی <b className="text-foreground">ربات تلگرام تک‌راه</b> هم می‌تونی پیدا کنی و برای دوستات بفرستی.
+                </p>
+                <div className="flex shrink-0 gap-2">
+                  <a
+                    href={siteConfig.telegramBot}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
+                  >
+                    <Bot className="h-4 w-4" aria-hidden="true" />
+                    ربات تک‌راه
+                  </a>
+                  <a
+                    href={siteConfig.telegramChannel}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-4 py-2 text-sm font-bold transition-colors hover:bg-muted"
+                  >
+                    <Send className="h-4 w-4" aria-hidden="true" />
+                    کانال
+                  </a>
+                </div>
+              </div>
+            ) : null}
           </div>
 
           {/* ستون کناری: فهرست مطالب */}

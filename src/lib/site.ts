@@ -15,6 +15,8 @@ export const siteConfig = {
   // آدرس کانال تلگرام (مثال: "https://t.me/takrah_ai")
   // وقتی مقدار خالی باشد، لینک تلگرام در سایت نمایش داده نمی‌شود.
   telegramChannel: "https://t.me/takrahTop",
+  // ربات تلگرام تک‌راه — جستجوی مقاله‌ها داخل تلگرام
+  telegramBot: "https://t.me/TakrahTop_bot",
   // شناسه ناشر گوگل ادسنس — مثال: ca-pub-1234567890123456
   // بعد از تایید ادسنس این مقدار را پر کنید تا اسکریپت تبلیغات فعال شود
   adsenseClientId: "",
