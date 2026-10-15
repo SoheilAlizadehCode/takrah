@@ -469,3 +469,22 @@ Stage Summary:
 - کانال: پست‌های 59-61 فوری منتشر شدند
 - درس ثبت‌شده: هر شروع تورم جدید سندباکس باید توکن چک/بازیابی شود قبل از ارسال
 - کار کاربر: Request Indexing برای ۳ مقاله پایتون + ۴ مقاله ترند قبلی
+
+---
+Task ID: 25
+Agent: main
+Task: اجرای کامل ۴ پروژه درآمدی: مقاله‌های افیلیت + پکیج اینستاگرام + لیست بک‌لینک + بات جستجوی تلگرام
+
+Work Log:
+- بازیابی token تلگرام (sandbox دوباره پاک کرده بود) + getMe تایید
+- ۳ مقاله افیلیت: best-iranian-crypto-exchanges / affiliate-marketing-guide / ai-service-business (articles-15.ts، ۳ کاور برند، ۲۴ مهر ۱۴۰۵) → commit 6f0fa3f → live 200 → کانال پست ۶۲-۶۴
+- پکیج اینستاگرام: docx فارسی RTL (اسکیل docx، کاور R1 سازگار RTL، فهرست با placeholder، postcheck 0 error) → download/takrah-instagram-launch-kit.docx
+- لیست بک‌لینک: ۲۰ سایت فارسی تحقیق‌شده با web_search (اسکیل xlsx، شیت RTL، برنامه ۴ هفته + قوانین) → download/takrah-backlink-targets.xlsx
+- بات تلگرام: src/lib/bot-search.ts (نرمال‌سازی فارسی ZWNJ/ی/ک/اعداد) + src/app/api/telegram-bot/route.ts (webhook با secret token) → commit 24da27e + 354d160 → setWebhook + setMyCommands → تست E2E موفق (پیام ۶۵ ارسال و حذف شد)
+- eslint: scripts/ و download/ از ignores خارج شدند
+
+Stage Summary:
+- سایت: ۳۶ مقاله، ۴۷ صفحه استاتیک؛ کانال: ۶۴ پست
+- تحویل‌ها: ۳ مقاله live + ۲ فایل (docx/xlsx) در download/ + بات زنده @TakrahTop_bot
+- نکته: لینک‌های رفرال صرافی‌ها هنوز جایگذاری نشده — منتظر کد رفرال کاربر
+- secret بات: tk9f4e2c1a7b35d8e0f6a4c2b9d17e35 (در route.ts هم هست، ریپو private)
