@@ -16,6 +16,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "daily",
       priority: 1,
     },
+    // صفحه پکیج‌ها و دموهای زنده
+    {
+      url: `${siteConfig.url}/packages`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.9,
+    },
     // صفحات دسته‌بندی
     ...categories.map((c) => ({
       url: `${siteConfig.url}${hrefs.category(c.id)}`,

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
-import { Route, Search, Menu, X, Sun, Moon, Home } from "lucide-react";
+import { Route, Search, Menu, X, Sun, Moon, Home, Sparkles } from "lucide-react";
 import { categories, hrefs } from "@/lib/site";
 import { CategoryIcon } from "./category-icon";
 
@@ -50,6 +50,18 @@ export function Header({ onOpenSearch }: HeaderProps) {
               <Home className="h-3.5 w-3.5" aria-hidden="true" />
               خانه
             </span>
+          </Link>
+          {/* پکیج‌ها — آیتم ویژه ناوبری */}
+          <Link
+            href="/packages"
+            className="group relative flex items-center gap-1.5 rounded-xl border border-emerald-600/30 bg-emerald-600/10 px-3 py-2 text-sm font-bold text-emerald-800 transition-colors hover:bg-emerald-600/20 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-300 dark:hover:bg-emerald-400/20"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" aria-hidden="true" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
+            </span>
+            <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+            پکیج‌ها
           </Link>
           {categories.map((c) => (
             <Link key={c.id} href={hrefs.category(c.id)} className={navLink}>
@@ -116,6 +128,16 @@ export function Header({ onOpenSearch }: HeaderProps) {
               >
                 <Home className="h-4 w-4" aria-hidden="true" />
                 خانه
+              </Link>
+            </li>
+            <li className="col-span-2">
+              <Link
+                href="/packages"
+                className="flex items-center gap-2 rounded-lg border border-emerald-600/30 bg-emerald-600/10 px-3 py-2.5 text-sm font-bold text-emerald-800 hover:bg-emerald-600/20 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-300"
+                onClick={() => setMenuOpen(false)}
+              >
+                <Sparkles className="h-4 w-4" aria-hidden="true" />
+                پکیج‌ها و دموهای زنده
               </Link>
             </li>
             {categories.map((c) => (
