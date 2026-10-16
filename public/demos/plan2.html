@@ -152,6 +152,23 @@ input,select,textarea{font-family:inherit}
 .chip:hover{background:var(--p2);color:#fff}
 .sim-text h3{font-size:19px;font-weight:900;color:var(--ink);margin-bottom:10px}
 .sim-text p{font-size:13px;color:var(--mut);margin-bottom:16px}
+/* کارت ربات واقعی تلگرام */
+.realbot{border:2px solid rgba(42,171,238,.45);background:linear-gradient(135deg,rgba(42,171,238,.08),rgba(53,160,111,.06));border-radius:18px;padding:16px;margin-top:16px;display:none;animation:rbIn .5s ease}
+.realbot.show{display:block}
+.realbot .rb-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.realbot .rb-badge{background:#2aabee;color:#fff;font-size:10.5px;font-weight:900;border-radius:999px;padding:4px 12px;display:inline-flex;align-items:center;gap:5px}
+.realbot .rb-live{width:8px;height:8px;border-radius:99px;background:#4ade80;box-shadow:0 0 0 3px rgba(74,222,128,.25);animation:pulse 1.6s infinite}
+@keyframes rbIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.realbot h4{color:var(--p1);font-size:15px;margin-bottom:6px}
+.realbot p{font-size:12px;margin-bottom:12px}
+.realbot .rb-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.realbot .rb-qr{background:#fff;border:1.5px solid var(--bord);border-radius:14px;padding:8px;width:132px;height:132px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.realbot .rb-qr img{width:100%;height:100%}
+.realbot .rb-cta{flex:1;min-width:180px}
+.realbot .rb-btn{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(225deg,#2aabee,#1d8fd0);color:#fff;font-weight:900;font-size:13px;border-radius:14px;padding:11px 20px;box-shadow:0 8px 24px rgba(42,171,238,.35);transition:all .2s}
+.realbot .rb-btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(42,171,238,.45)}
+.realbot .rb-note{font-size:10.5px;color:var(--mut);margin-top:8px}
 .sim-text ul{list-style:none;font-size:12.5px;color:var(--ink)}
 .sim-text li{padding:5px 0;display:flex;gap:8px;align-items:flex-start}
 .sim-text li b{color:var(--ok)}
@@ -364,6 +381,19 @@ footer .f-line{border-top:1px solid rgba(255,255,255,.1);margin-top:26px;padding
           <li><b>✔</b><span>منشی در پنل مدیریت می‌بیند کی تأیید کرده</span></li>
         </ul>
         <div class="bot-note" style="margin-top:16px"><span class="ic">💡</span><span><b>عدد واقعی:</b> یادآوری خودکار معمولاً نرخ غیبت بیماران را ۳۰ تا ۵۰ درصد کم می‌کند.</span></div>
+        <!-- کارت ربات واقعی (فقط وقتی ربات تنظیم شده باشد نمایش داده می‌شود) -->
+        <div class="realbot" id="realBot">
+          <div class="rb-head"><span class="rb-badge">✈ ربات واقعی — همین حالا زنده است</span><span class="rb-live"></span></div>
+          <h4>این فقط شبیه‌سازی نیست — ربات واقعی را امتحان کنید!</h4>
+          <p>همین حالا از تلگرام گوشی خودتان نوبت واقعی بگیرید: پزشک را انتخاب کنید، روز و ساعت را بزنید و در چند ثانیه تأیید بگیرید. نوبت شما فوراً برای پذیرش کلینیک ارسال می‌شود.</p>
+          <div class="rb-row">
+            <div class="rb-qr"><img src="/api/telegram/qr" alt="QR ربات تلگرام کلینیک" loading="lazy"></div>
+            <div class="rb-cta">
+              <a class="rb-btn" id="realBotLink" href="#" target="_blank">✈ باز کردن ربات در تلگرام</a>
+              <div class="rb-note">📱 کد QR را اسکن کنید یا دکمه را بزنید — مستقیم به گفتگو می‌روید</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -501,6 +531,19 @@ document.addEventListener('DOMContentLoaded',()=>{
     });
   });
 });
+
+// ─── کارت ربات واقعی: اگر ربات تنظیم شده باشد، خودکار ظاهر می‌شود ───
+(function(){
+  try{
+    fetch('/api/telegram/config').then(r=>r.ok?r.json():null).then(cfg=>{
+      if(!cfg||!cfg.configured||!cfg.botUsername)return;
+      const box=document.getElementById('realBot'),link=document.getElementById('realBotLink');
+      if(!box)return;
+      link.href='https://t.me/'+cfg.botUsername+'?start=book';
+      box.classList.add('show');
+    }).catch(()=>{});
+  }catch(e){/* اجرای آفلاین file:// — کارت پنهان می‌ماند */}
+})();
 
 </script>
 </body>
