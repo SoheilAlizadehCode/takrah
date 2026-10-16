@@ -15,10 +15,13 @@ import { articles } from "@/data";
 
 export const dynamic = "force-dynamic";
 
-// Telegram "secret_token" webhook verification (repo is private; rotate if needed).
-const WEBHOOK_SECRET = "tk9f4e2c1a7b35d8e0f6a4c2b9d17e35";
+// ⚠️ امنیتی: توکن قبلی این ربات در سورس عمومی لو رفته بود — حتماً از BotFather با /revoke توکن جدید بگیرید
+// و مقدار TELEGRAM_BOT_TOKEN + TELEGRAM_WEBHOOK_SECRET را در Vercel تنظیم کنید.
+// مقدارهای پیش‌فرض فقط برای سازگاری موقت نگه داشته شده‌اند؛ بعد از تنظیم متغیرها، متغیرها اولویت دارند.
+const WEBHOOK_SECRET =
+  process.env.TELEGRAM_WEBHOOK_SECRET ?? "tk9f4e2c1a7b35d8e0f6a4c2b9d17e35";
 
-const TOKEN = "8681245270:AAHuamrLbL8Fhk-sJCleAejlWpo6F0jpNzc";
+const TOKEN = process.env.TELEGRAM_BOT_TOKEN ?? "8681245270:AAHuamrLbL8Fhk-sJCleAejlWpo6F0jpNzc";
 const CHANNEL = "@takrahTop";
 const SITE_URL = "https://takrah.top";
 
