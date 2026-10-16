@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>دموی پلن ۳ — VIP | کلینیک سلامت</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+<style>:root{--p1:#1a4a7a;--p2:#2d6fb5;--sky:#38bdf8;--gold:#ffd966;--ink:#16324a;--mut:#5b7a99;--bg2:#f4f8fc;--ok:#35a06f;--bord:#d9e6f2}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Vazirmatn',Tahoma,sans-serif;color:var(--ink);background:#fff;line-height:1.8}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+input,select,textarea{font-family:inherit}
+.container{max-width:1080px;margin:0 auto;padding:0 20px}
+/* nav */
+.nav-wrap{position:fixed;inset-inline:0;top:0;z-index:50;padding:12px 16px}
+.nav{max-width:1080px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;height:64px;padding:0 18px;border-radius:18px;background:rgba(255,255,255,.78);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 10px 40px rgba(26,74,122,.12)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(225deg,var(--p1),var(--p2));display:flex;align-items:center;justify-content:center;color:#fff;font-size:19px;box-shadow:0 6px 16px rgba(45,111,181,.35)}
+.brand b{font-size:14.5px;color:var(--p1);display:block;line-height:1.3}
+.brand small{font-size:10px;color:var(--mut)}
+.nav-left{display:flex;align-items:center;gap:10px}
+.plan-badge{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(120deg,#f0b429,#ffd966);color:#5c4500;font-size:11px;font-weight:800;padding:7px 13px;border-radius:999px}
+.cta-btn{display:inline-flex;align-items:center;gap:8px;height:46px;padding:0 22px;border-radius:14px;background:linear-gradient(270deg,var(--p1),var(--p2));color:#fff;font-weight:800;font-size:14px;box-shadow:0 8px 24px rgba(45,111,181,.35);transition:transform .25s}
+.cta-btn:hover{transform:scale(1.04)}
+.cta-btn.white{background:#fff;color:var(--p1);box-shadow:0 12px 32px rgba(0,0,0,.22)}
+.cta-btn.ghost{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(8px)}
+.cta-btn.ok{background:var(--ok);box-shadow:0 8px 24px rgba(53,160,111,.35)}
+.cta-btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+/* hero */
+.hero{position:relative;overflow:hidden;background:linear-gradient(225deg,#123a63,#16497d,#2d6fb5);padding:150px 0 70px;color:#fff}
+.aurora{position:absolute;border-radius:999px;filter:blur(70px);animation:drift 16s ease-in-out infinite;pointer-events:none}
+.a1{width:300px;height:300px;background:rgba(56,189,248,.28);top:10%;left:6%}
+.a2{width:340px;height:340px;background:rgba(45,111,181,.4);top:35%;right:4%;animation-direction:reverse}
+.a3{width:280px;height:280px;background:rgba(255,217,102,.14);bottom:-8%;left:32%;animation-duration:22s}
+@keyframes drift{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(38px,-26px) scale(1.12)}66%{transform:translate(-26px,22px) scale(.94)}}
+.gridp{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px);background-size:34px 34px}
+.hero-grid{position:relative;display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);backdrop-filter:blur(10px);border-radius:999px;padding:8px 16px;font-size:12px;font-weight:700;margin-bottom:22px}
+.hero h1{font-size:34px;line-height:1.5;font-weight:900}
+.hero h1 .gold{background:linear-gradient(120deg,#ffd966,#f0b429);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.lead{margin-top:16px;max-width:440px;font-size:15px;color:rgba(255,255,255,.82)}
+.price-chip{display:inline-flex;align-items:center;gap:10px;margin-top:22px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:16px;padding:12px 18px;backdrop-filter:blur(8px)}
+.price-chip b{font-size:19px}
+.price-chip span{font-size:12px;color:rgba(255,255,255,.75)}
+.hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.float-card{position:absolute;background:rgba(255,255,255,.9);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.55);border-radius:16px;box-shadow:0 16px 48px rgba(0,0,0,.22);padding:10px 14px;display:flex;align-items:center;gap:10px;color:var(--ink)}
+.float-card .ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.float-card b{font-size:11.5px;display:block;line-height:1.4}
+.float-card small{font-size:10px;color:var(--mut)}
+.fc1{top:-26px;right:-18px;animation:floaty 4.5s ease-in-out infinite}
+.fc2{bottom:-24px;left:-14px;animation:floaty 6s ease-in-out infinite}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.demo-shot{position:relative;background:rgba(255,255,255,.75);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.55);border-radius:24px;padding:20px;box-shadow:0 30px 80px rgba(0,0,0,.3)}
+.demo-shot .row{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.85);border-radius:14px;padding:12px;margin-bottom:10px}
+.demo-shot .time{background:linear-gradient(225deg,var(--p1),var(--p2));color:#fff;border-radius:9px;font-size:11px;font-weight:800;padding:4px 9px}
+.demo-shot .t{flex:1;font-size:12px;font-weight:600}
+.demo-shot .ok{color:var(--ok)}
+.demo-shot .dim{color:#b6c8d9}
+.demo-shot h4{color:var(--p1);font-size:13px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.live{display:inline-flex;align-items:center;gap:6px;background:rgba(53,160,111,.12);color:#2e7d55;font-size:10.5px;font-weight:800;border-radius:999px;padding:4px 10px}
+.live i{width:6px;height:6px;border-radius:999px;background:var(--ok);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+/* sections */
+.sec{padding:76px 0}
+.sec.alt{background:var(--bg2)}
+.kicker{display:inline-flex;align-items:center;gap:8px;background:rgba(45,111,181,.1);color:var(--p2);font-size:12px;font-weight:800;border-radius:999px;padding:7px 15px;margin-bottom:14px}
+.sec h2{font-size:26px;font-weight:900;text-align:center;line-height:1.6}
+.sec .sub{max-width:520px;margin:12px auto 0;text-align:center;font-size:13.5px;color:var(--mut)}
+.feat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:36px}
+.feat{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--bord);border-radius:18px;padding:16px 18px;transition:all .3s}
+.feat:hover{transform:translateY(-4px);box-shadow:0 14px 34px rgba(26,74,122,.12)}
+.feat .ic{flex-shrink:0;width:38px;height:38px;border-radius:12px;background:rgba(45,111,181,.1);color:var(--p2);display:flex;align-items:center;justify-content:center;font-size:17px}
+.feat b{font-size:13.5px;display:block}
+.feat small{font-size:12px;color:var(--mut);line-height:1.9;display:block;margin-top:2px}
+.feat.on{background:linear-gradient(225deg,var(--p1),var(--p2));border:none}
+.feat.on .ic{background:rgba(255,217,102,.2);color:var(--gold)}
+.feat.on b{color:#fff}
+.feat.on small{color:rgba(255,255,255,.8)}
+/* wizard */
+.wiz{max-width:640px;margin:40px auto 0;background:#fff;border:1px solid var(--bord);border-radius:26px;box-shadow:0 24px 60px rgba(26,74,122,.1);overflow:hidden}
+.wiz-head{background:rgba(45,111,181,.06);border-bottom:1px solid var(--bord);padding:18px 22px;display:flex;align-items:center;gap:10px;color:var(--p1);font-weight:900;font-size:15px}
+.wiz-head small{display:block;font-weight:500;color:var(--mut);font-size:11.5px}
+.steps{display:flex;gap:8px;margin-top:12px}
+.steps .bar{height:6px;border-radius:99px;flex:1;background:var(--bord)}
+.steps .bar.on{background:var(--p2)}
+.steps span{font-size:10.5px;color:var(--mut);white-space:nowrap}
+.steps .st.on span{color:var(--p2);font-weight:800}
+.wiz-body{padding:22px}
+.lbl{font-size:13px;font-weight:800;color:var(--p1);margin:0 0 10px}
+.spec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.spec{border:1.5px solid var(--bord);border-radius:14px;padding:13px 8px;text-align:center;font-size:12.5px;font-weight:700;transition:all .2s;background:#fff}
+.spec:hover,.spec.sel{border-color:var(--p2);background:rgba(45,111,181,.07)}
+.spec .e{font-size:20px;display:block;margin-bottom:4px}
+.doc{width:100%;display:flex;align-items:center;gap:12px;border:1.5px solid var(--bord);border-radius:16px;padding:12px;margin-bottom:10px;text-align:right;background:#fff;transition:all .2s}
+.doc:hover,.doc.sel{border-color:var(--p2);background:rgba(45,111,181,.06)}
+.doc .av{width:44px;height:44px;border-radius:999px;background:linear-gradient(225deg,var(--p1),var(--p2));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:17px;flex-shrink:0}
+.doc b{font-size:13.5px;display:block}
+.doc small{font-size:11px;color:var(--mut);display:block}
+.doc .days{font-size:10.5px;color:var(--p2);font-weight:700}
+.days-strip{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px}
+.day{flex-shrink:0;width:72px;border:1.5px solid var(--bord);border-radius:14px;padding:9px 4px;text-align:center;background:#fff;transition:all .2s}
+.day:hover{border-color:var(--p2)}
+.day.sel{background:linear-gradient(225deg,var(--p1),var(--p2));color:#fff;border-color:transparent}
+.day small{font-size:10px;display:block;opacity:.75}
+.day b{font-size:18px;display:block}
+.day .m{font-size:9.5px;display:block;opacity:.75}
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.slot{border:1.5px solid var(--bord);border-radius:11px;padding:9px 4px;font-size:12px;font-weight:800;background:#fff;transition:all .2s}
+.slot:hover{border-color:var(--p2)}
+.slot.sel{background:var(--p2);color:#fff;border-color:var(--p2)}
+.slot.taken{background:var(--bg2);color:#b6c8d9;text-decoration:line-through;cursor:not-allowed;border-color:var(--bord)}
+.slot-tag{grid-column:1/-1;font-size:10.5px;color:var(--mut);margin-top:4px}
+.frm{border:1px solid var(--bord);border-radius:18px;padding:18px;margin-top:14px;background:#fff}
+.frm .fld{margin-bottom:12px}
+.frm label{font-size:12px;font-weight:800;color:var(--p1);display:block;margin-bottom:5px}
+.frm input,.frm textarea,.frm select{width:100%;height:44px;border:1.5px solid var(--bord);border-radius:12px;padding:0 13px;font-size:13px;outline:none;background:#fff;transition:border-color .2s}
+.frm textarea{height:auto;padding:11px 13px;resize:none}
+.frm input:focus,.frm textarea:focus,.frm select:focus{border-color:var(--p2)}
+.err{font-size:11px;color:#dc2626;margin-top:4px;display:none}
+.wiz-nav{display:flex;justify-content:space-between;margin-top:18px}
+.back{font-size:12px;color:var(--mut);display:inline-flex;align-items:center;gap:4px}
+.back:hover{color:var(--p2)}
+.success{text-align:center;padding:30px 20px;display:none}
+.success .big{width:64px;height:64px;border-radius:999px;background:rgba(53,160,111,.13);display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 16px}
+.success h3{font-size:19px;color:var(--p1);margin-bottom:14px}
+.summary{background:var(--bg2);border-radius:16px;padding:16px;font-size:13px;text-align:right;margin-bottom:14px}
+.summary div{display:flex;justify-content:space-between;padding:4px 0}
+.summary span{color:var(--mut)}
+.summary b{font-weight:800}
+.bot-note{display:flex;gap:10px;align-items:flex-start;background:rgba(45,111,181,.06);border:1px solid rgba(45,111,181,.2);border-radius:14px;padding:12px 14px;font-size:12px;text-align:right;margin-bottom:14px}
+.bot-note .ic{color:var(--p2);font-size:18px}
+/* chat sims */
+.sim-wrap{display:grid;grid-template-columns:1fr 1fr;gap:36px;align-items:center;margin-top:40px}
+.phone{max-width:340px;margin:0 auto;width:100%;border-radius:26px;border:1px solid var(--bord);overflow:hidden;box-shadow:0 24px 60px rgba(26,74,122,.14);background:#fff}
+.phone-head{display:flex;align-items:center;gap:10px;padding:13px 16px;color:#fff;font-size:12.5px;font-weight:800}
+.phone-head .av{width:38px;height:38px;border-radius:999px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:17px;position:relative}
+.phone-head .av i{position:absolute;bottom:0;left:0;width:10px;height:10px;border-radius:999px;background:#4ade80;border:2px solid var(--p2)}
+.tg-head{background:linear-gradient(270deg,#1c5a88,#2aabee)}
+.ig-head{background:linear-gradient(270deg,#8a3ab9,#e95950,#fccc63)}
+.ai-head{background:linear-gradient(270deg,var(--p1),var(--p2))}
+.phone small{display:block;font-size:10px;font-weight:500;opacity:.8}
+.chat{background:var(--bg2);padding:16px;min-height:280px;display:flex;flex-direction:column;gap:9px}
+.msg{max-width:82%;border-radius:16px;padding:9px 13px;font-size:12px;line-height:1.9;box-shadow:0 2px 6px rgba(0,0,0,.05);opacity:0;transform:translateY(8px);transition:all .4s}
+.msg.show{opacity:1;transform:none}
+.msg.bot{align-self:flex-start;background:#fff;border-bottom-right-radius:5px}
+.msg.me{align-self:flex-end;background:var(--p2);color:#fff;border-bottom-left-radius:5px}
+.chip-row{display:flex;gap:6px;padding:0 12px 10px;background:var(--bg2);flex-wrap:wrap}
+.chip{border:1px solid rgba(45,111,181,.3);background:rgba(45,111,181,.05);color:var(--p2);font-size:11px;font-weight:700;border-radius:999px;padding:6px 12px;transition:all .2s}
+.chip:hover{background:var(--p2);color:#fff}
+.sim-text h3{font-size:19px;font-weight:900;color:var(--ink);margin-bottom:10px}
+.sim-text p{font-size:13px;color:var(--mut);margin-bottom:16px}
+.sim-text ul{list-style:none;font-size:12.5px;color:var(--ink)}
+.sim-text li{padding:5px 0;display:flex;gap:8px;align-items:flex-start}
+.sim-text li b{color:var(--ok)}
+.typing{display:none;align-self:flex-start;background:#fff;border-radius:14px;padding:10px 14px;box-shadow:0 2px 6px rgba(0,0,0,.05)}
+.typing i{display:inline-block;width:7px;height:7px;border-radius:99px;background:var(--p2);opacity:.6;margin-inline:1.5px;animation:bnc 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}
+.typing i:nth-child(3){animation-delay:.3s}
+@keyframes bnc{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+/* kpi */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:36px}
+.kpi{background:linear-gradient(225deg,var(--p1),var(--p2));border-radius:20px;color:#fff;padding:22px 14px;text-align:center}
+.kpi b{font-size:26px;display:block}
+.kpi small{font-size:11px;opacity:.8}
+/* contact / footer */
+.contact-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:36px}
+.cc{border:1px solid var(--bord);border-radius:20px;padding:22px;background:#fff;transition:all .3s}
+.cc:hover{transform:translateY(-4px);box-shadow:0 14px 34px rgba(26,74,122,.1)}
+.cc .ic{width:44px;height:44px;border-radius:14px;background:rgba(45,111,181,.1);color:var(--p2);display:flex;align-items:center;justify-content:center;font-size:19px;margin-bottom:14px}
+.cc b{font-size:14px;display:block;margin-bottom:6px}
+.cc p{font-size:12.5px;color:var(--mut);line-height:2.1}
+.cc b.num{direction:ltr;display:inline;font-size:12.5px}
+.cta-band{position:relative;overflow:hidden;background:linear-gradient(270deg,#123a63,#1a4a7a,#2d6fb5);padding:52px 0;color:#fff}
+.cta-band .inner{position:relative;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.cta-band h3{font-size:21px;font-weight:900}
+.cta-band p{font-size:13px;opacity:.8;margin-top:6px}
+footer{background:#0c2440;color:rgba(255,255,255,.7);padding:38px 0}
+footer .inner{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+footer .brand b{color:#fff}
+footer small{font-size:11px}
+footer .f-line{border-top:1px solid rgba(255,255,255,.1);margin-top:26px;padding-top:22px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+/* reveal */
+.rv{opacity:0;transform:translateY(26px);transition:all .7s cubic-bezier(.22,1,.36,1)}
+.rv.in{opacity:1;transform:none}
+@media(max-width:860px){
+.hero-grid,.sim-wrap{grid-template-columns:1fr}
+.spec-grid{grid-template-columns:repeat(2,1fr)}
+.feat-grid,.contact-grid{grid-template-columns:1fr}
+.kpi-grid{grid-template-columns:repeat(2,1fr)}
+.hero h1{font-size:26px}
+.fc1{right:6px;top:-18px}.fc2{left:6px;bottom:-16px}
+.slots{grid-template-columns:repeat(3,1fr)}
+}</style>
+</head>
+<body>
+
+<div class="nav-wrap">
+  <div class="nav">
+    <a class="brand" href="#">
+      <span class="logo">&#9678;</span>
+      <span><b>کلینیک سلامت</b><small>پلی‌کلینیک تخصصی رشت</small></span>
+    </a>
+    <div class="nav-left">
+      <span class="plan-badge">⚡ دموی VIP — پلن ۳</span>
+      <a class="cta-btn" href="#interactive">امتحان کنید</a>
+    </div>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="aurora a1"></div><div class="aurora a2"></div><div class="aurora a3"></div>
+  <div class="gridp"></div>
+  <div class="container hero-grid">
+    <div>
+      <span class="pill">✨ نسخه دمو برای نمایش حضوری — طراحی و توسعه JSDevelop</span>
+      <h1>سایت و اتوماسیون کلینیک شما،<br><span class="gold">با منشی هوش مصنوعی ۲۴ ساعته</span></h1>
+      <p class="lead">کامل‌ترین پکیج بازار: سایت + نوبت‌دهی + ربات تلگرام + ربات اینستاگرام و منشی هوش مصنوعی که هر ساعت از شبانه‌روز سوال بیماران را جواب می‌دهد.</p>
+      <div class="price-chip">💰 <b>۵۵٬۰۰۰٬۰۰۰ تومان</b><span>| + ۷٬۰۰۰٬۰۰۰ تومان ماهانه (هاست، ربات‌ها و منشی هوشمند)</span></div>
+      <div class="hero-cta">
+        <a class="cta-btn white" href="#interactive">▶ همین حالا امتحان کنید</a>
+        <a class="cta-btn ghost" href="#features">امکانات پلن</a>
+      </div>
+    </div>
+    <div class="demo-shot rv">
+      <h4>برنامه امروز کلینیک <span class="live"><i></i>فعال</span></h4>
+      <div class="row"><span class="time">۰۹:۳۰</span><span class="t">ویزیت دندانپزشکی — دکتر رادمهر</span><span class="ok">✔</span></div>
+      <div class="row"><span class="time">۱۰:۱۵</span><span class="t">اکوکاردیوگرافی — دکتر نصیری</span><span class="ok">✔</span></div>
+      <div class="row"><span class="time">۱۶:۴۵</span><span class="t dim">مشاوره پوست — دکتر صمدی (در انتظار تأیید)</span><span class="dim">◔</span></div>
+      <div class="float-card fc1"><span class="ic" style="background:rgba(42,171,238,.15);color:#2aabee">✈</span><span><b>یادآوری تلگرام ارسال شد ✓</b><small>۲۴ ساعت قبل از نوبت</small></span></div>
+      <div class="float-card fc2"><span class="ic" style="background:rgba(45,111,181,.12);color:var(--p2)">🤖</span><span><b>آوا: «نوبت فردا رزرو شد»</b><small>منشی هوش مصنوعی • آنلاین</small></span></div>
+    </div>
+  </div>
+</header>
+
+<section class="sec alt" id="features">
+  <div class="container">
+    <span class="kicker">✦ امکانات پلن ۳ — VIP</span>
+    <h2>پکیج کامل و انحصاری — چیزی که هیچ رقیبی ندارد:</h2>
+    <p class="sub">همه کانال‌های جذب بیمار اتومات می‌شوند؛ اینستاگرام، تلگرام و سایت همگی به ماشین فروش نوبت تبدیل می‌شوند.</p>
+    <div class="feat-grid">
+      <div class="feat on rv"><div class="ic">🤖</div><div><b>منشی هوش مصنوعی ۲۴/۷</b><small>پاسخ فوری به سوالات بیماران در سایت — قیمت، خدمات، ساعات کاری — حتی ساعت ۲ نیمه‌شب</small></div></div>
+      <div class="feat rv"><div class="ic">📸</div><div><b>ربات اینستاگرام</b><small>جواب خودکار دایرکت و کامنت، گرفتن سرنخ از استوری و پست‌ها</small></div></div>
+      <div class="feat rv"><div class="ic">🤝</div><div><b>تبدیل فالوور به بیمار</b><small>کامنت‌ها و دایرکت‌های خوانده‌نشده = بیماران از دست رفته؛ ربات همه را ثبت و پیگیری می‌کند</small></div></div>
+      <div class="feat rv"><div class="ic">📊</div><div><b>داشبورد مدیریتی</b><small>آمار نوبت‌ها، منابع جذب بیمار و گزارش عملکرد ماهانه برای صاحب کلینیک</small></div></div>
+      <div class="feat rv"><div class="ic">🌐</div><div><b>تمام امکانات پلن استاندارد</b><small>نوبت‌دهی آنلاین، ربات تلگرام، پنل مدیریت و سایت کامل</small></div></div>
+      <div class="feat rv"><div class="ic">🏆</div><div><b>اولویت پشتیبانی VIP</b><small>پاسخ‌گویی فوری، توسعه اختصاصی و مشاوره رشد ماهانه</small></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="interactive">
+  <div class="container">
+    <span class="kicker">✦ دموی تعاملی</span>
+    <h2>نوبت‌دهی آنلاین — همین حالا امتحان کنید</h2>
+    <p class="sub">همان تجربه‌ای که بیماران شما خواهند داشت: انتخاب تخصص، پزشک، روز و ساعت — در کمتر از ۶۰ ثانیه. (این دمو کاملاً کار می‌کند)</p>
+
+    <div class="wiz rv">
+      <div class="wiz-head">🗓 رزرو نوبت آنلاین<small>در ۳ قدم ساده — بدون تماس تلفنی</small></div>
+      <div class="wiz-body">
+        <div class="steps">
+          <div class="st" data-s="1" style="flex:1"><div class="bar on"></div><span>تخصص و پزشک</span></div>
+          <div class="st" data-s="2" style="flex:1"><div class="bar"></div><span>انتخاب زمان</span></div>
+          <div class="st" data-s="3" style="flex:1"><div class="bar"></div><span>اطلاعات شما</span></div>
+        </div>
+        <div id="wStep1" style="margin-top:18px">
+          <p class="lbl">۱) تخصص مورد نظر:</p>
+          <div class="spec-grid" id="specGrid">
+                        <button class="spec" data-id="s0" onclick="pickSpec('s0')"><span class="e">🦷</span>دندانپزشکی</button>
+            <button class="spec" data-id="s1" onclick="pickSpec('s1')"><span class="e">✨</span>پوست و مو</button>
+            <button class="spec" data-id="s2" onclick="pickSpec('s2')"><span class="e">❤️</span>قلب و عروق</button>
+            <button class="spec" data-id="s3" onclick="pickSpec('s3')"><span class="e">🌸</span>زنان و زایمان</button>
+            <button class="spec" data-id="s4" onclick="pickSpec('s4')"><span class="e">👶</span>اطفال</button>
+            <button class="spec" data-id="s5" onclick="pickSpec('s5')"><span class="e">🧠</span>مغز و اعصاب</button>
+          </div>
+          <div id="docList" style="margin-top:16px;display:none">
+            <p class="lbl">۲) پزشک خود را انتخاب کنید:</p>
+                        <button class="doc" data-id="d1" onclick="pickDoc('d1')">
+              <span class="av">آ</span>
+              <span style="flex:1;min-width:0"><b>دکتر آرمان رادمهر</b><small>متخصص دندانپزشکی</small><span class="days">🗓 شنبه تا سه‌شنبه</span></span>
+            </button>
+            <button class="doc" data-id="d2" onclick="pickDoc('d2')">
+              <span class="av">ن</span>
+              <span style="flex:1;min-width:0"><b>دکتر نگار صمدی</b><small>متخصص پوست و مو</small><span class="days">🗓 یکشنبه و سه‌شنبه</span></span>
+            </button>
+            <button class="doc" data-id="d3" onclick="pickDoc('d3')">
+              <span class="av">س</span>
+              <span style="flex:1;min-width:0"><b>دکتر سپهر نصیری</b><small>متخصص قلب و عروق</small><span class="days">🗓 شنبه تا پنجشنبه</span></span>
+            </button>
+            <button class="doc" data-id="d4" onclick="pickDoc('d4')">
+              <span class="av">ا</span>
+              <span style="flex:1;min-width:0"><b>دکتر الهام کیانی</b><small>متخصص زنان و زایمان</small><span class="days">🗓 یکشنبه تا چهارشنبه</span></span>
+            </button>
+            <button class="doc" data-id="d5" onclick="pickDoc('d5')">
+              <span class="av">ف</span>
+              <span style="flex:1;min-width:0"><b>دکتر فرزاد توانا</b><small>متخصص اطفال</small><span class="days">🗓 شنبه تا چهارشنبه</span></span>
+            </button>
+            <button class="doc" data-id="d6" onclick="pickDoc('d6')">
+              <span class="av">م</span>
+              <span style="flex:1;min-width:0"><b>دکتر مینا رستمی</b><small>متخصص مغز و اعصاب</small><span class="days">🗓 دوشنبه و پنجشنبه</span></span>
+            </button>
+          </div>
+        </div>
+        <div id="wStep2" style="margin-top:18px;display:none">
+          <a class="back" href="#" onclick="wGo(1);return false">→ بازگشت و تغییر پزشک</a>
+          <p class="lbl" style="margin-top:12px">۳) روز مراجعه:</p>
+          <div class="days-strip" id="daysStrip"></div>
+          <div id="slotsWrap" style="display:none">
+            <p class="lbl" style="margin-top:16px">۴) ساعت:</p>
+            <div class="slots" id="slotsGrid"></div>
+          </div>
+        </div>
+        <div id="wStep3" style="margin-top:18px;display:none">
+          <a class="back" href="#" onclick="wGo(2);return false">→ بازگشت و تغییر زمان</a>
+          <div class="frm">
+            <div id="slotInfo" class="bot-note" style="margin:0 0 14px">🗓 <span id="slotInfoText"></span></div>
+            <div class="fld"><label>نام و نام خانوادگی *</label><input id="wName" placeholder="مثال: سارا محمدی"></div>
+            <div class="fld"><label>شماره موبایل *</label><input id="wPhone" dir="ltr" inputmode="numeric" placeholder="09xxxxxxxxx" style="text-align:right"></div>
+            <div class="fld"><label>توضیحات (اختیاری)</label><textarea id="wNote" rows="2" placeholder="مثلاً: درد دندان از دو روز پیش..."></textarea></div>
+            <button class="cta-btn ok" style="width:100%;justify-content:center;height:50px;font-size:15px" id="wSubmit">✔ تأیید و ثبت نوبت</button>
+          </div>
+        </div>
+        <div class="success" id="wSuccess">
+          <div class="big">🎉</div>
+          <h3>نوبت شما ثبت شد!</h3>
+          <div class="summary" id="wSum"></div>
+          <div class="bot-note" style="text-align:right">
+            <span class="ic">🤖</span>
+            <span><b>یادآوری خودکار:</b> ربات تلگرام کلینیک، ۲۴ ساعت و ۲ ساعت قبل از نوبت به شما پیام یادآوری می‌فرستد و امکان تأیید یا جابجایی نوبت را دارد.</span>
+          </div>
+          <button class="cta-btn" style="height:44px" onclick="wReset()">نوبت جدید</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec alt" id="tg">
+  <div class="container">
+    <span class="kicker">✦ ویژگی پلن استاندارد و VIP</span>
+    <h2>ربات یادآوری تلگرام را زنده ببینید</h2>
+    <p class="sub">دیگر هیچ بیماری نوبتش را فراموش نمی‌کند — ربات خودکار پیام می‌دهد و جواب می‌گیرد.</p>
+    <div class="sim-wrap">
+      <div class="phone rv">
+        <div class="phone-head tg-head">
+          <span class="av">✈<i></i></span>
+          <span style="flex:1">ربات کلینیک سلامت<small>ربات • همیشه آنلاین</small></span>
+        </div>
+        <div class="chat" id="tgChat"></div>
+        <div class="typing" id="tgTyping"><i></i><i></i><i></i></div>
+        <div class="chip-row" style="display:flex;justify-content:center">
+          <button class="chip" style="padding:9px 22px" id="tgStart">▶ شروع گفتگوی نمونه</button>
+        </div>
+      </div>
+      <div class="sim-text rv">
+        <h3>ربات کلینیک سلامت چه کارهایی انجام می‌دهد؟</h3>
+        <p>این یک شبیه‌سازی واقعی از رفتار ربات است — دکمه را بزنید و گفتگو را ببینید. در نسخه اصلی، ربات روی اکانت واقعی کلینیک کار می‌کند.</p>
+        <ul>
+          <li><b>✔</b><span>یادآوری خودکار ۲۴ ساعت و ۲ ساعت قبل از نوبت</span></li>
+          <li><b>✔</b><span>بیمار با یک دکمه تأیید می‌کند یا جابجایی می‌خواهد</span></li>
+          <li><b>✔</b><span>کاهش چشمگیر نوبت‌های سوخته (No-Show)</span></li>
+          <li><b>✔</b><span>منشی در پنل مدیریت می‌بیند کی تأیید کرده</span></li>
+        </ul>
+        <div class="bot-note" style="margin-top:16px"><span class="ic">💡</span><span><b>عدد واقعی:</b> یادآوری خودکار معمولاً نرخ غیبت بیماران را ۳۰ تا ۵۰ درصد کم می‌کند.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec alt" id="ig">
+  <div class="container">
+    <span class="kicker">✦ ویژگی انحصاری پلن VIP</span>
+    <h2>ربات اینستاگرام — فالوور را بیمار کنید</h2>
+    <p class="sub">هر کامنت و دایرکت خوانده‌نشده یک بیمار از دست رفته است. ربات همه را خودکار جواب می‌دهد.</p>
+    <div class="sim-wrap">
+      <div class="phone rv">
+        <div class="phone-head ig-head">
+          <span class="av">📸<i></i></span>
+          <span style="flex:1">کلینیک سلامت<small>اینستاگرام • اتوماسیون فعال</small></span>
+        </div>
+        <div class="chat" id="igChat"></div>
+        <div class="typing" id="igTyping"><i></i><i></i><i></i></div>
+        <div class="chip-row" style="display:flex;justify-content:center">
+          <button class="chip" style="padding:9px 22px" id="igStart">▶ شروع گفتگوی نمونه</button>
+        </div>
+      </div>
+      <div class="sim-text rv">
+        <h3>کلینیک سلامت چه کارهایی انجام می‌دهد؟</h3>
+        <p>این یک شبیه‌سازی واقعی از رفتار ربات است — دکمه را بزنید و گفتگو را ببینید. در نسخه اصلی، ربات روی اکانت واقعی کلینیک کار می‌کند.</p>
+        <ul>
+          <li><b>✔</b><span>جواب خودکار دایرکت: قیمت، خدمات، آدرس و ساعات کاری</span></li>
+          <li><b>✔</b><span>پاسخ خودکار به کامنت‌ها و دعوت به دایرکت</span></li>
+          <li><b>✔</b><span>گرفتن شماره تماس سرنخ‌ها و ثبت در لیست پیگیری</span></li>
+          <li><b>✔</b><span>پرسش سوالات رایج تکراری را از منشی شما حذف می‌کند</span></li>
+        </ul>
+        <div class="bot-note" style="margin-top:16px"><span class="ic">🛡</span><span><b>نکته مهم:</b> ربات با تاخیرهای ایمن و محدودیت هوشمند کار می‌کند تا اکانت شما هرگز بلاک نشود.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec alt" id="ai">
+  <div class="container">
+    <span class="kicker">✦ قلب پلن VIP</span>
+    <h2>منشی هوش مصنوعی — ۲۴/۷ آنلاین</h2>
+    <p class="sub">حتی ساعت ۲ نیمه‌شب، بیمار جواب می‌گیرد و به سمت رزرو نوبت هدایت می‌شود.</p>
+    <div class="sim-wrap">
+      <div class="phone rv">
+        <div class="phone-head ai-head">
+          <span class="av">🤖<i></i></span>
+          <span style="flex:1">آوا — منشی هوشمند<small>هوش مصنوعی • آنلاین ۲۴ ساعته</small></span>
+        </div>
+        <div class="chat" id="aiChat"></div>
+        <div class="typing" id="aiTyping"><i></i><i></i><i></i></div>
+        <div class="chip-row" style="display:flex;justify-content:center">
+          <button class="chip" style="padding:9px 22px" id="aiStart">▶ با منشی هوشمند صحبت کنید</button>
+        </div>
+      </div>
+      <div class="sim-text rv">
+        <h3>آوا — منشی هوشمند چه کارهایی انجام می‌دهد؟</h3>
+        <p>این یک شبیه‌سازی واقعی از رفتار ربات است — دکمه را بزنید و گفتگو را ببینید. در نسخه اصلی، ربات روی اکانت واقعی کلینیک کار می‌کند.</p>
+        <ul>
+          <li><b>✔</b><span>پاسخ فوری به سوالات رایج: قیمت، خدمات، آدرس، بیمه</span></li>
+          <li><b>✔</b><span>معرفی درست پزشک مناسب بر اساس مشکل بیمار</span></li>
+          <li><b>✔</b><span>هدایت بیمار به فرم رزرو و افزایش نرخ تبدیل</span></li>
+          <li><b>✔</b><span>ثبت شماره تماس سرنخ‌ها برای پیگیری منشی</span></li>
+        </ul>
+        <div class="bot-note" style="margin-top:16px"><span class="ic">🎯</span><span><b>چرا می‌فروشد؟</b> چون صاحب کلینیک می‌فهمد شما «منشی دیجیتال» بهش می‌دهید، نه فقط یک سایت.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec alt" style="padding-top:0;background:transparent">
+  <div class="container">
+    <span class="kicker">✦ تصویر بزرگ</span>
+    <h2>وقتی همه کانال‌ها اتومات شوند چه اتفاقی می‌افتد؟</h2>
+    <div class="kpi-grid">
+      <div class="kpi rv"><b>+۳۸٪</b><small>افزایش نوبت‌های ماهانه</small></div>
+      <div class="kpi rv"><b>-۴۵٪</b><small>کاهش نوبت‌های سوخته</small></div>
+      <div class="kpi rv"><b>۲۴/۷</b><small>پاسخ‌گویی بدون تعطیلی</small></div>
+      <div class="kpi rv"><b>۲ برابر</b><small>تبدیل فالوور به بیمار</small></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="container">
+    <span class="kicker">✦ تماس با کلینیک</span>
+    <h2>منتظر شما هستیم</h2>
+    <div class="contact-grid">
+      <div class="cc rv"><div class="ic">📍</div><b>آدرس کلینیک</b><p>رشت، گلسار، بلوار نماز، مجتمع پزشکان سلامت، طبقه دوم</p></div>
+      <div class="cc rv"><div class="ic">☎</div><b>تلفن پذیرش</b><p><b class="num">013-3222-4400</b><br>واتساپ: <b class="num">0911-111-2233</b></p></div>
+      <div class="cc rv"><div class="ic">🕐</div><b>ساعات کاری</b><p>شنبه تا پنجشنبه<br>صبح ۹ تا ۱۳ — عصر ۱۶ تا ۲۰<br>جمعه‌ها تعطیل</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="gridp"></div>
+  <div class="container inner">
+    <div>
+      <h3>آماده‌اید کلینیک‌تان را دیجیتالی کنید؟</h3>
+      <p>این فقط یک دموی نمونه است — نسخه کامل با اسم، لوگو و اطلاعات کلینیک شما ساخته می‌شود.</p>
+    </div>
+    <a class="cta-btn white" href="https://jsdevelop.ir" target="_blank">🖱 jsdevelop.ir</a>
+  </div>
+</section>
+
+<footer>
+  <div class="container inner">
+    <a class="brand" href="#">
+      <span class="logo">&#9678;</span>
+      <span><b>کلینیک سلامت</b><small>پلی‌کلینیک تخصصی رشت</small></span>
+    </a>
+    <small>☎ <b class="num" style="color:#fff">013-3222-4400</b> | 📍 رشت، گلسار، بلوار نماز، مجتمع پزشکان سلامت</small>
+  </div>
+  <div class="container f-line">
+    <small>© ۱۴۰۵ کلینیک سلامت — این صفحه یک نسخه دموی پلن ۳ (VIP) است.</small>
+    <small>طراحی و توسعه: <b style="color:rgba(255,255,255,.85)">JSDevelop.ir</b></small>
+  </div>
+</footer>
+
+<script>
+
+// reveal on scroll
+const io = new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+// fa digits + jalali
+const FA=['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+const faNum=s=>String(s).replace(/\d/g,d=>FA[+d]);
+const pad=n=>n<10?'0'+n:''+n;
+const isoOf=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const WD=new Intl.DateTimeFormat('fa-IR',{weekday:'long'});
+const DN=new Intl.DateTimeFormat('fa-IR',{day:'numeric'});
+const MO=new Intl.DateTimeFormat('fa-IR',{month:'long'});
+const FULL=new Intl.DateTimeFormat('fa-IR',{weekday:'long',day:'numeric',month:'long'});
+function nextDays(n){const out=[];const t=new Date();for(let i=0;i<n;i++){const d=new Date(t.getFullYear(),t.getMonth(),t.getDate()+i);out.push({iso:isoOf(d),wd:i===0?'امروز':WD.format(d),dn:DN.format(d),m:MO.format(d)});}return out;}
+function jalali(iso){const [y,m,d]=iso.split('-').map(Number);return FULL.format(new Date(y,m-1,d));}
+// deterministic taken slots
+function pseudoTaken(iso,doc,time){let h=0;const s=iso+'|'+doc+'|'+time;for(let i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))%997;}return h%3===0;}
+
+
+document.addEventListener('DOMContentLoaded',()=>{
+  const DOCTORS=[{'id': 'd1', 'name': 'دکتر آرمان رادمهر', 'spec': 'دندانپزشکی', 'days': 'شنبه تا سه\u200cشنبه'}, {'id': 'd2', 'name': 'دکتر نگار صمدی', 'spec': 'پوست و مو', 'days': 'یکشنبه و سه\u200cشنبه'}, {'id': 'd3', 'name': 'دکتر سپهر نصیری', 'spec': 'قلب و عروق', 'days': 'شنبه تا پنجشنبه'}, {'id': 'd4', 'name': 'دکتر الهام کیانی', 'spec': 'زنان و زایمان', 'days': 'یکشنبه تا چهارشنبه'}, {'id': 'd5', 'name': 'دکتر فرزاد توانا', 'spec': 'اطفال', 'days': 'شنبه تا چهارشنبه'}, {'id': 'd6', 'name': 'دکتر مینا رستمی', 'spec': 'مغز و اعصاب', 'days': 'دوشنبه و پنجشنبه'}];
+  const SLOTS=['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30'];
+  let st={step:1,spec:'',doc:'',date:'',time:''};
+  window.wGo=function(n){st.step=n;render();};
+  window.wReset=function(){st={step:1,spec:'',doc:'',date:'',time:''};render();};
+  const sel=id=>document.getElementById(id);
+  window.pickSpec=function(id){st.spec=id;st.doc='';sel('docList').style.display='block';render();};
+  window.pickDoc=function(id){st.doc=id;st.date='';st.time='';sel('daysStrip').innerHTML='';render();if(st.step===1)wGo(2);buildDays();};
+  window.pickDate=function(iso){st.date=iso;st.time='';buildSlots();render();};
+  window.pickTime=function(t,btn){st.time=t;st.step=3;document.querySelectorAll('.slot').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');render();};
+  function buildDays(){
+    const strip=sel('daysStrip');strip.innerHTML='';
+    nextDays(7).forEach(d=>{
+      const b=document.createElement('button');b.className='day'+(st.date===d.iso?' sel':'');
+      b.innerHTML='<small>'+d.wd+'</small><b>'+d.dn+'</b><span class="m">'+d.m+'</span>';
+      b.onclick=()=>pickDate(d.iso);strip.appendChild(b);
+    });
+  }
+  function buildSlots(){
+    const g=sel('slotsGrid');g.innerHTML='';sel('slotsWrap').style.display='block';
+    SLOTS.forEach((t,i)=>{
+      const taken=pseudoTaken(st.date,st.doc,t);
+      const b=document.createElement('button');
+      b.className='slot'+(taken?' taken':'')+(st.time===t?' sel':'');
+      b.textContent=faNum(t);b.disabled=taken;
+      if(!taken)b.onclick=()=>pickTime(t,b);
+      g.appendChild(b);
+      if(i===0||i===8){const tag=document.createElement('div');tag.className='slot-tag';tag.textContent=i===0?'— صبح —':'— عصر —';g.insertBefore(tag,b);}
+    });
+  }
+  function render(){
+    document.querySelectorAll('.st').forEach(s=>{const n=+s.dataset.s;s.querySelector('.bar').classList.toggle('on',n<=st.step);});
+    sel('wStep1').style.display=st.step===1?'block':'none';
+    sel('wStep2').style.display=st.step===2?'block':'none';
+    sel('wStep3').style.display=st.step===3?'block':'none';
+    sel('wSuccess').style.display='none';
+    document.querySelectorAll('.spec').forEach(b=>b.classList.toggle('sel',b.dataset.id===st.spec));
+    document.querySelectorAll('.doc').forEach(b=>b.classList.toggle('sel',b.dataset.id===st.doc));
+    if(st.date&&st.doc){sel('slotInfoText').innerHTML='<b>'+(DOCTORS.find(d=>d.id===st.doc)||{}).name+'</b> — '+jalali(st.date)+(st.time?' — ساعت '+faNum(st.time):'');}
+    sel('wSubmit').disabled=!(st.date&&st.time&&st.doc);
+  }
+  sel('wSubmit').addEventListener('click',()=>{
+    const name=sel('wName').value.trim(),phone=sel('wPhone').value.replace(/[^\d]/g,'');
+    if(name.length<3||!/^09\d{9}$/.test(phone)){alert('لطفاً نام کامل و شماره موبایل معتبر (۱۱ رقم با ۰۹) وارد کنید.');return;}
+    const doc=(DOCTORS.find(d=>d.id===st.doc)||{}).name||'';
+    sel('wSum').innerHTML='<div><span>کد رهگیری</span><b style="direction:ltr">'+Math.random().toString(36).slice(2,8).toUpperCase()+'</b></div>'
+      +'<div><span>بیمار</span><b>'+name+'</b></div><div><span>پزشک</span><b>'+doc+'</b></div>'
+      +'<div><span>زمان</span><b>'+jalali(st.date)+' — ساعت '+faNum(st.time)+'</b></div>';
+    sel('wSuccess').style.display='block';
+    sel('wStep3').style.display='none';
+    document.querySelectorAll('.st .bar').forEach(b=>b.classList.add('on'));
+  });
+  render();
+});
+
+
+document.addEventListener('DOMContentLoaded',()=>{
+  const chat=document.getElementById('tgChat'), typing=document.getElementById('tgTyping');
+  const btn=document.getElementById('tgStart');
+  let started=false;
+  function add(text,who,delay){setTimeout(()=>{typing.style.display='none';const m=document.createElement('div');m.className='msg '+who+' show';m.innerHTML=text;chat.appendChild(m);},delay);}
+  function type(delay){setTimeout(()=>{typing.style.display='flex';},delay);}
+  btn.addEventListener('click',()=>{
+    if(started){chat.innerHTML='';}
+    started=true;btn.textContent='▶ پخش مجدد';
+    chat.innerHTML='';
+    const seq=[{'who': 'bot', 'text': 'سلام! 🌸 من ربات کلینیک سلامت هستم.', 'pause': 1500}, {'who': 'typing'}, {'who': 'bot', 'text': '⏰ <b>یادآوری نوبت</b><br>نوبت شما: <b>فردا ساعت ۱۰:۳۰</b> — دکتر نگار صمدی (پوست و مو)', 'pause': 2200}, {'who': 'bot', 'text': 'آیا این نوبت را حفظ می\u200cکنید؟', 'pause': 1400}, {'who': 'typing'}, {'who': 'me', 'text': '✅ بله، حفظ می\u200cکنم', 'pause': 1500}, {'who': 'bot', 'text': 'عالی! 🙌 نوبت شما تأیید شد.<br>📍 رشت، گلسار، بلوار نماز — ۱۵ دقیقه قبل حاضر باشید.', 'pause': 2000}, {'who': 'bot', 'text': '💬 اگر لازم شد جابجا کنید، همین\u200cجا به من بگویید.', 'pause': 1800}];
+    let t=300;
+    seq.forEach(s=>{
+      if(s.who==='typing'){type(t);t+=900;}
+      else{add(s.text,s.who,t);t+=s.pause||1600;}
+    });
+  });
+});
+
+
+document.addEventListener('DOMContentLoaded',()=>{
+  const chat=document.getElementById('igChat'), typing=document.getElementById('igTyping');
+  const btn=document.getElementById('igStart');
+  let started=false;
+  function add(text,who,delay){setTimeout(()=>{typing.style.display='none';const m=document.createElement('div');m.className='msg '+who+' show';m.innerHTML=text;chat.appendChild(m);},delay);}
+  function type(delay){setTimeout(()=>{typing.style.display='flex';},delay);}
+  btn.addEventListener('click',()=>{
+    if(started){chat.innerHTML='';}
+    started=true;btn.textContent='▶ پخش مجدد';
+    chat.innerHTML='';
+    const seq=[{'who': 'bot', 'text': '👋 سلام! ممنون که به پیج ما سر زدید.', 'pause': 1600}, {'who': 'typing'}, {'who': 'me', 'text': 'سلام، هزینه ترمیم دندان چقدره؟', 'pause': 1500}, {'who': 'typing'}, {'who': 'bot', 'text': 'هزینه ترمیم بسته به نوع ترمیم از <b>۸۰۰ هزار تومان</b> شروع می\u200cشه 🦷<br>برای مشاوره رایگان، شماره\u200cتون رو بفرستید تا هماهنگ کنیم.', 'pause': 2400}, {'who': 'me', 'text': '۰۹۱۲۳۴۵۶۷۸۹', 'pause': 1500}, {'who': 'bot', 'text': '✅ ثبت شد! کارشناس پذیرش تا <b>چند ساعت آینده</b> با شما تماس می\u200cگیره.<br>🗓 یا همین حالا از سایت نوبت بگیر: jsdevelop.ir/demo', 'pause': 2000}, {'who': 'bot', 'text': '🎯 <i>(این سرنخ به\u200cصورت خودکار در لیست پیگیری منشی ثبت شد)</i>', 'pause': 1800}];
+    let t=300;
+    seq.forEach(s=>{
+      if(s.who==='typing'){type(t);t+=900;}
+      else{add(s.text,s.who,t);t+=s.pause||1600;}
+    });
+  });
+});
+
+
+document.addEventListener('DOMContentLoaded',()=>{
+  const chat=document.getElementById('aiChat'), typing=document.getElementById('aiTyping');
+  const btn=document.getElementById('aiStart');
+  let started=false;
+  function add(text,who,delay){setTimeout(()=>{typing.style.display='none';const m=document.createElement('div');m.className='msg '+who+' show';m.innerHTML=text;chat.appendChild(m);},delay);}
+  function type(delay){setTimeout(()=>{typing.style.display='flex';},delay);}
+  btn.addEventListener('click',()=>{
+    if(started){chat.innerHTML='';}
+    started=true;btn.textContent='▶ پخش مجدد';
+    chat.innerHTML='';
+    const seq=[{'who': 'bot', 'text': 'سلام! 🌸 من <b>آوا</b> هستم، منشی هوش مصنوعی کلینیک سلامت — ۲۴ ساعته در خدمتم. چطور می\u200cتونم کمکتون کنم؟', 'pause': 1600}, {'who': 'typing'}, {'who': 'me', 'text': 'ساعت ۱۰ شبه، درد دندان دارم 😔 فردا نوبت داری؟', 'pause': 1600}, {'who': 'typing'}, {'who': 'bot', 'text': 'متأسفم که درد دارید 🙏 دکتر رادمهر (دندانپزشکی) فردا از ساعت ۹ پذیرش دارند.<br>الان برایتان نوبت <b>۱۰:۳۰</b> رزرو کنم؟', 'pause': 2200}, {'who': 'me', 'text': 'آره لطفاً! 🙌', 'pause': 1400}, {'who': 'bot', 'text': 'انجام شد ✅ یادآوری تلگرامی هم ۲۴ ساعت قبل برایتان ارسال می\u200cشود.<br>💎 <i>این گفتگو در ساعت ۱۰ شب و بدون حضور هیچ کارمندی انجام شد!</i>', 'pause': 1800}];
+    let t=300;
+    seq.forEach(s=>{
+      if(s.who==='typing'){type(t);t+=900;}
+      else{add(s.text,s.who,t);t+=s.pause||1600;}
+    });
+  });
+});
+
+</script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Route, Mail, Send, Bot } from "lucide-react";
+import { Route, Mail, Send, Bot, Sparkles } from "lucide-react";
 import { categories, hrefs, siteConfig, staticPages } from "@/lib/site";
 
 export function Footer() {
@@ -42,6 +42,15 @@ export function Footer() {
             <nav aria-label="صفحات سایت">
               <h3 className="mb-3 text-sm font-bold">تک‌راه</h3>
               <ul className="space-y-2">
+                <li>
+                  <Link
+                    href="/packages"
+                    className="flex items-center gap-1.5 text-sm font-bold text-emerald-700 transition-colors hover:text-emerald-600 dark:text-emerald-400"
+                  >
+                    <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+                    پکیج‌ها و دموهای زنده
+                  </Link>
+                </li>
                 {staticPages.map((p) => (
                   <li key={p.id}>
                     <Link
