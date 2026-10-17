@@ -7,6 +7,7 @@ import {
   CLINIC,
   SPECS,
   SLOTS,
+  DIRECTOR_CHAT_ID,
   VIP_ADMIN_CHAT_ID,
   VIP_DOCTORS,
   VIP_SECRET,
@@ -15,6 +16,7 @@ import {
   type VipBooking,
   type VipLead,
   avaAnswer,
+  avaAnswerSmart,
   avaIntroText,
   confirmVipKeyboard,
   daysKeyboardVip,
@@ -39,6 +41,9 @@ import {
   vipWelcomeText,
   workingDays,
 } from "@/lib/vip-bot";
+import { aiAvailable, avaLLM } from "@/lib/ai";
+import { logEvent, storageMode } from "@/lib/kv";
+import { buildReport, reportText } from "@/lib/reports";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
@@ -54,6 +59,112 @@ function btn(text: string, data: string): { text: string; callback_data: string 
 async function answerCb(id: string, text?: string): Promise<void> {
   if (!id) return;
   await tgVip("answerCallbackQuery", { callback_query_id: id, ...(text ? { text } : {}) });
+}
+
+/** نشانگر «در حال نوشتن…» — حس زنده بودن منشی */
+async function typing(chatId: number): Promise<void> {
+  await tgVip("sendChatAction", { chat_id: chatId, action: "typing" });
+}
+
+/** کانتکست کلینیک برای پرامپت هوش مصنوعی */
+function clinicCtx() {
+  return {
+    name: CLINIC.name,
+    address: CLINIC.address,
+    phone: CLINIC.phone,
+    hours: CLINIC.hours,
+    specs: SPECS.map((s) => ({ emoji: s.emoji, name: s.name })),
+    doctors: VIP_DOCTORS.map((d) => ({ name: d.name, spec: d.spec, days: d.days })),
+  };
+}
+
+/** پاسخ آوا: اول هوش مصنوعی (اگر کلید باشد)، وگرنه موتور داخلی با حافظه */
+async function avaRespond(chatId: number, text: string): Promise<void> {
+  await typing(chatId);
+  // موضوع سوال را همیشه با موتور داخلی برچسب می‌زنیم (برای گزارش مدیر)
+  const probe = avaAnswer(text);
+  await logEvent("ava_q", probe.meta?.topic);
+
+  if (aiAvailable()) {
+    const llmText = await avaLLM(chatId, text, clinicCtx());
+    if (llmText) {
+      await replyVip(chatId, llmText, vipMainKeyboard());
+      return;
+    }
+  }
+  const a = await avaAnswerSmart(chatId, text);
+  await replyVip(chatId, a.text, a.keyboard ?? vipMainKeyboard());
+}
+
+// ─── وویس: دریافت صدا → متن (در صورت اتصال سرویس ASR) → آوا ───
+async function asrTranscribe(buf: Buffer): Promise<string | null> {
+  const asrUrl = process.env.VOICE_ASR_URL ?? "";
+  if (!asrUrl) return null; // سرویس ASR وصل نیست — پیام محترمانه می‌رویم
+  const key = process.env.VOICE_ASR_KEY ?? process.env.ZAI_API_KEY ?? "";
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 15_000);
+  try {
+    const res = await fetch(asrUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(key ? { Authorization: `Bearer ${key}` } : {}),
+      },
+      body: JSON.stringify({
+        model: process.env.VOICE_ASR_MODEL ?? "asr",
+        file_base64: buf.toString("base64"),
+      }),
+      signal: ctrl.signal,
+    });
+    if (!res.ok) return null;
+    const j = (await res.json().catch(() => null)) as
+      | { text?: string; result?: string | { text?: string } }
+      | null;
+    const out =
+      typeof j?.text === "string"
+        ? j.text
+        : typeof j?.result === "string"
+          ? j.result
+          : (j?.result as { text?: string } | undefined)?.text;
+    return out && out.trim() ? out.trim().slice(0, 500) : null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function handleVoice(chatId: number, fileId: string): Promise<void> {
+  await typing(chatId);
+  let buf: Buffer | null = null;
+  try {
+    const g = (await tgVip("getFile", { file_id: fileId })) as
+      | { ok?: boolean; result?: { file_path?: string } }
+      | null;
+    if (g?.ok && g.result?.file_path) {
+      const bin = await fetch(`https://api.telegram.org/file/bot${VIP_TOKEN}/${g.result.file_path}`);
+      if (bin.ok) {
+        const ab = await bin.arrayBuffer();
+        if (ab.byteLength <= 20 * 1024 * 1024) buf = Buffer.from(ab);
+      }
+    }
+  } catch {
+    /* ادامه با پیام محترمانه */
+  }
+
+  const text = buf ? await asrTranscribe(buf) : null;
+  if (!text) {
+    await logEvent("voice", "بدون تبدیل متن");
+    await replyVip(
+      chatId,
+      `🎤 <b>وویس شما دریافت شد!</b>\n\n` +
+        `این لحظه شنیدن صدای شما را با متن دقیق‌تر جواب می‌دهم — لطفاً همان سوال را <b>متنی</b> بنویسید یا از دکمه‌های زیر استفاده کنید 🙏`,
+      vipMainKeyboard(),
+    );
+    return;
+  }
+  await logEvent("voice", text.slice(0, 60));
+  await avaRespond(chatId, text);
 }
 
 async function editOrReply(
@@ -123,9 +234,22 @@ async function handleText(chatId: number, text: string, fromName?: string): Prom
   if (text.startsWith("/help")) {
     await replyVip(
       chatId,
-      "راهنما:\n/start — شروع و منوی اصلی\n/bookings — نوبت‌های من\n/id — شناسه چت (برای مدیر)\n/help — همین راهنما\n\nهر سوال دیگری هم بنویسید، منشی هوشمند «آوا» جواب می‌دهد 🤖",
+      "راهنما:\n/start — شروع و منوی اصلی\n/bookings — نوبت‌های من\n/id — شناسه چت (برای مدیر)\n/report — گزارش عملکرد (فقط مدیریت)\n/help — همین راهنما\n\nهر سوال دیگری هم بنویسید یا وویس بفرستید — منشی هوشمند «آوا» جواب می‌دهد 🤖",
       vipMainKeyboard(),
     );
+    return;
+  }
+
+  // ── گزارش عملکرد — فقط مدیریت (رئیس درمانگاه) ──
+  if (text.startsWith("/report") || text.startsWith("/stats")) {
+    const admin = String(VIP_ADMIN_CHAT_ID || DIRECTOR_CHAT_ID);
+    if (String(chatId) !== admin) {
+      await replyVip(chatId, "🔒 این بخش فقط برای مدیریت کلینیک است. 🙏");
+      return;
+    }
+    await typing(chatId);
+    const r = await buildReport();
+    await replyVip(chatId, reportText(r));
     return;
   }
 
@@ -211,15 +335,13 @@ async function handleText(chatId: number, text: string, fromName?: string): Prom
 
   // ── حالت گفتگو با آوا ──
   if (p?.mode === "ava") {
-    const a = avaAnswer(text);
     pendingVipState.del(chatId);
-    await replyVip(chatId, a.text, a.keyboard ?? vipMainKeyboard());
+    await avaRespond(chatId, text);
     return;
   }
 
   // متن آزاد بدون حالت → مستقیم به منشی هوشمند (قلب پلن VIP)
-  const a = avaAnswer(text);
-  await replyVip(chatId, a.text, a.keyboard ?? vipMainKeyboard());
+  await avaRespond(chatId, text);
 }
 
 // ─── دکمه‌ها (callback) ───
@@ -330,6 +452,7 @@ async function handleCallback(
     };
     await saveVipLead(lead);
     pendingVipState.del(chatId);
+    await logEvent("lead", `${lead.userName} — ${topic}`);
 
     await editOrReply(
       chatId,
@@ -464,6 +587,7 @@ async function handleCallback(
     };
     await saveVipBooking(booking);
     pendingVipState.del(chatId);
+    await logEvent("booking", `${booking.userName} — ${SPECS[booking.specIdx]?.name}`);
 
     await editOrReply(chatId, messageId, vipBookingConfirmedText(booking), {
       inline_keyboard: [[btn("🔎 نوبت‌های من", "my")], [btn("🏠 منوی اصلی", "home")]],
@@ -490,6 +614,7 @@ async function handleCallback(
   if (data.startsWith("rem:")) {
     const [, id, act] = data.split(":");
     if (act === "ok") {
+      await logEvent("confirm", `#${id}`);
       await editOrReply(
         chatId,
         messageId,
@@ -526,6 +651,8 @@ export async function POST(req: NextRequest) {
       chat?: { id?: number };
       from?: { first_name?: string };
       text?: string;
+      voice?: { file_id?: string };
+      audio?: { file_id?: string };
     };
     callback_query?: {
       id?: string;
@@ -551,8 +678,14 @@ export async function POST(req: NextRequest) {
     } else if (update.message) {
       const msg = update.message;
       const chatId = msg.chat?.id;
+      if (!chatId) return Response.json({ ok: true });
+      // وویس یا فایل صوتی → مسیر شنیدن
+      if (msg.voice?.file_id || msg.audio?.file_id) {
+        await handleVoice(chatId, (msg.voice?.file_id || msg.audio?.file_id) as string);
+        return Response.json({ ok: true });
+      }
       const text = (msg.text || "").trim();
-      if (chatId && text) {
+      if (text) {
         await handleText(chatId, text, msg.from?.first_name);
       }
     }
@@ -574,6 +707,10 @@ export async function GET() {
     slots: SLOTS.length,
     tokenConfigured: Boolean(VIP_TOKEN),
     adminConfigured: Boolean(VIP_ADMIN_CHAT_ID),
+    directorConfigured: Boolean(DIRECTOR_CHAT_ID),
+    storage: storageMode(),
+    ai: aiAvailable(),
+    voiceAsr: Boolean(process.env.VOICE_ASR_URL),
     hint: "POST telegram updates here",
   });
 }
