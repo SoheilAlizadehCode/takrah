@@ -7,6 +7,7 @@
 //   VIP_WEBHOOK_SECRET   → کلید مخفی وبهوک (اختیاری، پیش‌فرض دارد)
 //   VIP_ADMIN_CHAT_ID    → چت‌آی‌دی ادمین (اگر خالی باشد از CLINIC_ADMIN_CHAT_ID استفاده می‌شود)
 import { CLINIC, SLOTS } from "./clinic-bot";
+import { kvGet, kvSet, safeParse } from "./kv";
 
 export { CLINIC, SLOTS };
 
@@ -16,6 +17,7 @@ export const VIP_SECRET =
   process.env.VIP_WEBHOOK_SECRET ?? "vip-demo-secret-25a77bf";
 export const VIP_ADMIN_CHAT_ID =
   process.env.VIP_ADMIN_CHAT_ID ?? process.env.CLINIC_ADMIN_CHAT_ID ?? "";
+export const DIRECTOR_CHAT_ID = process.env.DIRECTOR_CHAT_ID ?? "";
 
 // ─── API تلگرام (مستقل با توکن VIP) ───
 type Keyboard = {
@@ -106,41 +108,9 @@ export function vipSlotTaken(dayIso: string, slotIndex: number): boolean {
   return h % 4 === 0;
 }
 
-// ─── ذخیره‌سازی: حافظه (پیش‌فرض) یا Upstash Redis REST — با پیشوند vip: ───
-const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL ?? "";
-const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN ?? "";
-const mem = new Map<string, string>();
-
-async function storeSet(key: string, value: string): Promise<void> {
-  if (REDIS_URL && REDIS_TOKEN) {
-    try {
-      await fetch(`${REDIS_URL}/set/${encodeURIComponent(key)}`, {
-        method: "POST",
-        headers: { authorization: `Bearer ${REDIS_TOKEN}`, "content-type": "text/plain" },
-        body: value,
-      });
-      return;
-    } catch {
-      /* fallback به حافظه */
-    }
-  }
-  mem.set(key, value);
-}
-
-async function storeGet(key: string): Promise<string | null> {
-  if (REDIS_URL && REDIS_TOKEN) {
-    try {
-      const res = await fetch(`${REDIS_URL}/get/${encodeURIComponent(key)}`, {
-        headers: { authorization: `Bearer ${REDIS_TOKEN}` },
-      });
-      const j = (await res.json().catch(() => null)) as { result?: string | null } | null;
-      if (j?.result) return j.result;
-    } catch {
-      /* fallback */
-    }
-  }
-  return mem.get(key) ?? null;
-}
+// ─── ذخیره‌سازی: لایه‌ی مشترک kv.ts (Upstash Redis یا حافظه) — با پیشوند vip: ───
+const storeSet = kvSet;
+const storeGet = kvGet;
 
 async function addToIndex(key: string, id: string): Promise<void> {
   const raw = await storeGet(key);
@@ -435,63 +405,192 @@ export function vipInfoText(): string {
   );
 }
 
-// ─── منشی هوشمند «آوا» — موتور پاسخ‌دهی هوشمند (عین شخصیت دموی #ai) ───
+// ─── منشی هوشمند «آوا» — موتور پاسخ‌دهی هوشمند با حافظه و سوال دنباله‌دار ───
 export function avaIntroText(): string {
   return (
-    `🤖 <b>آوا — منشی هوشمند</b>\n\n` +
-    `سوال‌تان را همان‌طور که هست بنویسید؛ مثلاً:\n` +
-    `• «قیمت ویزیت دندانپزشکی چنده؟»\n` +
-    `• «ساعت کاری جمعه باز هستید؟»\n` +
-    `• «درد دندان دارم، کدام دکتر؟»\n\n` +
-    `هر لحظه بپرسید — ۲۴ ساعته جواب می‌گیرید. 🌸`
+    `🤖 <b>آوا — دستیار هوشمند کلینیک</b>\n\n` +
+    `من منشی دیجیتال کلینیک هستم و حافظه دارم — یعنی هرچی پرسیدید جواب می‌دهم:\n` +
+    `• «قیمت ترمیم دندون چنده؟» بعدش فقط بگویید «و ساعتش؟» ⏰\n` +
+    `• «درد دندان دارم» → دکتر مناسب را معرفی می‌کنم 🩺\n` +
+    `• «بیمه درمان تکمیلی قبول می‌کنید؟»\n` +
+    `• «پارکینگ دارید؟» «آزمایشگاه دارید؟» «ناشتا بیام؟»\n\n` +
+    `🎤 حتی می‌توانید وویس بفرستید! هر لحظه در خدمتم — ۲۴ ساعته. 🌸`
   );
 }
 
 export interface AvaReply {
   text: string;
   keyboard?: Keyboard;
+  meta?: { specIdx?: number; doctorIdx?: number; topic?: string };
 }
 
-const BOOK_ROW: Keyboard = {
-  inline_keyboard: [
-    [{ text: "🗓 رزرو نوبت همین حالا", callback_data: "book" }],
-    [{ text: "🏠 منوی اصلی", callback_data: "home" }],
-  ],
-};
+// ─── حافظه‌ی گفتگوی آوا — هر چت آخرین موضوع/تخصص/پزشک را یادش می‌ماند ───
+export interface AvaMem {
+  lastSpecIdx?: number;
+  lastDoctorIdx?: number;
+  lastTopic?: string;
+}
 
-function consultRow(extra?: string): Keyboard {
-  return {
+const memKey = (chatId: number) => `vip:avamem:${chatId}`;
+
+export async function getAvaMem(chatId: number): Promise<AvaMem> {
+  const raw = await storeGet(memKey(chatId));
+  return raw ? safeParse<AvaMem>(raw, {}) : {};
+}
+
+async function setAvaMem(chatId: number, mem: AvaMem): Promise<void> {
+  await storeSet(memKey(chatId), JSON.stringify(mem));
+}
+
+/** پاسخ هوشمند آوا با حافظه — ورودی و خروجی هر دو از پیشوند vip: می‌گذرد */
+export async function avaAnswerSmart(chatId: number, question: string): Promise<AvaReply> {
+  const mem = await getAvaMem(chatId);
+  const reply = avaAnswer(question, mem);
+  if (reply.meta) {
+    if (reply.meta.specIdx !== undefined) mem.lastSpecIdx = reply.meta.specIdx;
+    if (reply.meta.doctorIdx !== undefined) mem.lastDoctorIdx = reply.meta.doctorIdx;
+    if (reply.meta.topic) mem.lastTopic = reply.meta.topic;
+    await setAvaMem(chatId, mem);
+  }
+  return reply;
+}
+
+// ─── نرمال‌سازی فارسی: ی/ک عربی، نیم‌فاصله، فاصله‌ی اضافه ───
+export function normalizeFa(s: string): string {
+  return s
+    .replace(/[\u064A]/g, "\u06CC") // ي → ی
+    .replace(/[\u0643]/g, "\u06A9") // ك → ک
+    .replace(/[\u0629]/g, "\u0647") // ة → ه
+    .replace(/[\u0623\u0625]/g, "\u0627") // أ إ → ا
+    .replace(/[\u200C\u200F\u200E]/g, "") // نیم‌فاصله و کاراکترهای جهت
+    .replace(/\s+/g, " ")
+    .trim()
+  ;
+}
+
+// نقشه‌ی کلیدواژه‌ی تخصص‌ها — هم برای قیمت هم برای معرفی پزشک بر اساس علامت
+const SPEC_HINTS: { idx: number; words: RegExp }[] = [
+  { idx: 0, words: /(دندان|دندون|لمینت|ایمپلنت|ارتودنسی|جرم|ریشه|روکش|پر کردن|کامپوزیت|عصب کشی)/ },
+  { idx: 1, words: /(پوست|جوش|اکنه|آکنه|لیزر|ریزش|کراتینه|بوتاکس|فیلر|جوشگاه|زگیل|خال)|(^|[^\p{L}])مو([^\p{L}]|$)|(^|[^\p{L}])لک([^\p{L}]|$)/u },
+  { idx: 2, words: /(قلب|سینه|تپش|فشار خون|چربی خون|نفس نفس|ریتم)/ },
+  { idx: 3, words: /(زنان|باردار|بارداری|یائسگی|پریود|سونوگرافی زنان|ویزیت زنان)/ },
+  { idx: 4, words: /(کودک|بچه|اطفال|شیرخوار|واکسن|نوزاد)/ },
+  { idx: 5, words: /(اعصاب|سردرد|میگرن|سرگیجه|بی خوابی|لرزش|فراموشی|مغز|تشنج)/ },
+];
+
+function detectSpecIdx(q: string): number | undefined {
+  for (const h of SPEC_HINTS) if (h.words.test(q)) return h.idx;
+  return undefined;
+}
+
+/** موتور پاسخ آوا — هوشمند، با حافظه و سوال دنباله‌دار (بدون وابستگی خارجی؛ ۱۰۰٪ آفلاین و قطعی) */
+export function avaAnswer(question: string, mem: AvaMem = {}): AvaReply {
+  const q = normalizeFa(question.toLowerCase());
+
+  const bookKb: Keyboard = {
+    inline_keyboard: [
+      [{ text: "🗓 رزرو نوبت همین حالا", callback_data: "book" }],
+      [{ text: "🏠 منوی اصلی", callback_data: "home" }],
+    ],
+  };
+  const consultKb = (extra?: string): Keyboard => ({
     inline_keyboard: [
       [{ text: "📞 ثبت مشاوره رایگان", callback_data: "consult" }],
       ...(extra ? [[{ text: extra, callback_data: "home" }]] : [[{ text: "🏠 منوی اصلی", callback_data: "home" }]]),
     ],
-  };
-}
+  });
 
-/** موتور پاسخ آوا — تشخیص موضوع با کلیدواژه (بدون وابستگی خارجی؛ ۱۰۰٪ آفلاین و قطعی) */
-export function avaAnswer(question: string): AvaReply {
-  const q = question.toLowerCase();
+  // ─── فوریت/اورژانس — اولویت بالا ───
+  if (/(فوری|اورژانس|خیلی شدید|تحمل نمی|خون میاد|بدتر شد|تورم شدید)/.test(q)) {
+    return {
+      text:
+        `⏰ موضوع فوری است — همین حالا با پذیرش تماس بگیرید: ☎️ <code>${CLINIC.phone}</code>\n\n` +
+        `همزمان سریع‌ترین نوبت را هم برایتان رزرو می‌کنم که مطمئن شویم بررسی می‌شوید 👇`,
+      keyboard: bookKb,
+      meta: { topic: "فوری" },
+    };
+  }
 
-  // سلام و احوالپرسی
-  if (/^(سلام|درود|هی|های|سلام علیکم)/.test(q) || /^(سلام|درود)[! ،.]*$/.test(q)) {
+  // ─── سلام و احوالپرسی ───
+  if (/^(سلام|درود|هی|های|سلام علیکم|صبح بخیر|عصر بخیر|شب بخیر)/.test(q) || /^(سلام|درود)[! ،.]*$/.test(q)) {
     return {
       text:
         `سلام! 🌸 خوش آمدید.\nمن <b>آوا</b> هستم، منشی هوشمند ${CLINIC.name} — ۲۴ ساعته در خدمتم.\n\n` +
         `سوال‌تان را بپرسید یا از منو انتخاب کنید 👇`,
       keyboard: vipMainKeyboard(),
+      meta: { topic: "سلام" },
     };
   }
 
-  // تشکر
-  if (/(ممنون|مرسی|سپاس|دستت درد|متشکر)/.test(q)) {
+  // ─── تشکر ───
+  if (/(ممنون|مرسی|سپاس|دستت درد|متشکر|لطف کردی)/.test(q)) {
     return {
-      text: `خواهش می‌کنم! 🌸 کاری دارید من هستم — ۲۴ ساعته آنلاین.`,
+      text: `خواهش می‌کنم! 🌸 کاری دارید من هستم — ۲۴ ساعته آنلاین. حمایه‌ی سلامتی‌تان همیشه آرزوی ماست 💚`,
       keyboard: vipMainKeyboard(),
+      meta: { topic: "تشکر" },
     };
   }
 
-  // قیمت
-  if (/(قیمت|هزینه|تعرفه|تاریف|چنده|چقدر|نرخ|خرج)/.test(q)) {
+  // ─── خداحافظی ───
+  if (/(خداحافظ|بدرود|فعلا|بای بای|خدافظ)/.test(q)) {
+    return {
+      text: `به امید دیدار! 🌸 هر ساعت از شبانه‌روز که سوالی داشتید، همین‌جا هستم.`,
+      keyboard: vipMainKeyboard(),
+      meta: { topic: "خداحافظی" },
+    };
+  }
+
+  // ─── آوا کیست / رباطی؟ ───
+  if (/(تو کی هستی|رباتی|ربات هستی|انسانی|آدم هستی|چی بلدی|چه کارهایی)/.test(q)) {
+    return {
+      text:
+        `من <b>آوا</b> هستم، منشی دیجیتال ${CLINIC.name} 🤖\n` +
+        `نوبت‌دهی، معرفی پزشک، قیمت‌ها، آدرس و یادآوری — همه با من.\n` +
+        `هر ساعتی بپرسید جواب می‌دهم، و سوال‌های تخصصی را هم به کارشناس پذیرش می‌رسانم. 🌸`,
+      keyboard: vipMainKeyboard(),
+      meta: { topic: "معرفی آوا" },
+    };
+  }
+
+  // ─── درخواست منشی واقعی / اپراتور ───
+  if (/(اپراتور|منشی واقعی|انسان صحبت|با آدم|مسئول|مدیر کلینیک)/.test(q)) {
+    return {
+      text:
+        `حتماً 🙏 شماره‌تان را ثبت کنید تا <b>کارشناس پذیرش</b> در اولین فرصت (ساعات کاری ۹ تا ۲۰) خودش تماس بگیرد.\n\n` +
+        `یا مستقیم با پذیرش صحبت کنید: ☎️ <code>${CLINIC.phone}</code>`,
+      keyboard: consultKb(),
+      meta: { topic: "درخواست اپراتور" },
+    };
+  }
+
+  // ─── سوال دنباله‌دار با حافظه: قیمت «همون» ───
+  const asksPrice = /(قیمت|هزینه|تعرفه|چنده|چقدر|نرخ|تومن چند|خرج)/.test(q);
+  const refPrev = /(همون|همین|اون|قبلی|بالا|اش |ش چقدر|ش چنده|دوم)|^(قیمتش|هزینش|تعرفه‌ش)$/.test(q);
+  if (asksPrice) {
+    const specIdx = detectSpecIdx(q) ?? mem.lastSpecIdx;
+    if (specIdx !== undefined) {
+      const s = SPECS[specIdx];
+      return {
+        text:
+          `💰 <b>تعرفه‌ی ${s.name}:</b>\n` +
+          (specIdx === 0
+            ? `• ترمیم و درمان دندان: از <b>۸۰۰ هزار تومان</b> 🦷\n• جرم‌گیری، عصب‌کشی و لمینت بسته به وضعیت دندان\n`
+            : `• ویزیت و خدمات این بخش بسته به نوع درمان متفاوت است\n`) +
+          `\nقیمت دقیق را پزشک بعد از معاینه اعلام می‌کند — هیچ هزینه پنهانی نداریم. 🤝\n` +
+          `اگر بخواهید، <b>مشاوره رایگان</b> ثبت کنید تا پذیرش دقیق بگوید.`,
+        keyboard: consultKb("🗓 رزرو نوبت"),
+        meta: { specIdx, topic: `قیمت ${s.name}` },
+      };
+    }
+    if (refPrev && mem.lastTopic) {
+      return {
+        text:
+          `درباره‌ی «${mem.lastTopic}» 💡\n` +
+          `قیمت دقیق را پزشک بعد از معاینه اعلام می‌کند. برای برآورد اولیه، <b>مشاوره رایگان</b> عالی است — پذیرش تلفنی همه‌چیز را می‌گوید. 📞`,
+        keyboard: consultKb("🗓 رزرو نوبت"),
+        meta: { topic: `قیمت — دنباله ${mem.lastTopic}` },
+      };
+    }
     return {
       text:
         `💰 <b>تعرفه‌ها:</b>\n\n` +
@@ -499,90 +598,188 @@ export function avaAnswer(question: string): AvaReply {
         `• خدمات تصویربرداری و آزمایشگاه: طبقه‌بندی خاص\n` +
         `• ترمیم و درمان دندان: از <b>۸۰۰ هزار تومان</b> 🦷\n\n` +
         `تعرفه دقیق به تشخیص پزشک بستگی دارد. اگر شماره‌تان را ثبت کنید، پذیرش برای <b>مشاوره رایگان</b> تماس می‌گیرد و همه‌چیز را دقیق می‌گوید. 📞`,
-      keyboard: consultRow(),
+      keyboard: consultKb(),
+      meta: { topic: "قیمت عمومی" },
     };
   }
 
-  // آدرس
-  if (/(آدرس|ادرس|کجا|مکان|لوکیشن|مسیر|ساکن|موقعیت)/.test(q)) {
+  // ─── سوال دنباله‌دار با حافظه: روز/ساعت «همون دکتر» ───
+  if (/(چه روز|کدوم روز|روزهاش|ساعتش|ساعاتش|کی هست|چه ساعتی)/.test(q)) {
+    const dIdx = mem.lastDoctorIdx;
+    if (dIdx !== undefined && VIP_DOCTORS[dIdx]) {
+      const d = VIP_DOCTORS[dIdx];
+      return {
+        text:
+          `🗓 <b>${d.name}</b> (${d.spec})\nروزهای مطب: <b>${d.days}</b>\n\n` +
+          `همین حالا نوبت بگیرید — کمتر از یک دقیقه طول می‌کشد. 👇`,
+        keyboard: bookKb,
+        meta: { doctorIdx: dIdx, specIdx: d.specIdx, topic: `ساعات ${d.name}` },
+      };
+    }
+    return {
+      text:
+        `🕐 <b>ساعات کاری:</b>\n${CLINIC.hours}\n\n` +
+        `روزهای مطب هر پزشک کمی فرق دارد — بگویید کدام تخصص را می‌خواهید تا دقیق بگویم، یا نوبت بگیرید 👇`,
+      keyboard: bookKb,
+      meta: { topic: "ساعات کاری" },
+    };
+  }
+
+  // ─── آدرس ───
+  if (/(ادرس|کجا هست|مکان|لوکیشن|مسیر|موقعیت|چطور برم)/.test(q)) {
     return {
       text:
         `📍 <b>${CLINIC.name}</b>\n${CLINIC.address}\n\n` +
         `☎️ پذیرش: <code>${CLINIC.phone}</code>\nپارکینگ و دسترسی آسان دارد. 🚗`,
-      keyboard: BOOK_ROW,
+      keyboard: bookKb,
+      meta: { topic: "آدرس" },
     };
   }
 
-  // ساعات کاری
-  if (/(ساعت|ساعتها|باز|تعطیل|بسته|چندشنبه|کاره|شیفت)/.test(q)) {
+  // ─── پارکینگ / دسترسی ───
+  if (/(پارکینگ|ماشین جا|دسترسی|اتوبوس|تاکسی)/.test(q)) {
+    return {
+      text:
+        `🚗 بله — <b>پارکینگ</b> برای مراجعین ${CLINIC.name} مهیاست و دسترسی از بلوار نماز راحت است.\n\n` +
+        `${CLINIC.address}\n\nنوبت بگیرید تا بدون معطلی تشریف بیاورید 👇`,
+      keyboard: bookKb,
+      meta: { topic: "پارکینگ" },
+    };
+  }
+
+  // ─── ساعات کاری ───
+  if (/(ساعت کاری|ساعات کاری|باز هستید|بازید|تعطیل|چندشنبه|شیفت|صبح تا)/.test(q)) {
     return {
       text:
         `🕐 <b>ساعات کاری:</b>\n${CLINIC.hours}\n\n` +
         `ولی من که ۲۴ ساعته اینجا هستم — هر ساعتی بپرسید جواب می‌گیرید! 🤖`,
-      keyboard: BOOK_ROW,
+      keyboard: bookKb,
+      meta: { topic: "ساعات کاری" },
     };
   }
 
-  // بیمه
-  if (/(بیمه|بیمه‌ها|تکمیلی|درمانگاه|قرارداد|دفترچه)/.test(q)) {
+  // ─── بیمه ───
+  if (/(بیمه|تکمیلی|درمانگاه|قرارداد|دفترچه|تامین اجتماعی)/.test(q)) {
     return {
       text:
         `🛡 <b>بیمه:</b>\nکلینیک با اکثر بیمه‌های پایه و بیمه‌های تکمیلی قرارداد دارد.\n\n` +
         `برای اطلاع از اینکه بیمه‌ی شما پوشش می‌دهد یا نه، شماره‌تان را ثبت کنید تا پذیرش دقیق راهنمایی کند. 📞`,
-      keyboard: consultRow(),
+      keyboard: consultKb("🗓 رزرو نوبت"),
+      meta: { topic: "بیمه" },
     };
   }
 
-  // خدمات کلی
-  if (/(خدمات|امکانات|چه کار|چیکار|لیست خدمات|بخش)/.test(q)) {
+  // ─── لغو / جابجایی نوبت ───
+  if (/(لغو|کنسل|جابجا|جابه جا|عوض کنم|تغییر وقت|نمی توانم بیایم)/.test(q)) {
+    return {
+      text:
+        `💬 مشکلی نیست! برای جابجایی یا لغو نوبت:\n` +
+        `1️⃣ از پیام یادآوری تلگرامی دکمه‌ی «می‌خواهم جابجا کنم» را بزنید\n` +
+        `2️⃣ یا با پذیرش تماس بگیرید: ☎️ <code>${CLINIC.phone}</code>\n\n` +
+        `نوبت جدید هم همین‌جا می‌توانید بگیرید 👇`,
+      keyboard: bookKb,
+      meta: { topic: "لغو/جابجایی" },
+    };
+  }
+
+  // ─── آزمایشگاه / تصویربرداری / سونوگرافی ───
+  if (/(ازمایش|آزمایش|خون دادن|رادیولوژی|تصویربرداری|سونو|سی تی|ام آر ای|ام آرآی)/.test(q)) {
+    return {
+      text:
+        `🔬 <b>آزمایشگاه و تصویربرداری</b> در ${CLINIC.name} فعال است — نمونه‌گیری خون و سونوگرافی با نوبت قبلی انجام می‌شود.\n\n` +
+        `بگویید برای چه بررسی‌ای می‌خواهید، یا نوبت بگیرید تا پزشک دستور لازم را صادر کند 👇`,
+      keyboard: bookKb,
+      meta: { topic: "آزمایش/تصویربرداری" },
+    };
+  }
+
+  // ─── آمادگی قبل از مراجعه ───
+  if (/(ناشتا|قبل از مراجعه|چی بخورم|آماده باشم|بخورم نیارم|قرص بخورم)/.test(q)) {
+    return {
+      text:
+        `📋 <b>قبل از مراجعه:</b>\n` +
+        `• برای آزمایش خون و چربی خون: ۱۲ ساعت ناشتا\n` +
+        `• سونوگرافی شکم: ۶ ساعت ناشتا\n` +
+        `• ویزیت عادی: آمادگی خاصی لازم نیست\n` +
+        `• مدارک: کارت ملی + دفترچه/کارت بیمه بیاورید 🗂\n\n` +
+        `سوال خاصی برای تخصص خودتان دارید؟ بپرسید یا نوبت بگیرید 👇`,
+      keyboard: bookKb,
+      meta: { topic: "آمادگی مراجعه" },
+    };
+  }
+
+  // ─── فاکتور / گواهی ───
+  if (/(فاکتور|رسید|گواهی|نامه پزشکی|مرخصی)/.test(q)) {
+    return {
+      text:
+        `🧾 بله — پس از ویزیت، <b>فاکتور رسمی</b> صادر می‌شود و اگر پزشک تشخیص دهد، <b>گواهی پزشکی</b> هم صادر می‌گردد.\n\n` +
+        `سوال دیگرتان را بپرسید یا نوبت بگیرید 👇`,
+      keyboard: bookKb,
+      meta: { topic: "فاکتور/گواهی" },
+    };
+  }
+
+  // ─── لیست خدمات / تخصص‌ها ───
+  if (/(خدمات|امکانات|چه کار|چیکار|لیست|بخش|تخصص)/.test(q)) {
     return {
       text:
         `🏥 <b>تخصص‌های ${CLINIC.name}:</b>\n\n` +
         SPECS.map((s) => `${s.emoji} ${s.name}`).join("\n") +
         `\n\nکدام تخصص را می‌خواهید؟ یا مستقیم نوبت بگیرید 👇`,
-      keyboard: BOOK_ROW,
+      keyboard: bookKb,
+      meta: { topic: "لیست خدمات" },
     };
   }
 
-  // معرفی پزشک بر اساس مشکل — عین سناریوی دموی «آوا»
-  const rec = (d: VipDoctor, symptom: string): AvaReply => ({
-    text:
-      `${symptom}\n\nپیشنهاد من: <b>${d.name}</b> (${d.spec}) 🩺\n🗓 روزهای مطب: ${d.days}\n\n` +
-      `همین حالا نوبت بگیرید تا یادآوری رایگان تلگرامی هم بگیرید. 👇`,
-    keyboard: BOOK_ROW,
-  });
-  if (/(دندان|دندون|لمینت|ایمپلنت|ترمیم|جرم‌گیری|جرم گیری|ریشه)/.test(q))
-    return rec(VIP_DOCTORS[0], "متأسفم که درد دارید 🙏");
-  if (/(پوست|مو|جوش|لک|آکنه|آبله|کیکاک|لیزر|ریزش مو)/.test(q))
-    return rec(VIP_DOCTORS[1], "برای پوست و مو بهترین انتخاب این است ✨");
-  if (/(قلب|سینه|تپش|فشار خون|نفس‌نفس|نفس نفس|چربی خون)/.test(q))
-    return rec(VIP_DOCTORS[2], "برای قلب و عروق حتماً پیگیری کنید ❤️");
-  if (/(زنان|باردار|بارداری|یائسگی|سونوگرافی زنان)/.test(q))
-    return rec(VIP_DOCTORS[3], "این موضوع را متخصص زنان پیگیری می‌کند 🌸");
-  if (/(کودک|بچه|اطفال|شیرخوار|واکسن کودک|تب کودک)/.test(q))
-    return rec(VIP_DOCTORS[4], "برای کودک دلسوزانه پیگیری کنیم 👶");
-  if (/(اعصاب|سردرد|میگرن|سرگیجه|بی‌خوابی|بی خوابی|تشدید|لرزش|فراموشی)/.test(q))
-    return rec(VIP_DOCTORS[5], "برای مغز و اعصاب بهتر است بررسی شود 🧠");
+  // ─── چند دکتر / لیست پزشکان / دکتر خاص ───
+  const namedDoctor = VIP_DOCTORS.find((d) => q.includes(normalizeFa(d.name.split(" ").slice(-1)[0].toLowerCase())));
+  if (namedDoctor || /(چند تا دکتر|چند دکتر|لیست پزشک|پزشکان|دکترها)/.test(q)) {
+    if (namedDoctor) {
+      const i = VIP_DOCTORS.indexOf(namedDoctor);
+      return {
+        text:
+          `🩺 <b>${namedDoctor.name}</b> — ${namedDoctor.spec}\n🗓 روزهای مطب: ${namedDoctor.days}\n\n` +
+          `نوبتِ ${namedDoctor.name.split(" ").slice(-1)[0]} را همین حالا رزرو کنید 👇`,
+        keyboard: bookKb,
+        meta: { doctorIdx: i, specIdx: namedDoctor.specIdx, topic: namedDoctor.name },
+      };
+    }
+    return {
+      text: `${vipDoctorsListText()}\n\nیا بگویید چه مشکلی دارید تا پزشک مناسب را معرفی کنم 🙏`,
+      keyboard: bookKb,
+      meta: { topic: "لیست پزشکان" },
+    };
+  }
 
-  // نوبت / رزرو
+  // ─── نوبت / رزرو ───
   if (/(نوبت|رزرو|وقت|ویزیت بشم|بیمار بشم|مراجعه)/.test(q)) {
     return {
       text: `عالی! ✨ بیایید همین حالا نوبت بگیریم — تخصص مورد نظر را انتخاب کنید:`,
-      keyboard: BOOK_ROW,
+      keyboard: bookKb,
+      meta: { topic: "رزرو" },
     };
   }
 
-  // فوریت / درد شدید
-  if (/(فوری|شدید|تحمل نمی|اورژانس|بدتر شد)/.test(q)) {
+  // ─── معرفی پزشک بر اساس علامت / تخصص مذکور ───
+  const symIdx = detectSpecIdx(q);
+  if (symIdx !== undefined) {
+    const d = VIP_DOCTORS.find((x) => x.specIdx === symIdx) ?? VIP_DOCTORS[symIdx];
+    const s = SPECS[symIdx];
+    const sympathies = [
+      "متأسفم که اذیت می‌شوید 🙏",
+      "زودتر بررسی‌اش کنیم بهتر است ✨",
+      "نگران نباشید، قابل حل است 🌸",
+    ][symIdx % 3];
     return {
       text:
-        `اگر درد شدید است، فوراً با پذیرش تماس بگیرید: ☎️ <code>${CLINIC.phone}</code>\n\n` +
-        `همچنین می‌توانم سریع‌ترین نوبت را برایتان رزرو کنم 👇`,
-      keyboard: BOOK_ROW,
+        `${sympathies}\n\nپیشنهاد من: <b>${d.name}</b> (${s.emoji} ${s.name}) 🩺\n🗓 روزهای مطب: ${d.days}\n\n` +
+        `همین حالا نوبت بگیرید تا یادآوری رایگان تلگرامی هم بگیرید. 👇`,
+      keyboard: bookKb,
+      meta: { doctorIdx: VIP_DOCTORS.indexOf(d), specIdx: symIdx, topic: `علامت ${s.name}` },
     };
   }
 
-  // fallback صادقانه — هدایت به مشاوره (مثل رفتار دموی اینستاگرام: گرفتن سرنخ)
+  // ─── fallback صادقانه — هدایت به مشاوره (سرنخ‌گیری مثل دموی اینستاگرام) ───
   return {
     text:
       `سوال خوبی است 🙏 برای پاسخ دقیق و تخصصی، کارشناس پذیرش باید جزئیات را ببیند.\n\n` +
@@ -594,17 +791,30 @@ export function avaAnswer(question: string): AvaReply {
         [{ text: "🏠 منوی اصلی", callback_data: "home" }],
       ],
     },
+    meta: { topic: "سایر" },
   };
 }
 
-// ─── یادآوری VIP (کرون مشترک پلن ۲ + VIP) ───
+// ─── یادآوری VIP (کرون مشترک پلن ۲ + VIP) — متن ثابت و قابل اتکا ───
 export function vipReminderText(b: VipBooking): string {
   const d = VIP_DOCTORS[b.doctorIdx];
   return (
     `⏰ <b>یادآوری نوبت</b>\n\n` +
     `نوبت شما: <b>${b.dayLabel} ساعت ${b.time}</b>\n` +
     `${d.name} (${d.spec})\n\n` +
+    `📍 ${CLINIC.address}\n` +
+    `لطفًا ۱۵ دقیقه قبل حاضر باشید.\n\n` +
     `آیا این نوبت را حفظ می‌کنید؟`
+  );
+}
+
+/** متن ثابت تماس صوتی (کاوه‌نگار TTS) — بدون HTML، خوانا برای سیستم تلفنی */
+export function reminderCallText(b: VipBooking): string {
+  const d = VIP_DOCTORS[b.doctorIdx];
+  return (
+    `سلام، از کلینیک سلامت. یادآوری نوبت. ` +
+    `${b.dayLabel}، ساعت ${b.time}، ${d.name}. ` +
+    `لطفا پانزده دقیقه قبل حاضر باشید. تا شنیدن دوباره.`
   );
 }
 

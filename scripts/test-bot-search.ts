@@ -1,5 +1,5 @@
 // Local test of bot search logic (no deployment needed)
-import { searchReplyMessage, recentReplyMessage, searchArticles } from "../src/lib/bot-search";
+import { searchReplyMessage, topReplyMessage, searchArticles } from "../src/lib/bot-search";
 
 const queries = ["پایتون", "درآمد با هوش مصنوعی", "صرافی", "امنیت رمز", "دایپ فیک", "ناموجود xyz"];
 for (const q of queries) {
@@ -10,4 +10,4 @@ for (const q of queries) {
 console.log("\n--- sample reply (پایتون) ---");
 console.log(searchReplyMessage("پایتون"));
 console.log("\n--- sample reply (recent) ---");
-console.log(recentReplyMessage().slice(0, 300));
+console.log(topReplyMessage().slice(0, 300));
