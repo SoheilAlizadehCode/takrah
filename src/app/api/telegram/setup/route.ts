@@ -1,9 +1,11 @@
 // ─── ثبت خودکار وبهوک تلگرام ───
 // کافیست در مرورگر باز کنید:
 //   https://takrah.top/api/telegram/setup?key=<CLINIC_WEBHOOK_SECRET>
-// ربات کلینیک ثبت می‌شود. با &bot=all ربات رشد بلاگ هم دوباره ثبت می‌شود.
+// ربات کلینیک ثبت می‌شود. با &bot=all ربات رشد بلاگ + ربات VIP هم ثبت می‌شوند.
+// فقط VIP:  ?key=<SECRET>&bot=vip
 import { NextRequest } from "next/server";
 import { CLINIC_SECRET, CLINIC_TOKEN, SITE_URL } from "@/lib/clinic-bot";
+import { VIP_SECRET, VIP_TOKEN } from "@/lib/vip-bot";
 
 export const dynamic = "force-dynamic";
 
@@ -71,6 +73,22 @@ export async function GET(req: NextRequest) {
       bot: "growth-blog",
       ...(await setWebhook(GROWTH_TOKEN, `${SITE_URL}/api/telegram-bot`, GROWTH_SECRET)),
     });
+  }
+
+  if (bot === "vip" || bot === "all") {
+    if (!VIP_TOKEN) {
+      results.push({
+        bot: "vip",
+        ok: false,
+        description:
+          "متغیر VIP_BOT_TOKEN در Vercel تنظیم نشده — اول توکن BotFather را در Environment Variables اضافه کنید و redeploy بگیرید",
+      });
+    } else {
+      results.push({
+        bot: "vip",
+        ...(await setWebhook(VIP_TOKEN, `${SITE_URL}/api/telegram/vip`, VIP_SECRET)),
+      });
+    }
   }
 
   return Response.json({ ok: results.some((r) => r.ok), site: SITE_URL, results });

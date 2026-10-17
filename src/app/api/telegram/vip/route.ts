@@ -1,0 +1,579 @@
+// ─── وبهوک ربات VIP کلینیک سلامت ───
+// آینه‌ی دموی پلن ۳: تخصص → پزشک → روز → ساعت → نام → تلفن → توضیحات → تأیید
+// + منشی هوشمند «آوا» (هر متن آزاد = سوال) + مشاوره رایگان (سرنخ‌گیری) + یادآوری
+// ثبت واقعی: نوبت/سرنخ ذخیره و کارت آن برای ادمین (VIP_ADMIN_CHAT_ID) ارسال می‌شود.
+import { NextRequest } from "next/server";
+import {
+  CLINIC,
+  SPECS,
+  SLOTS,
+  VIP_ADMIN_CHAT_ID,
+  VIP_DOCTORS,
+  VIP_SECRET,
+  VIP_TOKEN,
+  type PendingVip,
+  type VipBooking,
+  type VipLead,
+  avaAnswer,
+  avaIntroText,
+  confirmVipKeyboard,
+  daysKeyboardVip,
+  doctorsKeyboardForSpec,
+  isPhone,
+  normalizePhone,
+  pendingVipState,
+  replyVip,
+  saveVipBooking,
+  saveVipLead,
+  skipNoteKeyboard,
+  slotsKeyboardVip,
+  specsKeyboard,
+  tgVip,
+  userVipBookings,
+  vipAdminNotification,
+  vipBookingConfirmedText,
+  vipDoctorsListText,
+  vipInfoText,
+  vipMainKeyboard,
+  vipSummaryCard,
+  vipWelcomeText,
+  workingDays,
+} from "@/lib/vip-bot";
+
+export const dynamic = "force-dynamic";
+export const maxDuration = 30;
+
+type Keyboard = {
+  inline_keyboard: { text: string; callback_data?: string; url?: string }[][];
+};
+
+function btn(text: string, data: string): { text: string; callback_data: string } {
+  return { text, callback_data: data };
+}
+
+async function answerCb(id: string, text?: string): Promise<void> {
+  if (!id) return;
+  await tgVip("answerCallbackQuery", { callback_query_id: id, ...(text ? { text } : {}) });
+}
+
+async function editOrReply(
+  chatId: number | string,
+  messageId: number | undefined,
+  text: string,
+  keyboard?: Keyboard,
+): Promise<void> {
+  if (messageId) {
+    const res = (await tgVip("editMessageText", {
+      chat_id: chatId,
+      message_id: messageId,
+      text,
+      parse_mode: "HTML",
+      reply_markup: keyboard,
+    })) as { ok?: boolean } | null;
+    if (res?.ok) return;
+  }
+  await replyVip(chatId, text, keyboard);
+}
+
+// ─── پیام‌های متنی (فرمان‌ها + مراحل + سوال آزاد برای آوا) ───
+async function handleText(chatId: number, text: string, fromName?: string): Promise<void> {
+  const p = pendingVipState.get(chatId);
+
+  if (text.startsWith("/start")) {
+    const payload = text.split(" ")[1] || "";
+    pendingVipState.del(chatId);
+    if (payload === "book") {
+      await replyVip(chatId, "🏥 <b>تخصص مورد نظر را انتخاب کنید:</b>", specsKeyboard());
+      return;
+    }
+    if (payload === "ava") {
+      pendingVipState.set(chatId, { mode: "ava", step: "name" });
+      await replyVip(chatId, avaIntroText());
+      return;
+    }
+    await replyVip(chatId, vipWelcomeText(fromName), vipMainKeyboard());
+    return;
+  }
+
+  if (text.startsWith("/id")) {
+    await replyVip(
+      chatId,
+      `🆔 شناسه‌ی چت شما:\n<code>${chatId}</code>\n\n` +
+        `اگر مدیر کلینیک هستید، این عدد را در متغیر VIP_ADMIN_CHAT_ID قرار دهید تا نوبت‌ها و سرنخ‌های جدید برایتان ارسال شود.`,
+    );
+    return;
+  }
+
+  if (text.startsWith("/bookings") || text.startsWith("/my")) {
+    const list = await userVipBookings(chatId);
+    if (!list.length) {
+      await replyVip(chatId, "هنوز نوبتی ندارید — با دکمه‌ی «🗓 رزرو نوبت» شروع کنید 🌸", vipMainKeyboard());
+      return;
+    }
+    const body = list
+      .map(
+        (b) =>
+          `🧾 <code>#${b.id}</code>\n${SPECS[b.specIdx].emoji} ${SPECS[b.specIdx].name}\n🩺 ${VIP_DOCTORS[b.doctorIdx].name}\n🗓 ${b.dayLabel} — ساعت <b>${b.time}</b>`,
+      )
+      .join("\n\n");
+    await replyVip(chatId, `🔎 <b>نوبت‌های شما:</b>\n\n${body}`, vipMainKeyboard());
+    return;
+  }
+
+  if (text.startsWith("/help")) {
+    await replyVip(
+      chatId,
+      "راهنما:\n/start — شروع و منوی اصلی\n/bookings — نوبت‌های من\n/id — شناسه چت (برای مدیر)\n/help — همین راهنما\n\nهر سوال دیگری هم بنویسید، منشی هوشمند «آوا» جواب می‌دهد 🤖",
+      vipMainKeyboard(),
+    );
+    return;
+  }
+
+  // ── مراحل رزرو نوبت ──
+  if (p?.mode === "booking" && p.step === "name") {
+    const name = text.replace(/\s+/g, " ").trim();
+    if (name.length < 3 || name.length > 60) {
+      await replyVip(chatId, "لطفاً نام و نام خانوادگی کامل را بنویسید 🙏");
+      return;
+    }
+    p.name = name;
+    p.step = "phone";
+    pendingVipState.set(chatId, p);
+    await replyVip(
+      chatId,
+      `خوش آمدید ${name}! 🌸\nحالا <b>شماره موبایل</b> خود را بفرستید (مثلاً ۰۹۱۱۱۲۳۴۵۶۷)\nتا در صورت نیاز بتوانیم نوبت را هماهنگ کنیم.`,
+    );
+    return;
+  }
+
+  if (p?.mode === "booking" && p.step === "phone") {
+    if (!isPhone(text)) {
+      await replyVip(
+        chatId,
+        "شماره موبایل معتبر نیست — با ۰۹ شروع می‌شود و ۱۱ رقم است.\nمثال: ۰۹۱۱۱۲۳۴۵۶۷",
+      );
+      return;
+    }
+    p.phone = normalizePhone(text);
+    p.step = "note";
+    pendingVipState.set(chatId, p);
+    await replyVip(
+      chatId,
+      `📝 <b>توضیحات (اختیاری):</b>\nاگر توضیحی برای پزشک دارید بنویسید — مثلاً «درد دندان از دو روز پیش...»`,
+      skipNoteKeyboard(),
+    );
+    return;
+  }
+
+  if (p?.mode === "booking" && p.step === "note") {
+    p.note = text.slice(0, 300);
+    pendingVipState.set(chatId, p);
+    await replyVip(chatId, vipSummaryCard(p), confirmVipKeyboard());
+    return;
+  }
+
+  // ── مراحل مشاوره (سرنخ‌گیری) ──
+  if (p?.mode === "lead" && p.step === "name") {
+    const name = text.replace(/\s+/g, " ").trim();
+    if (name.length < 3 || name.length > 60) {
+      await replyVip(chatId, "لطفاً نام و نام خانوادگی کامل را بنویسید 🙏");
+      return;
+    }
+    p.name = name;
+    p.step = "phone";
+    pendingVipState.set(chatId, p);
+    await replyVip(
+      chatId,
+      `${name} عزیز 🌸\n<b>شماره موبایل</b> خود را بفرستید تا کارشناس پذیرش با شما تماس بگیرد.`,
+    );
+    return;
+  }
+
+  if (p?.mode === "lead" && p.step === "phone") {
+    if (!isPhone(text)) {
+      await replyVip(
+        chatId,
+        "شماره موبایل معتبر نیست — با ۰۹ شروع می‌شود و ۱۱ رقم است.\nمثال: ۰۹۱۱۱۲۳۴۵۶۷",
+      );
+      return;
+    }
+    p.phone = normalizePhone(text);
+    p.step = "topic";
+    pendingVipState.set(chatId, p);
+    await replyVip(chatId, "آخرین قدم! موضوع مشاوره را انتخاب کنید 👇", {
+      inline_keyboard: [
+        ...SPECS.map((s, i) => [{ text: `${s.emoji} ${s.name}`, callback_data: `lt:${i}` }]),
+        [{ text: "💬 سوال عمومی", callback_data: "lt:-1" }],
+      ],
+    });
+    return;
+  }
+
+  // ── حالت گفتگو با آوا ──
+  if (p?.mode === "ava") {
+    const a = avaAnswer(text);
+    pendingVipState.del(chatId);
+    await replyVip(chatId, a.text, a.keyboard ?? vipMainKeyboard());
+    return;
+  }
+
+  // متن آزاد بدون حالت → مستقیم به منشی هوشمند (قلب پلن VIP)
+  const a = avaAnswer(text);
+  await replyVip(chatId, a.text, a.keyboard ?? vipMainKeyboard());
+}
+
+// ─── دکمه‌ها (callback) ───
+async function handleCallback(
+  chatId: number,
+  data: string,
+  cbId: string,
+  messageId?: number,
+): Promise<void> {
+  const days = workingDays();
+
+  if (data === "taken") {
+    await answerCb(cbId, "این ساعت پر شده — یکی دیگر انتخاب کنید 🙏");
+    return;
+  }
+  if (data === "noop") {
+    await answerCb(cbId);
+    return;
+  }
+
+  if (data === "home") {
+    pendingVipState.del(chatId);
+    await editOrReply(chatId, messageId, vipWelcomeText(), vipMainKeyboard());
+    return;
+  }
+
+  if (data === "book") {
+    pendingVipState.del(chatId);
+    await editOrReply(chatId, messageId, "🏥 <b>تخصص مورد نظر را انتخاب کنید:</b>", specsKeyboard());
+    return;
+  }
+
+  if (data === "docs") {
+    await editOrReply(chatId, messageId, vipDoctorsListText(), {
+      inline_keyboard: [[btn("🗓 رزرو نوبت", "book")], [btn("🏠 منو", "home")]],
+    });
+    return;
+  }
+
+  if (data === "info") {
+    await editOrReply(chatId, messageId, vipInfoText(), {
+      inline_keyboard: [[btn("🗓 رزرو نوبت", "book")], [btn("🏠 منو", "home")]],
+    });
+    return;
+  }
+
+  if (data === "my") {
+    const list = await userVipBookings(chatId);
+    if (!list.length) {
+      await editOrReply(chatId, messageId, "هنوز نوبتی ندارید — بیایید اولین نوبت را بگیریم! 🌸", {
+        inline_keyboard: [[btn("🗓 رزرو نوبت", "book")], [btn("🏠 منو", "home")]],
+      });
+      return;
+    }
+    const body = list
+      .map(
+        (b) =>
+          `🧾 <code>#${b.id}</code>\n🩺 ${VIP_DOCTORS[b.doctorIdx].name}\n🗓 ${b.dayLabel} — ساعت <b>${b.time}</b>`,
+      )
+      .join("\n\n");
+    await editOrReply(chatId, messageId, `🔎 <b>نوبت‌های شما:</b>\n\n${body}`, {
+      inline_keyboard: [[btn("🗓 رزرو نوبت", "book")], [btn("🏠 منو", "home")]],
+    });
+    return;
+  }
+
+  // حالت گفتگو با آوا
+  if (data === "ava") {
+    pendingVipState.set(chatId, { mode: "ava", step: "name" });
+    await editOrReply(chatId, messageId, avaIntroText());
+    return;
+  }
+
+  // مشاوره رایگان — شروع سرنخ‌گیری
+  if (data === "consult") {
+    pendingVipState.set(chatId, {
+      mode: "lead",
+      step: "name",
+      leadId: Math.random().toString(36).slice(2, 6).toUpperCase(),
+    });
+    await editOrReply(
+      chatId,
+      messageId,
+      `📞 <b>مشاوره رایگان ${CLINIC.name}</b>\n\nکارشناس پذیرش با شما تماس می‌گیرد و همه‌ی سوال‌هایتان را جواب می‌دهد.\n\nاول <b>نام و نام خانوادگی</b> خود را بنویسید:`,
+      { inline_keyboard: [[btn("❌ انصراف", "home")]] },
+    );
+    return;
+  }
+
+  // موضوع مشاوره → ثبت سرنخ
+  if (data.startsWith("lt:")) {
+    const ti = Number(data.slice(3));
+    const p = pendingVipState.get(chatId);
+    if (!p || p.mode !== "lead" || !p.name || !p.phone) {
+      await editOrReply(chatId, messageId, "این درخواست منقضی شده — دوباره «📞 مشاوره رایگان» را بزنید 🌸", {
+        inline_keyboard: [[btn("📞 مشاوره رایگان", "consult")]],
+      });
+      return;
+    }
+    const topic = ti >= 0 && SPECS[ti] ? `${SPECS[ti].emoji} ${SPECS[ti].name}` : "💬 سوال عمومی";
+    const lead: VipLead = {
+      id: p.leadId ?? Math.random().toString(36).slice(2, 6).toUpperCase(),
+      chatId,
+      userName: p.name,
+      phone: p.phone,
+      topic,
+      createdAt: Date.now(),
+    };
+    await saveVipLead(lead);
+    pendingVipState.del(chatId);
+
+    await editOrReply(
+      chatId,
+      messageId,
+      `✅ <b>درخواست مشاوره‌ی شما ثبت شد!</b>\n\n👤 ${lead.userName}\n📱 ${lead.phone}\n📌 موضوع: ${topic}\n🧾 کد: <code>#${lead.id}</code>\n\n☎️ کارشناس پذیرش در ساعات کاری (۹ تا ۲۰) با شما تماس می‌گیرد. 🌸`,
+      { inline_keyboard: [[btn("🗓 رزرو نوبت", "book")], [btn("🏠 منوی اصلی", "home")]] },
+    );
+
+    if (VIP_ADMIN_CHAT_ID) {
+      await replyVip(
+        VIP_ADMIN_CHAT_ID,
+        `🎯 <b>سرنخ جدید (ربات VIP)</b>\n\n👤 ${lead.userName} — <code>${lead.phone}</code>\n📌 موضوع: ${topic}\n🧾 کد: <code>#${lead.id}</code>\n\n☎️ همین سرنخ باید تا امروز پیگیری شود!`,
+      );
+    }
+    return;
+  }
+
+  // انتخاب تخصص → لیست پزشکان
+  if (data.startsWith("spec:")) {
+    const i = Number(data.slice(5));
+    if (!Number.isInteger(i) || !SPECS[i]) {
+      await answerCb(cbId, "گزینه نامعتبر است");
+      return;
+    }
+    pendingVipState.del(chatId);
+    await editOrReply(
+      chatId,
+      messageId,
+      `${SPECS[i].emoji} <b>${SPECS[i].name}</b>\n\nپزشک مورد نظر را انتخاب کنید (⭐ تخصص همان شاخه است):`,
+      doctorsKeyboardForSpec(i),
+    );
+    return;
+  }
+
+  // انتخاب پزشک → لیست روزها
+  if (data.startsWith("d:")) {
+    const i = Number(data.slice(2));
+    if (!Number.isInteger(i) || !VIP_DOCTORS[i]) {
+      await answerCb(cbId, "گزینه نامعتبر است");
+      return;
+    }
+    const d = VIP_DOCTORS[i];
+    pendingVipState.del(chatId);
+    await editOrReply(
+      chatId,
+      messageId,
+      `✨ <b>${d.name}</b> (${d.spec})\n🗓 روزهای مطب: ${d.days}\n\nچه روزی مناسب شماست؟`,
+      daysKeyboardVip(i),
+    );
+    return;
+  }
+
+  // انتخاب روز → لیست اسلات‌ها
+  if (data.startsWith("w:")) {
+    const [, di, wi] = data.split(":").map(Number);
+    if (!VIP_DOCTORS[di] || !days[wi]) {
+      await answerCb(cbId, "گزینه نامعتبر است");
+      return;
+    }
+    await editOrReply(
+      chatId,
+      messageId,
+      `🗓 <b>${days[wi].label}</b> — ${VIP_DOCTORS[di].name}\n\nساعت مورد نظر را انتخاب کنید:\n(ساعت‌های ✖ پر شده‌اند)`,
+      slotsKeyboardVip(di, wi),
+    );
+    return;
+  }
+
+  // انتخاب ساعت → مرحله‌ی نام
+  if (data.startsWith("s:")) {
+    const [, di, wi, si] = data.split(":").map(Number);
+    if (!VIP_DOCTORS[di] || !days[wi] || !SLOTS[si]) {
+      await answerCb(cbId, "گزینه نامعتبر است");
+      return;
+    }
+    const bookingId = Math.random().toString(36).slice(2, 6).toUpperCase();
+    pendingVipState.set(chatId, {
+      mode: "booking",
+      step: "name",
+      doctorIdx: di,
+      specIdx: VIP_DOCTORS[di].specIdx,
+      dayIso: days[wi].iso,
+      dayLabel: days[wi].label,
+      time: SLOTS[si],
+      bookingId,
+    });
+    await editOrReply(
+      chatId,
+      messageId,
+      `عالی! ✨\n🩺 ${VIP_DOCTORS[di].name} — 🗓 ${days[wi].label} — 🕐 <b>${SLOTS[si]}</b>\n\nحالا <b>نام و نام خانوادگی</b> خود را بنویسید:`,
+      { inline_keyboard: [[btn("❌ انصراف", "home")]] },
+    );
+    return;
+  }
+
+  // رد کردن توضیحات
+  if (data === "skipnote") {
+    const p = pendingVipState.get(chatId);
+    if (!p || p.mode !== "booking") {
+      await editOrReply(chatId, messageId, "این درخواست منقضی شده — دوباره شروع کنیم 🌸", {
+        inline_keyboard: [[btn("🗓 رزرو نوبت", "book")]],
+      });
+      return;
+    }
+    p.note = undefined;
+    pendingVipState.set(chatId, p);
+    await editOrReply(chatId, messageId, vipSummaryCard(p), confirmVipKeyboard());
+    return;
+  }
+
+  // تأیید نهایی نوبت VIP
+  if (data === "vb:confirm") {
+    const p = pendingVipState.get(chatId);
+    if (!p || p.mode !== "booking" || !p.name || !p.phone) {
+      await editOrReply(chatId, messageId, "این درخواست منقضی شده — بیایید از نو شروع کنیم 🌸", {
+        inline_keyboard: [[btn("🗓 رزرو نوبت", "book")]],
+      });
+      return;
+    }
+    const booking: VipBooking = {
+      id: p.bookingId ?? Math.random().toString(36).slice(2, 6).toUpperCase(),
+      chatId,
+      userName: p.name,
+      phone: p.phone,
+      note: p.note,
+      specIdx: p.specIdx ?? VIP_DOCTORS[p.doctorIdx ?? 0].specIdx,
+      doctorIdx: p.doctorIdx ?? 0,
+      dayIso: p.dayIso ?? workingDays()[0].iso,
+      dayLabel: p.dayLabel ?? "",
+      time: p.time ?? SLOTS[0],
+      createdAt: Date.now(),
+    };
+    await saveVipBooking(booking);
+    pendingVipState.del(chatId);
+
+    await editOrReply(chatId, messageId, vipBookingConfirmedText(booking), {
+      inline_keyboard: [[btn("🔎 نوبت‌های من", "my")], [btn("🏠 منوی اصلی", "home")]],
+    });
+
+    if (VIP_ADMIN_CHAT_ID) {
+      await replyVip(VIP_ADMIN_CHAT_ID, vipAdminNotification(booking));
+    }
+    return;
+  }
+
+  if (data === "vb:cancel") {
+    pendingVipState.del(chatId);
+    await editOrReply(
+      chatId,
+      messageId,
+      "باشه، نوبت ثبت نشد 🙏\nهر وقت خواستید در خدمتم!",
+      vipMainKeyboard(),
+    );
+    return;
+  }
+
+  // پاسخ به یادآوری ۲۴ ساعته
+  if (data.startsWith("rem:")) {
+    const [, id, act] = data.split(":");
+    if (act === "ok") {
+      await editOrReply(
+        chatId,
+        messageId,
+        `عالی! 🙌 نوبت شما تأیید شد.\n📍 ${CLINIC.address}\n۱۵ دقیقه قبل حاضر باشید — ما منتظرتان هستیم 🌸`,
+      );
+      if (VIP_ADMIN_CHAT_ID)
+        await replyVip(VIP_ADMIN_CHAT_ID, `✅ بیمار «نوبت VIP #${id}» را تأیید کرد.`);
+      return;
+    }
+    if (act === "chg") {
+      await editOrReply(
+        chatId,
+        messageId,
+        `💬 مشکلی نیست! برای جابجایی نوبت، پذیرش را خبر کنید:\n☎️ <code>${CLINIC.phone}</code>\n\nیا همین حالا یک نوبت جدید بگیرید:`,
+        { inline_keyboard: [[btn("🗓 رزرو نوبت جدید", "book")], [btn("🏠 منو", "home")]] },
+      );
+      if (VIP_ADMIN_CHAT_ID)
+        await replyVip(VIP_ADMIN_CHAT_ID, `🔁 بیمار «نوبت VIP #${id}» درخواست جابجایی دارد.`);
+      return;
+    }
+  }
+
+  await answerCb(cbId);
+}
+
+// ─── POST: آپدیت‌های تلگرام ───
+export async function POST(req: NextRequest) {
+  if (req.headers.get("x-telegram-bot-api-secret-token") !== VIP_SECRET) {
+    return new Response("forbidden", { status: 403 });
+  }
+
+  type Update = {
+    message?: {
+      chat?: { id?: number };
+      from?: { first_name?: string };
+      text?: string;
+    };
+    callback_query?: {
+      id?: string;
+      data?: string;
+      message?: { chat?: { id?: number }; message_id?: number };
+    };
+  };
+
+  let update: Update;
+  try {
+    update = await req.json();
+  } catch {
+    return Response.json({ ok: true });
+  }
+
+  try {
+    if (update.callback_query) {
+      const cb = update.callback_query;
+      const chatId = cb.message?.chat?.id;
+      if (chatId && cb.data) {
+        await handleCallback(chatId, cb.data, cb.id ?? "", cb.message?.message_id);
+      }
+    } else if (update.message) {
+      const msg = update.message;
+      const chatId = msg.chat?.id;
+      const text = (msg.text || "").trim();
+      if (chatId && text) {
+        await handleText(chatId, text, msg.from?.first_name);
+      }
+    }
+  } catch {
+    // هرگز خطا به تلگرام برنگردد — retry بی‌مورد ایجاد نمی‌شود
+  }
+
+  return Response.json({ ok: true });
+}
+
+// ─── GET: بررسی سلامت ───
+export async function GET() {
+  return Response.json({
+    ok: true,
+    bot: "vip-receptionist",
+    clinic: CLINIC.name,
+    specs: SPECS.length,
+    doctors: VIP_DOCTORS.length,
+    slots: SLOTS.length,
+    tokenConfigured: Boolean(VIP_TOKEN),
+    adminConfigured: Boolean(VIP_ADMIN_CHAT_ID),
+    hint: "POST telegram updates here",
+  });
+}

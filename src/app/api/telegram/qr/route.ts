@@ -1,26 +1,32 @@
-// ─── کد QR لینک ربات کلینیک (SVG برداری — بدون CDN خارجی) ───
+// ─── کد QR لینک ربات‌ها (SVG برداری — بدون CDN خارجی) ───
 // استفاده در دموی plan2:  <img src="/api/telegram/qr">
+// استفاده در دموی plan3:  <img src="/api/telegram/qr?bot=vip">
 import { CLINIC_TOKEN } from "@/lib/clinic-bot";
+import { VIP_TOKEN } from "@/lib/vip-bot";
 import QRCode from "qrcode";
 
 export const dynamic = "force-dynamic";
 
-let cached: { at: number; svg: string } | null = null;
+const cached = new Map<string, { at: number; svg: string }>();
 
-export async function GET() {
-  if (!CLINIC_TOKEN) {
+export async function GET(req: Request) {
+  const bot = new URL(req.url).searchParams.get("bot") ?? "clinic";
+  const token = bot === "vip" ? VIP_TOKEN : CLINIC_TOKEN;
+
+  if (!token) {
     return new Response("ربات هنوز تنظیم نشده است", { status: 503 });
   }
 
-  if (cached && Date.now() - cached.at < 300_000) {
-    return new Response(cached.svg, {
+  const hit = cached.get(bot);
+  if (hit && Date.now() - hit.at < 300_000) {
+    return new Response(hit.svg, {
       headers: { "content-type": "image/svg+xml", "cache-control": "public, max-age=300" },
     });
   }
 
   let username = "";
   try {
-    const res = await fetch(`https://api.telegram.org/bot${CLINIC_TOKEN}/getMe`);
+    const res = await fetch(`https://api.telegram.org/bot${token}/getMe`);
     const j = (await res.json().catch(() => null)) as {
       ok?: boolean;
       result?: { username?: string };
@@ -39,7 +45,7 @@ export async function GET() {
     color: { dark: "#16324aff", light: "#ffffffff" },
   });
 
-  cached = { at: Date.now(), svg };
+  cached.set(bot, { at: Date.now(), svg });
   return new Response(svg, {
     headers: { "content-type": "image/svg+xml", "cache-control": "public, max-age=300" },
   });
