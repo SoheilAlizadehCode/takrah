@@ -61,6 +61,7 @@ export async function POST(req: NextRequest) {
   if (!b64) return Response.json({ ok: false, error: "file_base64 خالی است" }, { status: 400 });
   const buf = Buffer.from(b64, "base64");
   const asrModel = req.nextUrl.searchParams.get("model") || process.env.VOICE_ASR_MODEL || "glm-asr-2512";
+  const provider = req.nextUrl.searchParams.get("provider") || "zai";
   const ext = (req.nextUrl.searchParams.get("ext") || "ogg").replace(/[^a-z0-9]/gi, "");
   const mimes: Record<string, string> = {
     ogg: "audio/ogg", wav: "audio/wav", mp3: "audio/mpeg", m4a: "audio/mp4", aac: "audio/aac", flac: "audio/flac",
@@ -72,6 +73,24 @@ export async function POST(req: NextRequest) {
   let snippet = "";
   try {
     const form = new FormData();
+    if (provider === "eleven") {
+      const ek = process.env.ELEVENLABS_API_KEY ?? "";
+      if (!ek) return Response.json({ ok: false, error: "ELEVENLABS_API_KEY تنظیم نشده" }, { status: 400 });
+      form.append("file", new Blob([Uint8Array.from(buf)], { type: mimes[ext] ?? "audio/ogg" }), `voice.${ext}`);
+      form.append("model_id", process.env.ELEVENLABS_STT_MODEL ?? "scribe_v1");
+      const r = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
+        method: "POST",
+        headers: { "xi-api-key": ek },
+        body: form,
+        signal: AbortSignal.timeout(30_000),
+      });
+      status = r.status;
+      ok = r.ok;
+      const j2 = (await r.json().catch(() => null)) as { text?: string } | null;
+      text = j2?.text ?? null;
+      snippet = (JSON.stringify(j2) ?? "no-json").slice(0, 500);
+      return Response.json({ ok, asrStatus: status, ms: Date.now() - t0, text, snippet, bytes: buf.length });
+    }
     form.append("model", asrModel);
     form.append("stream", "false");
     form.append("file", new Blob([Uint8Array.from(buf)], { type: mimes[ext] ?? "application/octet-stream" }), `voice.${ext}`);

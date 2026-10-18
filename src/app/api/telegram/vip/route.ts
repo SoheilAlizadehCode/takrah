@@ -97,8 +97,34 @@ async function avaRespond(chatId: number, text: string): Promise<void> {
 }
 
 // ─── وویس: دریافت صدا → متن → آوا ───
-// حالت پیش‌فرض: با ZAI_API_KEY از سرویس رسمی GLM-ASR زدات (multipart، مدل glm-asr-2512)
-// حالت پیشرفته: اگر VOICE_ASR_URL تنظیم شود → سرویس JSON-base64 اختصاصی
+// ترتیب سرویس‌ها: ElevenLabs Scribe (رایگان ۳۰دقیقه/ماه، OGG مستقیم، فارسی عالی)
+//  → سرویس اختصاصی VOICE_ASR_URL (JSON-base64) → GLM-ASR زدات (نیازمند شارژ حساب)
+//  → پیام محترمانه
+async function transcribeEleven(buf: Buffer): Promise<string | null> {
+  const key = process.env.ELEVENLABS_API_KEY ?? "";
+  if (!key) return null;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 25_000);
+  try {
+    const form = new FormData();
+    form.append("file", new Blob([Uint8Array.from(buf)], { type: "audio/ogg" }), "voice.ogg");
+    form.append("model_id", process.env.ELEVENLABS_STT_MODEL ?? "scribe_v1");
+    const res = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
+      method: "POST",
+      headers: { "xi-api-key": key },
+      body: form,
+      signal: ctrl.signal,
+    });
+    if (!res.ok) return null;
+    const j = (await res.json().catch(() => null)) as { text?: string } | null;
+    return j?.text && j.text.trim() ? j.text.trim().slice(0, 500) : null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function asrTranscribe(buf: Buffer): Promise<string | null> {
   const customUrl = process.env.VOICE_ASR_URL ?? "";
   const key = process.env.VOICE_ASR_KEY ?? ZAI_KEY ?? "";
@@ -179,7 +205,7 @@ async function handleVoice(chatId: number, fileId: string, durationSec = 0): Pro
     /* ادامه با پیام محترمانه */
   }
 
-  const text = buf ? await asrTranscribe(buf) : null;
+  const text = buf ? (await transcribeEleven(buf)) ?? (await asrTranscribe(buf)) : null;
   if (!text) {
     await logEvent("voice", "بدون تبدیل متن");
     await replyVip(
@@ -741,7 +767,10 @@ export async function GET() {
     directorConfigured: Boolean(DIRECTOR_CHAT_ID),
     storage: storageMode(),
     ai: aiAvailable(),
-    voiceAsr: Boolean(process.env.VOICE_ASR_URL) || aiAvailable(),
+    voiceAsr:
+      Boolean(process.env.ELEVENLABS_API_KEY) ||
+      Boolean(process.env.VOICE_ASR_URL) ||
+      aiAvailable(),
     hint: "POST telegram updates here",
   });
 }
