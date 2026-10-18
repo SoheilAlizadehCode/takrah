@@ -17,5 +17,7 @@ export interface Article {
   readMinutes: number;
   cover: string;
   featured?: boolean;
+  /** اگر مقاله بخشی از مجموعه کتاب‌های درسی بخش «دانش‌آموز» است، slug کتاب را نگه می‌دارد */
+  book?: string;
   blocks: Block[];
 }

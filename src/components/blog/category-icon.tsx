@@ -5,6 +5,7 @@ import {
   AppWindow,
   Globe,
   Code2,
+  GraduationCap,
   type LucideIcon,
 } from "lucide-react";
 
@@ -15,6 +16,7 @@ const icons: Record<string, LucideIcon> = {
   software: AppWindow,
   "web-tools": Globe,
   programming: Code2,
+  student: GraduationCap,
 };
 
 export function CategoryIcon({

@@ -37,6 +37,9 @@ export const hrefs = {
   category: (id: string) => `/category/${id}`,
   article: (slug: string) => `/article/${slug}`,
   page: (id: PageId) => `/${id}`,
+  // بخش ویژه دانش‌آموزان: کتابخانه کتاب‌های درسی
+  studentHome: "/student",
+  studentBook: (slug: string) => `/student/${slug}`,
 };
 
 export interface Category {
@@ -81,6 +84,12 @@ export const categories: Category[] = [
     name: "برنامه‌نویسی",
     description:
       "نقشه راه یادگیری برنامه‌نویسی از صفر، معرفی زبان‌ها و منابع آموزشی رایگان برای شروع مسیر شغلی در دنیای تکنولوژی.",
+  },
+  {
+    id: "student",
+    name: "دانش‌آموز",
+    description:
+      "کتابخانه دانش‌آموزی تک‌راه؛ پودمان‌های کتاب‌های درسی رشته شبکه و نرم‌افزار رایانه (پایه دوازدهم) به‌صورت مقاله‌های ساده، جذاب و امتحان‌پس‌ده بازنویسی شده‌اند؛ همراه با نکات کارگاهی و ارزشیابی.",
   },
 ];
 
