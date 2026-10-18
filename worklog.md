@@ -568,3 +568,29 @@ Stage Summary:
 - انتظار کاربر («۳ شاخه») فعلاً با ۲ کتاب برآورده شده؛ کتاب سوم بعد از دریافت PDF با اضافه‌کردن یک شیء به studentBooks + مقاله‌ها اضافه می‌شود
 - کار کاربر: Request Indexing برای /student، دو صفحه کتاب و ۱۰ مقاله (اولویت: مقالات پودمان‌ها)؛ می‌تواند در کانال هم اعلامش کند
 - درس فنی: قبل از push همیشه git pull --rebase چک شود — ریپو ممکن است از سشن‌های دیگر جلوتر باشد؛ تداخل‌های header را با حفظ هر دو فیچر حل کن
+
+---
+Task ID: 30
+Agent: main
+Task: بخش «دانلود» در قسمت دانش‌آموز — گیت ورود گوگل + تأیید عضویت کانال با کد ربات + تبلیغ ۱۵ ثانیه‌ای + دانلود امن
+
+Work Log:
+- کاربر خواست: بخش دانلود داخل دانش‌آموز؛ ورود راحت با گوگل → چک عضویت کانال تکراه (اگه نبود عضو بشه) → تبلیغ ۱۰-۲۰ ثانیه‌ای قبل از باز شدن لینک → دانلود فایل‌ها؛ هدف: ترافیک سایت + عضو شدن همه دانش‌آموزها
+- معماری stateless بدون دیتابیس: سشن در کوکی HMAC-امضاشده (tk_student، ۳۰ روز، HttpOnly) + کد تأیید خودتأیید «nonce.tgId.امضا» با HMAC از توکن بات؛ کلید مشترک بین webhook و APIهای گیت از TELEGRAM_BOT_TOKEN مشتق می‌شود
+- src/lib/student-gate.ts: signSession/parseSession + makeVerifyCode/parseVerifyCode (timingSafeEqual) + channelMembership (getChatMember؛ restricted/is_member هم هندل شد)
+- فلوی عضویت: سایت دکمه t.me/TakrahTop_bot?start=dlv_<nonce> → ربات عضویت را چک می‌کند → عضو بود: کد امضاشده با <code> (tap-to-copy) + دکمه بازگشت؛ نبود: دکمه کانال + «بررسی مجدد» (callback dlvre_<nonce> با answerCallbackQuery alert)؛ همه در route.ts بدون دست‌زدن به ref_ قبلی
+- APIها: /api/student/google (اعتبارسنجی ID Token با tokeninfo گوگل، چک aud/email_verified/exp)، /api/student/guest (فقط وقتی Client ID تنظیم نیست)، /api/student/verify (کد + چک مجدد عضویت از تلگرام)، /api/student/unlock (سشن verified + هنوز عضو است + حداقل ۱۲.۵ ثانیه از تأیید/لود صفحه — enforce سمت سرور انتظار تبلیغ با 425) و /api/student/file/[id] (سرو PDF فقط با کوکی verified)
+- فایل‌ها private شدند: پوشه private-downloads/ خارج از public + outputFileTracingIncludes در next.config → لینک مستقیم هیچ فایلی از بیرون کار نمی‌کند (لایو ۴۰۳ تایید شد)
+- کاتالوگ: src/lib/student-downloads.ts (۴ فایل: دو کتاب PDF آپلودی کاربر ۲۱۲۲۸۸/۲۱۲۲۹۰ + ۲ هدیه) — افزودن فایل جدید = یک شیء
+- ۲ PDF هدیه فارسی با PIL/raqm ساخته شد (scripts/make-student-downloads.py): نقشه‌راه برنامه‌نویسی ۲ صفحه‌ای + برنامه‌ریز مطالعه هفتگی قابل چاپ؛ باکگ wrap RTL و ستون‌بندی جدول؛ پیش‌نمایش بصری تک‌تک صفحات چک شد
+- UI: صفحه /student/download (سروری، کوکی خوانی → بازدیدکننده تأییدشده مستقیم به مرحله تبلیغ می‌رود) + DownloadGate چهارمرحله‌ای (استپر RTL، دکمه GIS گوگل با fallback مهمان وقتی Client ID نیست، ورودی کد، حلقه شمارش معکوس SVG، روتاتور ۳ اسلاید تبلیغ داخلی [ربات/کانال/محل تبلیغ شما] + جایگاه آماده ادسنس وقتی adsenseClientId پر شود، کارت فایل‌ها + اشتراک‌گذاری)
+- ناوبری: آیتم «دانلود فایل‌های آموزشی» با نشان پالس در اول منوی کشویی دانش‌آموز (دسکتاپ+موبایل) + بنر بزرگ دانلود در بالای صفحه کتابخانه /student
+- بات: دکمه «📥 دانلود فایل‌های آموزشی» به mainKeyboard اضافه شد (سطر جدید؛ articleKeyboard هنوز ۲ سطر اول) + خط دانلود در welcomeText
+- تست‌ها: lint و build موفق؛ bun scripts/test-gate-flow.ts (E2E لوکال: verify با کد واقعی سازنده کانال 200+کوکی، کد خراب 401، unlock زودهنگام 425، بعد از ۱۶ث 200+۴ فایل، دانلود PDF با magic %PDF، بدون کوکی 403)؛ بازبینی بصری agent-browser (دسکتاپ+موبایل+منو+بنر، فلوی کامل تا مرحله ۴)؛ تست لایو scripts/test-gate-live.ts روی takrah.top همه سبز
+- دیپلوی: rebase روی ۲ کامیت جدید سشن آوا (با stash تغییرات mode) → push 46b06a4 → راستی‌آزمایی لایو: /student/download=200، فایل خصوصی بدون سشن=403، unlock بدون سشن=خطای JSON، sitemap شامل /student/download، بنر در /student
+- پیام دمو: اپدیت شبیه‌سازی‌شده /start dlv_<nonce> به webhook لایو → بات پیام کد واقعی را به چت خصوصی کاربر (5289089807) فرستاد تا تجربه دانش‌آموز را ببیند
+
+Stage Summary:
+- بخش دانلود کامل لایو: https://takrah.top/student/download — ورود گوگل (فعلاً fallback مهمان چون NEXT_PUBLIC_GOOGLE_CLIENT_ID هنوز تنظیم نشده) → تأیید عضویت با کد ربات → تبلیغ ۱۵ ثانیه‌ای → دانلود ۴ فایل
+- کار باقی‌مانده برای کاربر: (۱) ساخت OAuth Client ID در Google Cloud Console و ست کردن NEXT_PUBLIC_GOOGLE_CLIENT_ID در Vercel + redeploy (۲) BotFather نیازی به تغییر ندارد (۳) برای فایل‌های جدید فقط شیء به student-downloads.ts اضافه شود
+- درس فنی: nonce باید hex خالص باشد (regex سمت سرور)؛ تست لوکال با nonce غیر hex شکست ظاهری داد؛ enforce زمانی 425 هم برای برگشت‌دهنده‌ها با x-gate-t0 کار می‌کند

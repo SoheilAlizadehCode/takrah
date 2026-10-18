@@ -11,6 +11,7 @@ import {
   welcomeText,
   type InlineKeyboard,
 } from "@/lib/bot-search";
+import { makeVerifyCode } from "@/lib/student-gate";
 import { articles } from "@/data";
 
 export const dynamic = "force-dynamic";
@@ -67,6 +68,56 @@ function articleBySlug(slug: string) {
   return articles.find((a) => a.slug === slug);
 }
 
+/* ─── گیت دانلود بخش دانش‌آموزی ─────────────────────────────────
+ * سایت دکمه‌ای با لینک t.me/TakrahTop_bot?start=dlv_<nonce> نشان می‌دهد؛
+ * بعد از چک عضویت، کد امضاشده‌ای به کاربر می‌دهیم تا در سایت وارد کند.
+ * طراحی stateless — سایت با HMAC همان کد را تأیید می‌کند.
+ */
+
+async function sendVerifyCode(chatId: number | string, nonce: string, tgId: number): Promise<void> {
+  await reply(
+    chatId,
+    [
+      "✅ عضویتت در کانال تک‌راه تأیید شد!",
+      "",
+      "کد تأیید را کپی کن و در سایت وارد کن:",
+      `<code>${makeVerifyCode(nonce, tgId)}</code>`,
+      "",
+      "(روی کد بزن تا کپی شود، بعد در سایت «تأیید و ادامه» را بزن)",
+    ].join("\n"),
+    { inline_keyboard: [[{ text: "🎓 بازگشت به صفحه دانلود", url: "https://takrah.top/student/download" }]] },
+  );
+}
+
+async function downloadVerify(tgId: number | undefined, chatId: number | string, nonce: string): Promise<void> {
+  if (!tgId || !/^[a-f0-9]{8,32}$/.test(nonce)) {
+    await reply(chatId, "برای تأیید عضویت، از دکمه صفحه دانلود سایت استفاده کن 🙏");
+    return;
+  }
+  const member = await isMember(tgId);
+  if (member === true) {
+    await sendVerifyCode(chatId, nonce, tgId);
+  } else if (member === false) {
+    await reply(
+      chatId,
+      [
+        "📥 برای دانلود فایل‌های آموزشی بخش دانش‌آموزی، اول باید عضو کانال تک‌راه بشی.",
+        "",
+        "۱️⃣ با دکمه زیر عضو شو",
+        "۲️⃣ بعد «بررسی مجدد» را بزن تا کدت را بگیری",
+      ].join("\n"),
+      {
+        inline_keyboard: [
+          [{ text: "📢 عضویت در کانال", url: CHANNEL_URL }],
+          [{ text: "🔄 بررسی مجدد عضویت", callback_data: `dlvre_${nonce}` }],
+        ],
+      },
+    );
+  } else {
+    await reply(chatId, "الان نمی‌توانم عضویتت را چک کنم 😔 چند لحظه بعد دوباره امتحان کن.");
+  }
+}
+
 async function handleMessage(message: {
   chat?: { id?: number | string };
   from?: { id?: number };
@@ -79,6 +130,13 @@ async function handleMessage(message: {
   if (text.startsWith("/start")) {
     // deep link: /start ref_<slug> — از اشتراک‌گذاری مقاله
     const payload = text.split(" ")[1] || "";
+
+    // deep link: /start dlv_<nonce> — گیت دانلود بخش دانش‌آموزی
+    if (payload.startsWith("dlv_")) {
+      await downloadVerify(message.from?.id, chatId, payload.slice(4));
+      return;
+    }
+
     const refSlug = payload.startsWith("ref_") ? payload.slice(4) : "";
     const refArticle = /^[a-z0-9-]+$/.test(refSlug) ? articleBySlug(refSlug) : undefined;
 
@@ -104,6 +162,8 @@ async function handleMessage(message: {
 }
 
 async function handleCallback(cb: {
+  id?: string;
+  from?: { id?: number };
   message?: { chat?: { id?: number | string } };
   data?: string;
 }): Promise<void> {
@@ -111,7 +171,27 @@ async function handleCallback(cb: {
   const data = cb.data || "";
   if (!chatId) return;
 
-  await tg("answerCallbackQuery", { callback_query_id: (cb as { id?: string }).id ?? "" });
+  // گیت دانلود: بررسی مجدد عضویت بعد از عضویت در کانال
+  if (data.startsWith("dlvre_")) {
+    const nonce = data.slice(6);
+    const tgId = cb.from?.id;
+    if (tgId) {
+      const member = await isMember(tgId);
+      if (member === true) {
+        await tg("answerCallbackQuery", { callback_query_id: cb.id ?? "", text: "عضویت تأیید شد! ✅" });
+        await sendVerifyCode(chatId, nonce, tgId);
+        return;
+      }
+      await tg("answerCallbackQuery", {
+        callback_query_id: cb.id ?? "",
+        text: "هنوز عضو کانال نشدی! اول دکمه عضویت را بزن 🙏",
+        show_alert: true,
+      });
+    }
+    return;
+  }
+
+  await tg("answerCallbackQuery", { callback_query_id: cb.id ?? "" });
 
   if (data === "top") await reply(chatId, topReplyMessage(), mainKeyboard());
   else if (data === "new") await reply(chatId, newReplyMessage(), mainKeyboard());
@@ -128,7 +208,12 @@ export async function POST(req: NextRequest) {
 
   type Update = {
     message?: Parameters<typeof handleMessage>[0];
-    callback_query?: { id?: string; data?: string; message?: { chat?: { id?: number | string } } };
+    callback_query?: {
+      id?: string;
+      from?: { id?: number };
+      data?: string;
+      message?: { chat?: { id?: number | string } };
+    };
   };
   let update: Update;
   try {
