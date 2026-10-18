@@ -44,7 +44,7 @@ import {
 import { aiAvailable, avaLLM, ZAI_BASE, ZAI_KEY, ZAI_MODEL } from "@/lib/ai";
 import { getEvents, kvGet, kvSet, logEvent, safeParse, storageMode } from "@/lib/kv";
 import { buildReport, reportText } from "@/lib/reports";
-import { edgeTTS, sttAvailable, sttEngine, TTS_VOICE, whisperTranscribe } from "@/lib/voice";
+import { sttAvailable, sttEngine, TTS_VOICE, ttsSpeak, whisperTranscribe } from "@/lib/voice";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -157,9 +157,10 @@ async function ttsEleven(text: string): Promise<Buffer | null> {
 }
 
 /** ارسال پاسخ صوتی + کپتشن متن؛ true اگر صدا ارسال شد
- *  اولویت: صدای عصبی فارسی مایکروسافت (بدون کلید) → ElevenLabs (اگر روزی فعال شد) */
+ *  اولویت: مایکروسافت اج → گوگل → ElevenLabs (اگر روزی فعال شد) */
 async function speakReply(chatId: number, answer: string): Promise<boolean> {
-  const mp3 = (await edgeTTS(answer)) ?? (await ttsEleven(answer));
+  const sp = await ttsSpeak(answer);
+  const mp3 = sp?.buf ?? (await ttsEleven(answer));
   if (!mp3) return false;
   try {
     const form = new FormData();

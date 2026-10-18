@@ -7,7 +7,7 @@ import { ZAI_BASE, ZAI_KEY, ZAI_MODEL } from "@/lib/ai";
 import { VIP_SECRET } from "@/lib/vip-bot";
 import { CLINIC_SECRET } from "@/lib/clinic-bot";
 import { getEvents, kvGet, safeParse } from "@/lib/kv";
-import { edgeTTS, TTS_VOICE, whisperTranscribe } from "@/lib/voice";
+import { TTS_VOICE, ttsSpeak, whisperTranscribe } from "@/lib/voice";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -39,12 +39,13 @@ export async function GET(req: NextRequest) {
     });
   }
   if (req.nextUrl.searchParams.get("tts")) {
-    // تست صدای عصبی فارسی (بدون کلید) — بایت‌های mp3 باید > 0 باشد
+    // تست گوینده‌ی آوا (اج → گوگل) — بایت‌های mp3 باید > 0 باشد
     const t0 = Date.now();
-    const buf = await edgeTTS("سلام، من آوا هستم؛ صدای من وصل است.");
+    const sp = await ttsSpeak("سلام، من آوا هستم؛ صدای من وصل است.");
     return Response.json({
-      ok: Boolean(buf),
-      bytes: buf?.length ?? 0,
+      ok: Boolean(sp),
+      engine: sp?.engine ?? null,
+      bytes: sp?.buf.length ?? 0,
       ms: Date.now() - t0,
       voice: TTS_VOICE,
     });

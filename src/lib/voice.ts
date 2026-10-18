@@ -5,7 +5,7 @@ import { kvSet } from "./kv";
 
 export const TTS_VOICE = process.env.TTS_VOICE ?? "fa-IR-DilaraNeural";
 
-/** متن را به گفتار طبیعی فارسی تبدیل می‌کند (mp3) — بدون هیچ کلیدی */
+/** صدای عصبی فارسی — رایگان، بدون کلید، بدون حساب */
 export async function edgeTTS(text: string): Promise<Buffer | null> {
   // علائم مارک‌داونی و HTML باقی‌مانده را پاک می‌کنیم تا در گفتار خوانده نشوند
   const clean = text
@@ -37,6 +37,73 @@ export async function edgeTTS(text: string): Promise<Buffer | null> {
     );
     return null;
   }
+}
+
+/** Google TTS — پشتیبانِ Edge (بدون کلید؛ قطعه‌قطعه تا ۱۸۰ کاراکتر و چسباندن mp3) */
+async function gttsSpeak(text: string): Promise<Buffer | null> {
+  const clean = text
+    .replace(/<[^>]*>/g, " ")
+    .replace(/[#*_`~|>]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!clean) return null;
+  // برش جمله‌محور به قطعات ≤ ۱۸۰ کاراکتر
+  const words = clean.slice(0, 900).split(" ");
+  const parts: string[] = [];
+  let cur = "";
+  for (const w of words) {
+    if ((cur + " " + w).trim().length > 180) {
+      if (cur) parts.push(cur.trim());
+      cur = w;
+    } else cur = (cur + " " + w).trim();
+  }
+  if (cur) parts.push(cur.trim());
+  if (parts.length > 6) return null; // بیش از حد طولانی — صرف‌نظر
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 20_000);
+  try {
+    const chunks: Buffer[] = [];
+    for (const p of parts) {
+      const url = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=fa&q=${encodeURIComponent(p)}`;
+      const res = await fetch(url, {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
+          Referer: "https://translate.google.com/",
+        },
+        signal: ctrl.signal,
+      });
+      if (!res.ok) {
+        await kvSet(
+          "dbg:tts",
+          JSON.stringify({ t: Date.now(), stage: "gtts", status: res.status, body: (await res.text().catch(() => "")).slice(0, 160) }),
+        );
+        return null;
+      }
+      const ab = await res.arrayBuffer();
+      if (ab.byteLength < 500) return null;
+      chunks.push(Buffer.from(ab));
+    }
+    const buf = Buffer.concat(chunks);
+    return buf.length > 1000 ? buf : null;
+  } catch (e) {
+    await kvSet(
+      "dbg:tts",
+      JSON.stringify({ t: Date.now(), stage: "gtts", status: 0, body: e instanceof Error ? e.message.slice(0, 160) : "error" }),
+    );
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** گوینده‌ی آوا: اول صدای عصبی مایکروسافت، اگر ۴۲۹ شد گوگل */
+export async function ttsSpeak(text: string): Promise<{ buf: Buffer; engine: string } | null> {
+  const edge = await edgeTTS(text);
+  if (edge) return { buf: edge, engine: "edge" };
+  const g = await gttsSpeak(text);
+  if (g) return { buf: g, engine: "gtts" };
+  return null;
 }
 
 /**
