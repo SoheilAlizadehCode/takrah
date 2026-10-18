@@ -7,6 +7,7 @@ import { ZAI_BASE, ZAI_KEY, ZAI_MODEL } from "@/lib/ai";
 import { VIP_SECRET } from "@/lib/vip-bot";
 import { CLINIC_SECRET } from "@/lib/clinic-bot";
 import { getEvents, kvGet, safeParse } from "@/lib/kv";
+import { edgeTTS, TTS_VOICE, whisperTranscribe } from "@/lib/voice";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -35,6 +36,17 @@ export async function GET(req: NextRequest) {
         tts: tts ? safeParse(tts, null) : null,
         recentEvents: events.slice(-20).reverse(),
       },
+    });
+  }
+  if (req.nextUrl.searchParams.get("tts")) {
+    // تست صدای عصبی فارسی (بدون کلید) — بایت‌های mp3 باید > 0 باشد
+    const t0 = Date.now();
+    const buf = await edgeTTS("سلام، من آوا هستم؛ صدای من وصل است.");
+    return Response.json({
+      ok: Boolean(buf),
+      bytes: buf?.length ?? 0,
+      ms: Date.now() - t0,
+      voice: TTS_VOICE,
     });
   }
   const model = req.nextUrl.searchParams.get("model") || ZAI_MODEL;
@@ -79,13 +91,20 @@ export async function POST(req: NextRequest) {
   const b64 = (body?.file_base64 ?? "").trim();
   if (!b64) return Response.json({ ok: false, error: "file_base64 خالی است" }, { status: 400 });
   const buf = Buffer.from(b64, "base64");
+  const t0 = Date.now();
   const asrModel = req.nextUrl.searchParams.get("model") || process.env.VOICE_ASR_MODEL || "glm-asr-2512";
   const provider = req.nextUrl.searchParams.get("provider") || "zai";
   const ext = (req.nextUrl.searchParams.get("ext") || "ogg").replace(/[^a-z0-9]/gi, "");
   const mimes: Record<string, string> = {
     ogg: "audio/ogg", wav: "audio/wav", mp3: "audio/mpeg", m4a: "audio/mp4", aac: "audio/aac", flac: "audio/flac",
   };
-  const t0 = Date.now();
+  if (provider === "whisper") {
+    // تست مسیر Whisper-سازگار (Groq/HF) — همان مسیر واقعی ربات
+    const t = await whisperTranscribe(buf, `voice.${ext}`, mimes[ext] ?? "audio/ogg");
+    if (!t && !process.env.WHISPER_API_KEY)
+      return Response.json({ ok: false, error: "WHISPER_API_KEY تنظیم نشده" }, { status: 400 });
+    return Response.json({ ok: Boolean(t), text: t, ms: Date.now() - t0, bytes: buf.length });
+  }
   let status = 0;
   let ok = false;
   let text: string | null = null;
