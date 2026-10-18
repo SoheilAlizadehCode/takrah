@@ -41,7 +41,7 @@ import {
   vipWelcomeText,
   workingDays,
 } from "@/lib/vip-bot";
-import { aiAvailable, avaLLM } from "@/lib/ai";
+import { aiAvailable, avaLLM, ZAI_BASE, ZAI_KEY } from "@/lib/ai";
 import { logEvent, storageMode } from "@/lib/kv";
 import { buildReport, reportText } from "@/lib/reports";
 
@@ -96,26 +96,43 @@ async function avaRespond(chatId: number, text: string): Promise<void> {
   await replyVip(chatId, a.text, a.keyboard ?? vipMainKeyboard());
 }
 
-// ─── وویس: دریافت صدا → متن (در صورت اتصال سرویس ASR) → آوا ───
+// ─── وویس: دریافت صدا → متن → آوا ───
+// حالت پیش‌فرض: با ZAI_API_KEY از سرویس رسمی GLM-ASR زدات (multipart، مدل glm-asr-2512)
+// حالت پیشرفته: اگر VOICE_ASR_URL تنظیم شود → سرویس JSON-base64 اختصاصی
 async function asrTranscribe(buf: Buffer): Promise<string | null> {
-  const asrUrl = process.env.VOICE_ASR_URL ?? "";
-  if (!asrUrl) return null; // سرویس ASR وصل نیست — پیام محترمانه می‌رویم
-  const key = process.env.VOICE_ASR_KEY ?? process.env.ZAI_API_KEY ?? "";
+  const customUrl = process.env.VOICE_ASR_URL ?? "";
+  const key = process.env.VOICE_ASR_KEY ?? ZAI_KEY ?? "";
+  if (!customUrl && !key) return null;
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 15_000);
+  const timer = setTimeout(() => ctrl.abort(), 25_000);
   try {
-    const res = await fetch(asrUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(key ? { Authorization: `Bearer ${key}` } : {}),
-      },
-      body: JSON.stringify({
-        model: process.env.VOICE_ASR_MODEL ?? "asr",
-        file_base64: buf.toString("base64"),
-      }),
-      signal: ctrl.signal,
-    });
+    let res: Response;
+    if (customUrl) {
+      res = await fetch(customUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(key ? { Authorization: `Bearer ${key}` } : {}),
+        },
+        body: JSON.stringify({
+          model: process.env.VOICE_ASR_MODEL ?? "asr",
+          file_base64: buf.toString("base64"),
+        }),
+        signal: ctrl.signal,
+      });
+    } else {
+      // سرویس رسمی زدات — GLM-ASR (فقط multipart)
+      const form = new FormData();
+      form.append("model", process.env.VOICE_ASR_MODEL ?? "glm-asr-2512");
+      form.append("stream", "false");
+      form.append("file", new Blob([Uint8Array.from(buf)], { type: "audio/ogg" }), "voice.ogg");
+      res = await fetch(`${ZAI_BASE}/audio/transcriptions`, {
+        method: "POST",
+        headers: key ? { Authorization: `Bearer ${key}` } : {},
+        body: form,
+        signal: ctrl.signal,
+      });
+    }
     if (!res.ok) return null;
     const j = (await res.json().catch(() => null)) as
       | { text?: string; result?: string | { text?: string } }
@@ -134,8 +151,18 @@ async function asrTranscribe(buf: Buffer): Promise<string | null> {
   }
 }
 
-async function handleVoice(chatId: number, fileId: string): Promise<void> {
+async function handleVoice(chatId: number, fileId: string, durationSec = 0): Promise<void> {
   await typing(chatId);
+  if (durationSec > 31) {
+    await replyVip(
+      chatId,
+      `🎙 وویس شما <b>${Math.round(durationSec)} ثانیه</b> است؛ فعلاً فقط وویس‌های کمتر از <b>۳۰ ثانیه</b> را می‌شنوم.
+
+لطفاً سوال را کوتاه‌تر ضبط کنید یا متنی بنویسید 🙏`,
+      vipMainKeyboard(),
+    );
+    return;
+  }
   let buf: Buffer | null = null;
   try {
     const g = (await tgVip("getFile", { file_id: fileId })) as
@@ -651,8 +678,8 @@ export async function POST(req: NextRequest) {
       chat?: { id?: number };
       from?: { first_name?: string };
       text?: string;
-      voice?: { file_id?: string };
-      audio?: { file_id?: string };
+      voice?: { file_id?: string; duration?: number };
+      audio?: { file_id?: string; duration?: number };
     };
     callback_query?: {
       id?: string;
@@ -681,7 +708,11 @@ export async function POST(req: NextRequest) {
       if (!chatId) return Response.json({ ok: true });
       // وویس یا فایل صوتی → مسیر شنیدن
       if (msg.voice?.file_id || msg.audio?.file_id) {
-        await handleVoice(chatId, (msg.voice?.file_id || msg.audio?.file_id) as string);
+        await handleVoice(
+          chatId,
+          (msg.voice?.file_id || msg.audio?.file_id) as string,
+          ((msg.voice?.duration ?? msg.audio?.duration ?? 0) as number) || 0,
+        );
         return Response.json({ ok: true });
       }
       const text = (msg.text || "").trim();
@@ -710,7 +741,7 @@ export async function GET() {
     directorConfigured: Boolean(DIRECTOR_CHAT_ID),
     storage: storageMode(),
     ai: aiAvailable(),
-    voiceAsr: Boolean(process.env.VOICE_ASR_URL),
+    voiceAsr: Boolean(process.env.VOICE_ASR_URL) || aiAvailable(),
     hint: "POST telegram updates here",
   });
 }
