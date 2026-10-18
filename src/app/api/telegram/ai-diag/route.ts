@@ -6,6 +6,7 @@ import { NextRequest } from "next/server";
 import { ZAI_BASE, ZAI_KEY, ZAI_MODEL } from "@/lib/ai";
 import { VIP_SECRET } from "@/lib/vip-bot";
 import { CLINIC_SECRET } from "@/lib/clinic-bot";
+import { getEvents, kvGet, safeParse } from "@/lib/kv";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -18,6 +19,24 @@ function auth(req: NextRequest): boolean {
 /** تست LLM — همان پارامترهای avaLLM (با ?model= قابل تغییر برای تست مدل‌های رایگان) */
 export async function GET(req: NextRequest) {
   if (!auth(req)) return Response.json({ ok: false, error: "unauthorized" }, { status: 401 });
+  if (req.nextUrl.searchParams.get("last")) {
+    // مشاهده‌ی آخرین خطاها/نتیجه‌های واقعی ربات — برای عیب‌یابی پس از هر تست
+    const [llm, voice, tts, events] = await Promise.all([
+      kvGet("dbg:llm"),
+      kvGet("dbg:voice"),
+      kvGet("dbg:tts"),
+      getEvents(),
+    ]);
+    return Response.json({
+      ok: true,
+      dbg: {
+        llm: llm ? safeParse(llm, null) : null,
+        voice: voice ? safeParse(voice, null) : null,
+        tts: tts ? safeParse(tts, null) : null,
+        recentEvents: events.slice(-20).reverse(),
+      },
+    });
+  }
   const model = req.nextUrl.searchParams.get("model") || ZAI_MODEL;
   const t0 = Date.now();
   let status = 0;
