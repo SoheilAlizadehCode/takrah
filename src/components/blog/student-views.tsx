@@ -8,6 +8,7 @@ import {
   Layers,
   FileText,
   Trophy,
+  Download,
 } from "lucide-react";
 import type { StudentBook } from "@/lib/student";
 import { studentBooks } from "@/lib/student";
@@ -92,6 +93,29 @@ export function StudentHomeView() {
           </span>
         </div>
       </header>
+
+      {/* بنر بخش دانلود */}
+      <Link
+        href="/student/download"
+        className="group mb-12 flex flex-wrap items-center gap-4 rounded-2xl border border-primary/30 bg-primary/5 p-6 transition-colors hover:bg-primary/10 sm:p-7"
+      >
+        <span className="flex h-13 w-13 shrink-0 items-center justify-center rounded-2xl bg-primary p-3 text-primary-foreground shadow-sm">
+          <Download className="h-6 w-6" aria-hidden="true" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <h2 className="text-lg font-extrabold transition-colors group-hover:text-primary sm:text-xl">
+            دانلود فایل‌های آموزشی
+          </h2>
+          <p className="mt-1 text-sm leading-7 text-muted-foreground">
+            PDF اصلی هر دو کتاب درسی + نقشه‌راه برنامه‌نویسی و برنامه‌ریز مطالعه — رایگان
+            برای اعضای کانال تک‌راه؛ وارد شو، عضویتت تأیید بشه و دانلود کن.
+          </p>
+        </div>
+        <span className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground">
+          ورود به بخش دانلود
+          <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" aria-hidden="true" />
+        </span>
+      </Link>
 
       {/* کتاب‌ها */}
       <section aria-labelledby="books-heading" className="mb-14">

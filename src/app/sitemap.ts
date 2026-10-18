@@ -31,12 +31,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly" as const,
       priority: 0.8,
     })),
-    // بخش دانش‌آموز: کتابخانه + صفحات کتاب‌های درسی
+    // بخش دانش‌آموز: کتابخانه + دانلود + صفحات کتاب‌های درسی
     {
       url: `${siteConfig.url}${hrefs.studentHome}`,
       lastModified: now,
       changeFrequency: "weekly" as const,
       priority: 0.9,
+    },
+    {
+      url: `${siteConfig.url}/student/download`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
     },
     ...studentBooks.map((b) => ({
       url: `${siteConfig.url}${hrefs.studentBook(b.slug)}`,

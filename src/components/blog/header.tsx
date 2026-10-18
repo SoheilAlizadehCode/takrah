@@ -15,6 +15,7 @@ import {
   ChevronDown,
   Library,
   BookOpen,
+  Download,
 } from "lucide-react";
 import { categories, hrefs } from "@/lib/site";
 import { studentBooks } from "@/lib/student";
@@ -96,6 +97,17 @@ export function Header({ onOpenSearch }: HeaderProps) {
                 </Link>
                 <div className="invisible absolute start-0 top-full z-50 w-72 pt-2 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
                   <div className="overflow-hidden rounded-xl border border-border/70 bg-card shadow-lg">
+                    <Link
+                      href="/student/download"
+                      className="flex items-center gap-2 border-b border-border/50 bg-primary/5 px-4 py-3 text-sm font-bold text-primary transition-colors hover:bg-primary/10"
+                    >
+                      <Download className="h-4 w-4" aria-hidden="true" />
+                      دانلود فایل‌های آموزشی
+                      <span className="ms-auto flex h-2 w-2">
+                        <span className="absolute inline-flex h-2 w-2 animate-ping rounded-full bg-primary opacity-60" aria-hidden="true" />
+                        <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" aria-hidden="true" />
+                      </span>
+                    </Link>
                     <Link
                       href={hrefs.studentHome}
                       className="flex items-center gap-2 border-b border-border/50 px-4 py-3 text-sm font-bold text-primary transition-colors hover:bg-muted"
@@ -217,6 +229,16 @@ export function Header({ onOpenSearch }: HeaderProps) {
                     {c.name} — کتابخانه کتاب‌های درسی
                   </Link>
                   <ul className="mt-1 space-y-1 ps-3">
+                    <li>
+                      <Link
+                        href="/student/download"
+                        className="flex items-center gap-2 rounded-lg bg-primary/5 px-3 py-2 text-sm font-bold text-primary transition-colors hover:bg-primary/10"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        <Download className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                        دانلود فایل‌های آموزشی
+                      </Link>
+                    </li>
                     {studentBooks.map((b) => (
                       <li key={b.slug}>
                         <Link
