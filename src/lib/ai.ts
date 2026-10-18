@@ -87,7 +87,20 @@ function sanitize(text: string): string {
 }
 
 // ─── پاسخ آوا با LLM — در هر خطا null برمی‌گرداند (fallback به موتور داخلی) ───
+// یک تلاش مجدد خودکار روی خطاهای گذرا (timeout/شبکه) — تا آوا هیچ‌وقت
+// به‌خاطر یک لغزش لحظه‌ای ساده جواب ندهد.
 export async function avaLLM(
+  chatId: number,
+  question: string,
+  clinic: Parameters<typeof buildAvaSystemPrompt>[0],
+): Promise<string | null> {
+  const first = await avaLLMTry(chatId, question, clinic);
+  if (first !== null) return first;
+  await new Promise((r) => setTimeout(r, 400));
+  return avaLLMTry(chatId, question, clinic);
+}
+
+async function avaLLMTry(
   chatId: number,
   question: string,
   clinic: Parameters<typeof buildAvaSystemPrompt>[0],
