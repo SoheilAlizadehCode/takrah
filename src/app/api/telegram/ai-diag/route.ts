@@ -5,13 +5,14 @@
 import { NextRequest } from "next/server";
 import { ZAI_BASE, ZAI_KEY, ZAI_MODEL } from "@/lib/ai";
 import { VIP_SECRET } from "@/lib/vip-bot";
+import { CLINIC_SECRET } from "@/lib/clinic-bot";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 function auth(req: NextRequest): boolean {
   const key = req.nextUrl.searchParams.get("key") ?? "";
-  return Boolean(VIP_SECRET) && key === VIP_SECRET;
+  return (Boolean(VIP_SECRET) && key === VIP_SECRET) || (Boolean(CLINIC_SECRET) && key === CLINIC_SECRET);
 }
 
 /** تست LLM — همان پارامترهای avaLLM */
