@@ -15,9 +15,10 @@ function auth(req: NextRequest): boolean {
   return (Boolean(VIP_SECRET) && key === VIP_SECRET) || (Boolean(CLINIC_SECRET) && key === CLINIC_SECRET);
 }
 
-/** تست LLM — همان پارامترهای avaLLM */
+/** تست LLM — همان پارامترهای avaLLM (با ?model= قابل تغییر برای تست مدل‌های رایگان) */
 export async function GET(req: NextRequest) {
   if (!auth(req)) return Response.json({ ok: false, error: "unauthorized" }, { status: 401 });
+  const model = req.nextUrl.searchParams.get("model") || ZAI_MODEL;
   const t0 = Date.now();
   let status = 0;
   let ok = false;
@@ -27,7 +28,7 @@ export async function GET(req: NextRequest) {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${ZAI_KEY}` },
       body: JSON.stringify({
-        model: ZAI_MODEL,
+        model,
         messages: [{ role: "user", content: "سلام! فقط بنویس: آماده‌ام" }],
         max_tokens: 30,
         thinking: { type: "disabled" },
@@ -46,7 +47,7 @@ export async function GET(req: NextRequest) {
     llmStatus: status,
     ms: Date.now() - t0,
     base: ZAI_BASE,
-    model: ZAI_MODEL,
+    model,
     keyLen: ZAI_KEY.length,
     snippet,
   });
@@ -59,6 +60,7 @@ export async function POST(req: NextRequest) {
   const b64 = (body?.file_base64 ?? "").trim();
   if (!b64) return Response.json({ ok: false, error: "file_base64 خالی است" }, { status: 400 });
   const buf = Buffer.from(b64, "base64");
+  const asrModel = req.nextUrl.searchParams.get("model") || process.env.VOICE_ASR_MODEL || "glm-asr-2512";
   const t0 = Date.now();
   let status = 0;
   let ok = false;
@@ -66,7 +68,7 @@ export async function POST(req: NextRequest) {
   let snippet = "";
   try {
     const form = new FormData();
-    form.append("model", process.env.VOICE_ASR_MODEL ?? "glm-asr-2512");
+    form.append("model", asrModel);
     form.append("stream", "false");
     form.append("file", new Blob([Uint8Array.from(buf)], { type: "audio/ogg" }), "voice.ogg");
     const res = await fetch(`${ZAI_BASE}/audio/transcriptions`, {
