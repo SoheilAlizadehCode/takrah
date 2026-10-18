@@ -97,10 +97,13 @@ async function gttsSpeak(text: string): Promise<Buffer | null> {
   }
 }
 
-/** گوینده‌ی آوا: اول صدای عصبی مایکروسافت، اگر ۴۲۹ شد گوگل */
+/** گوینده‌ی آوا: سه تلاش مایکروسافت (۴۲۹ نوسانی IPها) → گوگل → null */
 export async function ttsSpeak(text: string): Promise<{ buf: Buffer; engine: string } | null> {
-  const edge = await edgeTTS(text);
-  if (edge) return { buf: edge, engine: "edge" };
+  for (let i = 0; i < 3; i++) {
+    const edge = await edgeTTS(text);
+    if (edge) return { buf: edge, engine: "edge" };
+    if (i < 2) await new Promise((r) => setTimeout(r, i === 0 ? 300 : 800));
+  }
   const g = await gttsSpeak(text);
   if (g) return { buf: g, engine: "gtts" };
   return null;
