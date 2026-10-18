@@ -41,12 +41,12 @@ import {
   vipWelcomeText,
   workingDays,
 } from "@/lib/vip-bot";
-import { aiAvailable, avaLLM, ZAI_BASE, ZAI_KEY } from "@/lib/ai";
-import { logEvent, storageMode } from "@/lib/kv";
+import { aiAvailable, avaLLM, ZAI_BASE, ZAI_KEY, ZAI_MODEL } from "@/lib/ai";
+import { getEvents, kvGet, kvSet, logEvent, safeParse, storageMode } from "@/lib/kv";
 import { buildReport, reportText } from "@/lib/reports";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 30;
+export const maxDuration = 60;
 
 type Keyboard = {
   inline_keyboard: { text: string; callback_data?: string; url?: string }[][];
@@ -78,8 +78,9 @@ function clinicCtx() {
   };
 }
 
-/** پاسخ آوا: اول هوش مصنوعی (اگر کلید باشد)، وگرنه موتور داخلی با حافظه */
-async function avaRespond(chatId: number, text: string): Promise<void> {
+/** پاسخ آوا: اول هوش مصنوعی (اگر کلید باشد)، وگرنه موتور داخلی با حافظه
+ *  voiceOrigin=true → اگر TTS متصل بود، آوا با صدای واقعی هم جواب می‌دهد 🎧 */
+async function avaRespond(chatId: number, text: string, voiceOrigin = false): Promise<void> {
   await typing(chatId);
   // موضوع سوال را همیشه با موتور داخلی برچسب می‌زنیم (برای گزارش مدیر)
   const probe = avaAnswer(text);
@@ -88,12 +89,99 @@ async function avaRespond(chatId: number, text: string): Promise<void> {
   if (aiAvailable()) {
     const llmText = await avaLLM(chatId, text, clinicCtx());
     if (llmText) {
+      if (voiceOrigin) {
+        const spoken = await speakReply(chatId, llmText);
+        if (spoken) return; // پاسخ صوتی + کپتشن متن ارسال شد
+      }
       await replyVip(chatId, llmText, vipMainKeyboard());
       return;
     }
   }
   const a = await avaAnswerSmart(chatId, text);
   await replyVip(chatId, a.text, a.keyboard ?? vipMainKeyboard());
+}
+
+// ─── صدای آوا: تبدیل پاسخ به گفتار با ElevenLabs + ارسال به تلگرام ───
+// مدل‌ها به ترتیب امتحان می‌شوند (eleven_v3 فارسی را پشتیبانی می‌کند) و مدل
+// برنده در Redis کش می‌شود تا پاسخ‌های بعدی سریع‌تر باشد.
+async function ttsEleven(text: string): Promise<Buffer | null> {
+  const key = process.env.ELEVENLABS_API_KEY ?? "";
+  if (!key) return null;
+  const voiceId = process.env.ELEVENLABS_VOICE_ID ?? "9BWtsMINqrJLrRacOk9x"; // Aria
+  const cached = await kvGet("cfg:ttsModel");
+  const candidates = [
+    ...(cached ? [cached] : []),
+    process.env.ELEVENLABS_TTS_MODEL ?? "",
+    "eleven_v3",
+    "eleven_multilingual_v2",
+    "eleven_flash_v2_5",
+  ].filter((m, i, arr) => Boolean(m) && arr.indexOf(m) === i);
+  for (const model of candidates) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 35_000);
+    try {
+      const res = await fetch(
+        `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`,
+        {
+          method: "POST",
+          headers: { "xi-api-key": key, "Content-Type": "application/json" },
+          body: JSON.stringify({ text: text.slice(0, 800), model_id: model }),
+          signal: ctrl.signal,
+        },
+      );
+      if (res.ok) {
+        const ab = await res.arrayBuffer();
+        if (ab.byteLength > 1000) {
+          if (model !== cached) await kvSet("cfg:ttsModel", model);
+          return Buffer.from(ab);
+        }
+        await kvSet("dbg:tts", JSON.stringify({ t: Date.now(), model, status: res.status, body: "empty-audio" }));
+      } else {
+        const body = await res.text().catch(() => "");
+        await kvSet(
+          "dbg:tts",
+          JSON.stringify({ t: Date.now(), model, status: res.status, body: body.slice(0, 240) }),
+        );
+      }
+    } catch (e) {
+      await kvSet(
+        "dbg:tts",
+        JSON.stringify({ t: Date.now(), model, status: 0, body: e instanceof Error ? e.message : "error" }),
+      );
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  return null;
+}
+
+/** ارسال پاسخ صوتی + کپتشن متن؛ true اگر صدا ارسال شد */
+async function speakReply(chatId: number, answer: string): Promise<boolean> {
+  const mp3 = await ttsEleven(answer);
+  if (!mp3) return false;
+  try {
+    const form = new FormData();
+    form.append("chat_id", String(chatId));
+    form.append("audio", new Blob([Uint8Array.from(mp3)], { type: "audio/mpeg" }), "ava.mp3");
+    form.append("caption", answer.slice(0, 1024));
+    form.append("parse_mode", "HTML");
+    form.append("performer", "آوا — منشی کلینیک سلامت");
+    form.append("title", "پاسخ صوتی آوا");
+    const res = await fetch(`https://api.telegram.org/bot${VIP_TOKEN}/sendAudio`, {
+      method: "POST",
+      body: form,
+      signal: AbortSignal.timeout(25_000),
+    });
+    if (res.ok) return true;
+    const body = await res.text().catch(() => "");
+    await kvSet(
+      "dbg:tts",
+      JSON.stringify({ t: Date.now(), model: "telegram-sendAudio", status: res.status, body: body.slice(0, 240) }),
+    );
+    return false;
+  } catch {
+    return false;
+  }
 }
 
 // ─── وویس: دریافت صدا → متن → آوا ───
@@ -115,10 +203,26 @@ async function transcribeEleven(buf: Buffer): Promise<string | null> {
       body: form,
       signal: ctrl.signal,
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      await kvSet(
+        "dbg:voice",
+        JSON.stringify({ t: Date.now(), stage: "eleven", status: res.status, body: body.slice(0, 240) }),
+      );
+      return null;
+    }
     const j = (await res.json().catch(() => null)) as { text?: string } | null;
-    return j?.text && j.text.trim() ? j.text.trim().slice(0, 500) : null;
-  } catch {
+    const out = j?.text && j.text.trim() ? j.text.trim().slice(0, 500) : null;
+    await kvSet(
+      "dbg:voice",
+      JSON.stringify({ t: Date.now(), stage: "eleven", ok: Boolean(out), text: (out ?? "").slice(0, 80) }),
+    );
+    return out;
+  } catch (e) {
+    await kvSet(
+      "dbg:voice",
+      JSON.stringify({ t: Date.now(), stage: "eleven", status: 0, body: e instanceof Error ? e.message : "error" }),
+    );
     return null;
   } finally {
     clearTimeout(timer);
@@ -159,7 +263,14 @@ async function asrTranscribe(buf: Buffer): Promise<string | null> {
         signal: ctrl.signal,
       });
     }
-    if (!res.ok) return null;
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      await kvSet(
+        "dbg:voice",
+        JSON.stringify({ t: Date.now(), stage: customUrl ? "custom" : "zai", status: res.status, body: body.slice(0, 240) }),
+      );
+      return null;
+    }
     const j = (await res.json().catch(() => null)) as
       | { text?: string; result?: string | { text?: string } }
       | null;
@@ -169,8 +280,17 @@ async function asrTranscribe(buf: Buffer): Promise<string | null> {
         : typeof j?.result === "string"
           ? j.result
           : (j?.result as { text?: string } | undefined)?.text;
-    return out && out.trim() ? out.trim().slice(0, 500) : null;
-  } catch {
+    const clean = out && out.trim() ? out.trim().slice(0, 500) : null;
+    await kvSet(
+      "dbg:voice",
+      JSON.stringify({ t: Date.now(), stage: customUrl ? "custom" : "zai", ok: Boolean(clean), text: (clean ?? "").slice(0, 80) }),
+    );
+    return clean;
+  } catch (e) {
+    await kvSet(
+      "dbg:voice",
+      JSON.stringify({ t: Date.now(), stage: customUrl ? "custom" : "zai", status: 0, body: e instanceof Error ? e.message : "error" }),
+    );
     return null;
   } finally {
     clearTimeout(timer);
@@ -217,7 +337,7 @@ async function handleVoice(chatId: number, fileId: string, durationSec = 0): Pro
     return;
   }
   await logEvent("voice", text.slice(0, 60));
-  await avaRespond(chatId, text);
+  await avaRespond(chatId, text, true);
 }
 
 async function editOrReply(
@@ -767,10 +887,12 @@ export async function GET() {
     directorConfigured: Boolean(DIRECTOR_CHAT_ID),
     storage: storageMode(),
     ai: aiAvailable(),
+    aiModel: ZAI_MODEL,
     voiceAsr:
       Boolean(process.env.ELEVENLABS_API_KEY) ||
       Boolean(process.env.VOICE_ASR_URL) ||
       aiAvailable(),
+    elevenlabs: Boolean(process.env.ELEVENLABS_API_KEY),
     hint: "POST telegram updates here",
   });
 }

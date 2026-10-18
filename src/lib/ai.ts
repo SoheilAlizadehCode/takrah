@@ -94,7 +94,7 @@ export async function avaLLM(
 ): Promise<string | null> {
   if (!ZAI_KEY) return null;
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 12_000);
+  const timer = setTimeout(() => ctrl.abort(), 20_000);
   try {
     const history = await getHistory(chatId);
     const messages = [
@@ -117,7 +117,15 @@ export async function avaLLM(
       }),
       signal: ctrl.signal,
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      // خطای خام ذخیره می‌شود تا در /api/telegram/ai-diag?last=1 قابل مشاهده باشد
+      const body = await res.text().catch(() => "");
+      await kvSet(
+        "dbg:llm",
+        JSON.stringify({ t: Date.now(), status: res.status, body: body.slice(0, 300) }),
+      );
+      return null;
+    }
     const j = (await res.json()) as {
       choices?: { message?: { content?: string } }[];
     };
@@ -129,7 +137,11 @@ export async function avaLLM(
     await pushHistory(chatId, { role: "assistant", content: clean });
     await logEvent("llm", question);
     return clean;
-  } catch {
+  } catch (e) {
+    await kvSet(
+      "dbg:llm",
+      JSON.stringify({ t: Date.now(), status: 0, body: e instanceof Error ? e.message : "error" }),
+    );
     return null;
   } finally {
     clearTimeout(timer);
