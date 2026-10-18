@@ -1,9 +1,9 @@
 // ─── موتور هوش مصنوعی آوا — GLM از طریق API سازگار با OpenAI ───
 // پروداکشن: فقط با fetch خالص (بدون SDK) — سازگار با Vercel
 // تنظیمات Vercel (همه اختیاری — بدون کلید، موتور داخلی آوا کار می‌کند):
-//   ZAI_API_KEY   → کلید از api.z.ai (پلن رایگان کافی است)
+//   ZAI_API_KEY   → کلید از api.z.ai
 //   ZAI_BASE_URL  → پیش‌فرض https://api.z.ai/api/paas/v4
-//   ZAI_MODEL     → پیش‌فرض glm-4.5-air (سریع و ارزان؛ قابل تغییر به glm-4.6)
+//   ZAI_MODEL     → پیش‌فرض glm-4.5-flash (رایگان!) — اگر حساب شارژ شد: glm-4.5-air یا glm-4.6
 import { kvGet, kvSet, logEvent } from "./kv";
 
 export const ZAI_KEY = process.env.ZAI_API_KEY ?? "";
@@ -11,7 +11,7 @@ export const ZAI_BASE = (process.env.ZAI_BASE_URL ?? "https://api.z.ai/api/paas/
   /\/$/,
   "",
 );
-export const ZAI_MODEL = process.env.ZAI_MODEL ?? "glm-4.5-air";
+export const ZAI_MODEL = process.env.ZAI_MODEL ?? "glm-4.5-flash";
 
 export function aiAvailable(): boolean {
   return Boolean(ZAI_KEY);
