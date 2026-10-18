@@ -3,8 +3,21 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
-import { Route, Search, Menu, X, Sun, Moon, Home, Sparkles } from "lucide-react";
+import {
+  Route,
+  Search,
+  Menu,
+  X,
+  Sun,
+  Moon,
+  Home,
+  Sparkles,
+  ChevronDown,
+  Library,
+  BookOpen,
+} from "lucide-react";
 import { categories, hrefs } from "@/lib/site";
+import { studentBooks } from "@/lib/student";
 import { CategoryIcon } from "./category-icon";
 
 interface HeaderProps {
@@ -63,14 +76,65 @@ export function Header({ onOpenSearch }: HeaderProps) {
             <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
             پکیج‌ها
           </Link>
-          {categories.map((c) => (
-            <Link key={c.id} href={hrefs.category(c.id)} className={navLink}>
-              <span className="flex items-center gap-1.5">
-                <CategoryIcon id={c.id} className="h-3.5 w-3.5" />
-                {c.name}
-              </span>
-            </Link>
-          ))}
+          {categories.map((c) =>
+            c.id === "student" ? (
+              // بخش دانش‌آموز: منوی کشویی کتاب‌های درسی
+              <div key={c.id} className="group relative">
+                <Link
+                  href={hrefs.studentHome}
+                  className={`${navLink} flex items-center gap-1.5`}
+                  aria-haspopup="true"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <CategoryIcon id={c.id} className="h-3.5 w-3.5" />
+                    {c.name}
+                  </span>
+                  <ChevronDown
+                    className="h-3 w-3 transition-transform group-hover:rotate-180"
+                    aria-hidden="true"
+                  />
+                </Link>
+                <div className="invisible absolute start-0 top-full z-50 w-72 pt-2 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+                  <div className="overflow-hidden rounded-xl border border-border/70 bg-card shadow-lg">
+                    <Link
+                      href={hrefs.studentHome}
+                      className="flex items-center gap-2 border-b border-border/50 px-4 py-3 text-sm font-bold text-primary transition-colors hover:bg-muted"
+                    >
+                      <Library className="h-4 w-4" aria-hidden="true" />
+                      کتابخانه دانش‌آموزی تک‌راه
+                    </Link>
+                    {studentBooks.map((b) => (
+                      <Link
+                        key={b.slug}
+                        href={hrefs.studentBook(b.slug)}
+                        className="block px-4 py-2.5 transition-colors hover:bg-muted"
+                      >
+                        <span className="flex items-start gap-2 text-sm font-medium">
+                          <BookOpen
+                            className="mt-1 h-3.5 w-3.5 shrink-0 text-muted-foreground"
+                            aria-hidden="true"
+                          />
+                          <span>
+                            {b.title}
+                            <span className="block text-[11px] font-normal text-muted-foreground">
+                              {b.grade} · {b.field}
+                            </span>
+                          </span>
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <Link key={c.id} href={hrefs.category(c.id)} className={navLink}>
+                <span className="flex items-center gap-1.5">
+                  <CategoryIcon id={c.id} className="h-3.5 w-3.5" />
+                  {c.name}
+                </span>
+              </Link>
+            ),
+          )}
         </nav>
 
         <div className="ms-auto flex items-center gap-1 lg:ms-0">
@@ -140,18 +204,49 @@ export function Header({ onOpenSearch }: HeaderProps) {
                 پکیج‌ها و دموهای زنده
               </Link>
             </li>
-            {categories.map((c) => (
-              <li key={c.id}>
-                <Link
-                  href={hrefs.category(c.id)}
-                  className={`flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground ${navLink}`}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  <CategoryIcon id={c.id} className="h-4 w-4" />
-                  {c.name}
-                </Link>
-              </li>
-            ))}
+            {categories.map((c) =>
+              c.id === "student" ? (
+                // بخش دانش‌آموز در منوی موبایل: عنوان + شاخه کتاب‌ها
+                <li key={c.id} className="col-span-2">
+                  <Link
+                    href={hrefs.studentHome}
+                    className={`flex items-center gap-2 rounded-lg bg-primary/5 px-3 py-2.5 text-sm font-bold text-primary ${navLink}`}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    <CategoryIcon id={c.id} className="h-4 w-4" />
+                    {c.name} — کتابخانه کتاب‌های درسی
+                  </Link>
+                  <ul className="mt-1 space-y-1 ps-3">
+                    {studentBooks.map((b) => (
+                      <li key={b.slug}>
+                        <Link
+                          href={hrefs.studentBook(b.slug)}
+                          className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          <BookOpen className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                          {b.title}
+                          <span className="text-[10px] text-muted-foreground/70">
+                            ({b.grade})
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              ) : (
+                <li key={c.id}>
+                  <Link
+                    href={hrefs.category(c.id)}
+                    className={`flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground ${navLink}`}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    <CategoryIcon id={c.id} className="h-4 w-4" />
+                    {c.name}
+                  </Link>
+                </li>
+              ),
+            )}
           </ul>
         </nav>
       )}

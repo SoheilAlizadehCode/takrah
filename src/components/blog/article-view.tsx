@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Clock, User, Lightbulb, ChevronLeft, Home, ListTree, Bot, Send } from "lucide-react";
+import { Clock, User, Lightbulb, ChevronLeft, Home, ListTree, Bot, Send, BookOpen } from "lucide-react";
 import type { Article } from "@/lib/blog-types";
 import { getCategory, hrefs, siteConfig } from "@/lib/site";
+import { getStudentBook } from "@/lib/student";
 import { getRelated } from "@/data";
 import { toFaDigits } from "@/lib/format";
 import { CategoryIcon } from "./category-icon";
@@ -132,6 +133,7 @@ function TableOfContents({ headings }: { headings: { id: string; text: string }[
 // ─── نمای کامل مقاله ───
 export function ArticleView({ article }: { article: Article }) {
   const category = getCategory(article.category);
+  const book = article.book ? getStudentBook(article.book) : undefined;
   const firstPIndex = article.blocks.findIndex((b) => b.type === "p");
   const midIndex = Math.floor(article.blocks.length / 2);
   const headings = article.blocks
@@ -219,6 +221,32 @@ export function ArticleView({ article }: { article: Article }) {
                 />
               </div>
             </figure>
+
+            {/* باکس کتاب درسی مرتبط (مقاله‌های بخش دانش‌آموز) */}
+            {book && (
+              <div className="mt-6 flex flex-col items-start gap-3 rounded-xl border border-primary/25 bg-primary/[0.06] p-5 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-start gap-3">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <BookOpen className="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  <div>
+                    <p className="text-sm font-bold text-foreground">
+                      این مقاله بخشی از کتابخانه دانش‌آموزی تک‌راه است
+                    </p>
+                    <p className="mt-0.5 text-xs leading-6 text-muted-foreground">
+                      کتاب درسی «{book.title}» — {book.grade}، {book.field}
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  href={hrefs.studentBook(book.slug)}
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
+                >
+                  <BookOpen className="h-4 w-4" aria-hidden="true" />
+                  همه مقاله‌های این کتاب
+                </Link>
+              </div>
+            )}
 
             {/* بدنه مقاله */}
             <div className="mt-8 space-y-6">

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { articles } from "@/data";
 import { categories, hrefs, staticPages, siteConfig } from "@/lib/site";
+import { studentBooks } from "@/lib/student";
 
 /**
  * سایت‌مپ پویا — با اضافه شدن هر مقاله جدید در src/data،
@@ -26,6 +27,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // صفحات دسته‌بندی
     ...categories.map((c) => ({
       url: `${siteConfig.url}${hrefs.category(c.id)}`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+    })),
+    // بخش دانش‌آموز: کتابخانه + صفحات کتاب‌های درسی
+    {
+      url: `${siteConfig.url}${hrefs.studentHome}`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.9,
+    },
+    ...studentBooks.map((b) => ({
+      url: `${siteConfig.url}${hrefs.studentBook(b.slug)}`,
       lastModified: now,
       changeFrequency: "weekly" as const,
       priority: 0.8,

@@ -14,6 +14,8 @@ import { articles12 } from "./articles-12";
 import { articles13 } from "./articles-13";
 import { articles14 } from "./articles-14";
 import { articles15 } from "./articles-15";
+import { articles16 } from "./articles-16";
+import { articles17 } from "./articles-17";
 
 export const articles: Article[] = [
   ...articles1,
@@ -31,6 +33,8 @@ export const articles: Article[] = [
   ...articles13,
   ...articles14,
   ...articles15,
+  ...articles16,
+  ...articles17,
 ];
 
 export const getArticle = (slug: string): Article | undefined =>
@@ -38,6 +42,10 @@ export const getArticle = (slug: string): Article | undefined =>
 
 export const getByCategory = (categoryId: string): Article[] =>
   articles.filter((a) => a.category === categoryId);
+
+/** مقاله‌های یک کتاب درسی بخش دانش‌آموز (بر اساس فیلد book مقاله) */
+export const getBookArticles = (bookSlug: string): Article[] =>
+  articles.filter((a) => a.book === bookSlug);
 
 export const getFeatured = (): Article =>
   articles.find((a) => a.featured) ?? articles[0];
