@@ -61,6 +61,10 @@ export async function POST(req: NextRequest) {
   if (!b64) return Response.json({ ok: false, error: "file_base64 خالی است" }, { status: 400 });
   const buf = Buffer.from(b64, "base64");
   const asrModel = req.nextUrl.searchParams.get("model") || process.env.VOICE_ASR_MODEL || "glm-asr-2512";
+  const ext = (req.nextUrl.searchParams.get("ext") || "ogg").replace(/[^a-z0-9]/gi, "");
+  const mimes: Record<string, string> = {
+    ogg: "audio/ogg", wav: "audio/wav", mp3: "audio/mpeg", m4a: "audio/mp4", aac: "audio/aac", flac: "audio/flac",
+  };
   const t0 = Date.now();
   let status = 0;
   let ok = false;
@@ -70,7 +74,7 @@ export async function POST(req: NextRequest) {
     const form = new FormData();
     form.append("model", asrModel);
     form.append("stream", "false");
-    form.append("file", new Blob([Uint8Array.from(buf)], { type: "audio/ogg" }), "voice.ogg");
+    form.append("file", new Blob([Uint8Array.from(buf)], { type: mimes[ext] ?? "application/octet-stream" }), `voice.${ext}`);
     const res = await fetch(`${ZAI_BASE}/audio/transcriptions`, {
       method: "POST",
       headers: ZAI_KEY ? { Authorization: `Bearer ${ZAI_KEY}` } : {},
