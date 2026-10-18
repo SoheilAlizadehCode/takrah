@@ -44,6 +44,7 @@ import {
 import { aiAvailable, avaLLM, ZAI_BASE, ZAI_KEY, ZAI_MODEL } from "@/lib/ai";
 import { getEvents, kvGet, kvSet, logEvent, safeParse, storageMode } from "@/lib/kv";
 import { buildReport, reportText } from "@/lib/reports";
+import { edgeTTS, sttAvailable, sttEngine, TTS_VOICE, whisperTranscribe } from "@/lib/voice";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -155,9 +156,10 @@ async function ttsEleven(text: string): Promise<Buffer | null> {
   return null;
 }
 
-/** ارسال پاسخ صوتی + کپتشن متن؛ true اگر صدا ارسال شد */
+/** ارسال پاسخ صوتی + کپتشن متن؛ true اگر صدا ارسال شد
+ *  اولویت: صدای عصبی فارسی مایکروسافت (بدون کلید) → ElevenLabs (اگر روزی فعال شد) */
 async function speakReply(chatId: number, answer: string): Promise<boolean> {
-  const mp3 = await ttsEleven(answer);
+  const mp3 = (await edgeTTS(answer)) ?? (await ttsEleven(answer));
   if (!mp3) return false;
   try {
     const form = new FormData();
@@ -325,7 +327,10 @@ async function handleVoice(chatId: number, fileId: string, durationSec = 0): Pro
     /* ادامه با پیام محترمانه */
   }
 
-  const text = buf ? (await transcribeEleven(buf)) ?? (await asrTranscribe(buf)) : null;
+  // ترتیب شنیدن: Whisper-سازگار (Groq رایگان — OGG مستقیم) → ElevenLabs → سرویس اختصاصی/GLM-ASR زدات
+  const text = buf
+    ? (await whisperTranscribe(buf)) ?? (await transcribeEleven(buf)) ?? (await asrTranscribe(buf))
+    : null;
   if (!text) {
     await logEvent("voice", "بدون تبدیل متن");
     await replyVip(
@@ -888,10 +893,10 @@ export async function GET() {
     storage: storageMode(),
     ai: aiAvailable(),
     aiModel: ZAI_MODEL,
-    voiceAsr:
-      Boolean(process.env.ELEVENLABS_API_KEY) ||
-      Boolean(process.env.VOICE_ASR_URL) ||
-      aiAvailable(),
+    voiceAsr: sttAvailable(),
+    sttEngine: sttEngine(),
+    tts: "edge",
+    ttsVoice: TTS_VOICE,
     elevenlabs: Boolean(process.env.ELEVENLABS_API_KEY),
     hint: "POST telegram updates here",
   });
