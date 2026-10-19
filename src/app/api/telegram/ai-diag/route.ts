@@ -50,6 +50,36 @@ export async function GET(req: NextRequest) {
       voice: TTS_VOICE,
     });
   }
+  if (req.nextUrl.searchParams.get("kavenegar")) {
+    // تست اتصال کاوه‌نگار — فقط اعتبارسنجی کلید (بدون تماس واقعی و بدون هزینه)
+    const key = process.env.KAVENEGAR_API_KEY ?? "";
+    if (!key)
+      return Response.json({ ok: false, configured: false, error: "KAVENEGAR_API_KEY تنظیم نشده" });
+    const t0 = Date.now();
+    let status = 0;
+    let ok = false;
+    let snippet = "";
+    try {
+      const res = await fetch(`https://api.kavenegar.com/v1/${key}/account/info.json`, {
+        signal: AbortSignal.timeout(15_000),
+      });
+      status = res.status;
+      ok = res.ok;
+      const j = (await res.json().catch(() => null)) as unknown;
+      snippet = (JSON.stringify(j) ?? "no-json").slice(0, 400);
+    } catch (e) {
+      snippet = e instanceof Error ? e.message : "error";
+    }
+    return Response.json({
+      ok,
+      configured: true,
+      status,
+      ms: Date.now() - t0,
+      keyLen: key.length,
+      snippet,
+      note: "فقط info — تماس واقعی فقط در جریان یادآوری نوبت انجام می‌شود",
+    });
+  }
   const model = req.nextUrl.searchParams.get("model") || ZAI_MODEL;
   const t0 = Date.now();
   let status = 0;

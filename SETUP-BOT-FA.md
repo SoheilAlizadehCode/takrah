@@ -138,6 +138,9 @@ Body: {"file_base64": "..."}
 
 # آخرین خطاهای واقعی ربات + ۲۰ رویداد آخر
 GET /api/telegram/ai-diag?key=<SECRET>&last=1
+
+# اتصال کاوه‌نگار — فقط اعتبارسنجی کلید (بدون تماس و بدون هزینه)
+GET /api/telegram/ai-diag?key=<SECRET>&kavenegar=1
 ```
 
 کلیدهای دیباگ در Redis: `dbg:llm` (مغز)، `dbg:voice` (گوش)، `dbg:tts` (صدا).
@@ -162,6 +165,9 @@ GET /api/telegram/ai-diag?key=<SECRET>&last=1
 1. ثبت‌نام در [kavenegar.com](https://kavenegar.com) → تأیید هویت (برای تماس TTS الزامی است).
 2. پنل → Settings → API Key را کپی کنید → در Vercel: `KAVENEGAR_API_KEY`.
 3. اگر خط اختصاصی دارید: `KAVENEGAR_CALLER`. تمام — از یادآوری بعدی خودکار تماس می‌خورد و نتیجه‌اش در رویدادها (`type:"call"`) ثبت می‌شود.
+
+> ⚠️ بعد از هر تغییر متغیر در Vercel یک **Redeploy** لازم است تا اعمال شود. برای تست صحت کلید (بدون تماس):
+> `GET /api/telegram/ai-diag?key=<SECRET>&kavenegar=1` → پاسخ سالم: `"ok":true, "status":200`
 
 ---
 
