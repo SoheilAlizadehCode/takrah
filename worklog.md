@@ -594,3 +594,18 @@ Stage Summary:
 - بخش دانلود کامل لایو: https://takrah.top/student/download — ورود گوگل (فعلاً fallback مهمان چون NEXT_PUBLIC_GOOGLE_CLIENT_ID هنوز تنظیم نشده) → تأیید عضویت با کد ربات → تبلیغ ۱۵ ثانیه‌ای → دانلود ۴ فایل
 - کار باقی‌مانده برای کاربر: (۱) ساخت OAuth Client ID در Google Cloud Console و ست کردن NEXT_PUBLIC_GOOGLE_CLIENT_ID در Vercel + redeploy (۲) BotFather نیازی به تغییر ندارد (۳) برای فایل‌های جدید فقط شیء به student-downloads.ts اضافه شود
 - درس فنی: nonce باید hex خالص باشد (regex سمت سرور)؛ تست لوکال با nonce غیر hex شکست ظاهری داد؛ enforce زمانی 425 هم برای برگشت‌دهنده‌ها با x-gate-t0 کار می‌کند
+
+---
+Task ID: 31
+Agent: main
+Task: راهنمایی کاربر برای ساخت OAuth Client ID گوگل (قدم کاربری باقی‌مانده از Task 30)
+
+Work Log:
+- کاربر در صفحه Credentials کنسول گوگل گیر کرد — اسکرین‌شات فرستاد: بنر آبی «To view this page, select a project» + دکمه Create project؛ چون هنوز هیچ پروژه‌ای ساخته/انتخاب نشده، گزینه‌های Create Credentials اصلاً نمایش داده نمی‌شوند
+- راستی‌آزمایی کد: گیت دانلود فقط NEXT_PUBLIC_GOOGLE_CLIENT_ID می‌خواهد (GIS ID Token flow؛ بدون Secret، بدون redirect URI) — مصرف‌کننده‌ها: src/app/student/download/page.tsx (SSR) + api/student/google + api/student/guest
+- نکته استقرار: TELEGRAM_BOT_TOKEN به‌صورت fallback هاردکد در کد است (ریپو private) و از .env کامیت‌شده Vercel در runtime استفاده نمی‌کند → تصمیم: Client ID (مقدار عمومی و غیرمحرمانه) را کاربر در چت می‌فرستد و به‌عنوان fallback در همان ۳ نقطه هاردکد می‌شود تا نیازی به تنظیمات Vercel نباشد
+- الگوی راهنما تهیه شد: (۱) Dismiss بنر ۳۰۰ دلار (۲) Create project با نام takrah (۳) OAuth consent screen → Get started → External → Publish app تا In production (۴) Credentials → + Create Credentials → OAuth client ID → Web application → فقط Authorized JavaScript origins = https://takrah.top، redirect URIs خالی (۵) کپی Client ID و ارسال در چت
+
+Stage Summary:
+- منتظر Client ID از کاربر؛ بعد از دریافت: fallback در ۳ نقطه + lint/build + push + تأیید لایو دکمه گوگل در /student/download
+- Secret و redirect URI برای این معماری لازم نیستند (تأیید شد)
