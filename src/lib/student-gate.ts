@@ -18,9 +18,9 @@ export const GATE_DOWNLOAD_URL = `${GATE_SITE_URL}/student/download`;
 export const GATE_AD_SECONDS = 15;
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
-/** توکن بات — مثل route.ts برای سازگاری مقدار پیش‌فرض دارد؛ متغیر محیطی اولویت دارد. */
+/** توکن بات — فقط از متغیر محیطی (پیش‌فرض هاردکد حذف شد؛ توکن در ریپو لو رفته بود) */
 function botToken(): string {
-  return process.env.TELEGRAM_BOT_TOKEN ?? "8681245270:AAHuamrLbL8Fhk-sJCleAejlWpo6F0jpNzc";
+  return process.env.TELEGRAM_BOT_TOKEN ?? "";
 }
 
 /** کلید امضای گیت — از توکن بات مشتق می‌شود (هرگز سمت کلاینت نیست). */
