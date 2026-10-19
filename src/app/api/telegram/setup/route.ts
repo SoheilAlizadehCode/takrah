@@ -10,8 +10,7 @@ import { VIP_SECRET, VIP_TOKEN } from "@/lib/vip-bot";
 export const dynamic = "force-dynamic";
 
 const GROWTH_TOKEN = process.env.TELEGRAM_BOT_TOKEN ?? "";
-const GROWTH_SECRET =
-  process.env.TELEGRAM_WEBHOOK_SECRET ?? "tk9f4e2c1a7b35d8e0f6a4c2b9d17e35";
+const GROWTH_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET ?? "";
 
 async function setWebhook(
   token: string,
@@ -24,7 +23,7 @@ async function setWebhook(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         url,
-        secret_token: secret,
+        ...(secret ? { secret_token: secret } : {}),
         allowed_updates: ["message", "callback_query"],
         drop_pending_updates: false,
       }),
