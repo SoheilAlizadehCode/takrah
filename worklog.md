@@ -487,7 +487,7 @@ Stage Summary:
 - سایت: ۳۶ مقاله، ۴۷ صفحه استاتیک؛ کانال: ۶۴ پست
 - تحویل‌ها: ۳ مقاله live + ۲ فایل (docx/xlsx) در download/ + بات زنده @TakrahTop_bot
 - نکته: لینک‌های رفرال صرافی‌ها هنوز جایگذاری نشده — منتظر کد رفرال کاربر
-- secret بات: tk9f4e2c1a7b35d8e0f6a4c2b9d17e35 (در route.ts هم هست، ریپو private)
+- secret بات: ***redacted*** (در route.ts هم هست، ریپو private)
 
 ---
 Task ID: 26
