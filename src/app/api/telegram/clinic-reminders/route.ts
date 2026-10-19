@@ -9,6 +9,7 @@ import {
   ADMIN_CHAT_ID,
   CLINIC_TOKEN,
   DOCTORS,
+  SITE_URL,
   allBookings,
   reminderKeyboard,
   reminderText,
@@ -87,7 +88,9 @@ async function runReminders(): Promise<Response> {
   let calls = 0;
   let voices = 0;
 
-  const reminderVoiceUrl = process.env.REMINDER_VOICE_URL ?? "";
+  // وویس یادآوری: پیش‌فرض فایل ضبط‌شده‌ی خود سایت (صدای «دلارا») — با REMINDER_VOICE_URL قابل تعویض
+  const reminderVoiceUrl =
+    process.env.REMINDER_VOICE_URL || `${SITE_URL}/audio/reminder-voice.ogg`;
   const kavenegarReady = Boolean(process.env.KAVENEGAR_API_KEY);
 
   for (const b of bookings) {
@@ -150,7 +153,8 @@ async function runReminders(): Promise<Response> {
     voices,
     integrations: {
       phoneCall: kavenegarReady,
-      voiceMessage: Boolean(reminderVoiceUrl),
+      voiceMessage: true,
+      voiceSource: process.env.REMINDER_VOICE_URL ? "custom" : "bundled",
     },
   });
 }
