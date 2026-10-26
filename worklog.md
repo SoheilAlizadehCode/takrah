@@ -667,3 +667,23 @@ Work Log:
 Stage Summary:
 - گیت دانلود بخش دانش‌آموزی حالا انتظار می‌رود سرتاسری کار کند: ورود (گوگل/تلگرام) → عضویت کانال با کد ربات → تبلیغ ۱۵ ثانیه → دانلود ۴ PDF
 - منتظر تست نهایی کاربر روی فلوی کامل؛ اگر مشکل جدیدی دید اعلام می‌کند
+---
+Task ID: 32 — سواپ ربات دانلودگیت به ربات جدید
+Agent: main (سشن جاری)
+Task: تعویض ربات گیت دانلود به ربات جدید BotFather بعد از اینکه محدودیت ربات اول پابرجا ماند (t.me سالم بود ولی اپ پاپ‌آپ پورن می‌داد → محدودیت سرور-ساید پابرجا؛ کاربر توکن ربات جدید داد)
+
+Work Log:
+- توکن جدید: 8887827849:AAEvYZ6l_... → getMe: @TakrahTop_support_bot «تک‌راه | جستجو و دانلود»
+- getChatMember جدید روی @takrahTop = "member list is inaccessible" → ربات جدید هنوز ادمین کانال نیست (اقدام کاربر)
+- vercel CLI در سندباکس نیست → توکن طبق الگوی GOOGLE_CLIENT_ID متمرکز شد: botToken() اکسپورت در student-gate.ts (اولویت TELEGRAM_BOT_TOKEN_V2 → هاردکد) و route.ts + setup/route.ts از همان می‌خوانند (env قدیمی TELEGRAM_BOT_TOKEN با توکن مرده عملاً بی‌اثر شد)
+- سواپ یوزرنیم در ۴ نقطه: GATE_BOT_USERNAME، download-gate.tsx BOT_USERNAME، site.ts telegramBot، bot-search.ts BOT_USERNAME
+- ⚠️ نکته: gateSecret از botToken مشتق است → کلید امضا چرخید؛ کوکی‌های دانش‌آموزی قبلی باطلی (فقط تست مالک بود)
+- scripts/telegram-token.txt + setup-telegram-webhook.sh به‌روز شدند؛ کرن روزانه (475848) چون فایل را می‌خواند خودکار با ربات جدید کار می‌کند
+- deploy cbb623e (ریموت همگام بود، rebase لازم نشد) → راستی‌آزمایی لایو: /student/download=200 + homepage HTML حاوی TakrahTop_support_bot + smoke endpoint
+- setWebhook ربات جدید (سکرت همان قبلی + allowed_updates [message,callback_query]) + setMyCommands (start/top/new/help فارسی) + setMyDescription + deleteWebhook ربات قدیمی (پاکسازی) + POST جعلی → {"ok":true}
+
+Stage Summary:
+- تمام زیرساخت سمت ما تمام است؛ فقط کاربر باید @TakrahTop_support_bot را ادمین کانال @takrahTop کند تا getChatMember کار کند، بعد فلوی دانلود را سرتاسری تست کند
+- بعد از تأیید کاربر: اختیاری — حذف ربات قدیمی از ادمین‌های کانال، آواتار ربات جدید از BotFather /setuserpic
+- ایمیل اپیل برای ربات اول آماده است (در پاسخ‌های سشن)؛ اگر روزی اپیل جواب داد می‌توان برگرداند ولی ضرورتی نیست
+- توصیه امنیتی آینده: TELEGRAM_BOT_TOKEN_V2 در Vercel ست شود + /revoke در BotFather تا مقدار هاردکد بی‌اثر شود (gateSecret دوباره می‌چرخد و کوکی‌ها ریست می‌شوند — در زمان کم‌ترافیک)
