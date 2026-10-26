@@ -26,7 +26,7 @@ import { siteConfig } from "@/lib/site";
 /* ─── ثابت‌ها و تایپ‌ها ─────────────────────────────────────────── */
 
 const AD_SECONDS = 15;
-const BOT_USERNAME = "TakrahTop_bot";
+const BOT_USERNAME = "TakrahTop_support_bot";
 const CHANNEL_URL = siteConfig.telegramChannel;
 
 interface GateProps {

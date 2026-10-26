@@ -1,10 +1,10 @@
-// Shared logic for the @TakrahTop_bot — search + growth engine for takrah.top
+// Shared logic for the @TakrahTop_support_bot — search + growth engine for takrah.top
 import { articles } from "@/data";
 import type { Article } from "@/lib/blog-types";
 
 const SITE = "https://takrah.top";
 export const CHANNEL_URL = "https://t.me/takrahTop";
-export const BOT_USERNAME = "TakrahTop_bot";
+export const BOT_USERNAME = "TakrahTop_support_bot";
 
 /* ─── نرمال‌سازی فارسی ─────────────────────────────────────────── */
 

@@ -1,4 +1,4 @@
-// تأیید عضویت کانال با کدی که ربات @TakrahTop_bot بعد از /start dlv_<nonce> می‌فرستد.
+// تأیید عضویت کانال با کدی که ربات @TakrahTop_support_bot بعد از /start dlv_<nonce> می‌فرستد.
 // کد = "<nonce>.<tgId>.<امضای HMAC>" — امضا سرور-ساید چک می‌شود و بعد عضویت هم دوباره
 // مستقیم از تلگرام پرسیده می‌شود (دو لایه).
 import { NextRequest, NextResponse } from "next/server";
