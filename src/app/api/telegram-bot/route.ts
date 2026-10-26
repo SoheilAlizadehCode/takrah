@@ -24,6 +24,7 @@ const WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET ?? "";
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN ?? "";
 const CHANNEL = "@takrahTop";
 const SITE_URL = "https://takrah.top";
+const CHANNEL_URL = "https://t.me/takrahTop";
 
 type Keyboard = { inline_keyboard: { text: string; url?: string; callback_data?: string }[][] };
 

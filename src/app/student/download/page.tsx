@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { DownloadGate } from "@/components/blog/student/download-gate";
-import { STUDENT_COOKIE, parseSession } from "@/lib/student-gate";
+import { GOOGLE_CLIENT_ID, STUDENT_COOKIE, parseSession } from "@/lib/student-gate";
 import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -28,7 +28,7 @@ export default async function StudentDownloadPage() {
 
   return (
     <DownloadGate
-      googleClientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? ""}
+      googleClientId={GOOGLE_CLIENT_ID}
       initialStep={session?.verified ? 3 : 1}
       initialUser={{
         name: session?.name ?? "",

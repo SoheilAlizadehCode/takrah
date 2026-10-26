@@ -16,6 +16,13 @@ export const GATE_SITE_URL = "https://takrah.top";
 export const GATE_DOWNLOAD_URL = `${GATE_SITE_URL}/student/download`;
 /** مدت تبلیغ قبل از باز شدن لینک دانلود (ثانیه) */
 export const GATE_AD_SECONDS = 15;
+
+/** Client ID گوگل برای دکمه «ورود با گوگل» — این مقدار عمومی است و Secret ندارد،
+ *  مثل توکن بات به‌عنوان پیش‌فرض در کد است؛ متغیر محیطی
+ *  NEXT_PUBLIC_GOOGLE_CLIENT_ID (اگر در Vercel تنظیم شود) اولویت دارد. */
+export const GOOGLE_CLIENT_ID: string =
+  process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ??
+  "383016294506-ota4k2ojrccbtkmtg06hu1ir76mfkonv.apps.googleusercontent.com";
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
 /** توکن بات — فقط از متغیر محیطی (پیش‌فرض هاردکد حذف شد؛ توکن در ریپو لو رفته بود) */
