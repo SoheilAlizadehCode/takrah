@@ -1,4 +1,4 @@
-// Telegram webhook for @TakrahTop_bot — search + growth bot for takrah.top
+// Telegram webhook for @TakrahTop_support_bot — search + growth bot for takrah.top
 // Telegram sends POST updates here; we reply via the Bot API and always return 200.
 import { NextRequest } from "next/server";
 import {
@@ -11,17 +11,18 @@ import {
   welcomeText,
   type InlineKeyboard,
 } from "@/lib/bot-search";
-import { makeVerifyCode } from "@/lib/student-gate";
+import { botToken, makeVerifyCode } from "@/lib/student-gate";
 import { articles } from "@/data";
 
 export const dynamic = "force-dynamic";
 
-// ⚠️ امنیتی: توکن قبلی این ربات در سورس عمومی لو رفته بود — حتماً از BotFather با /revoke توکن جدید بگیرید
-// و مقدار TELEGRAM_BOT_TOKEN + TELEGRAM_WEBHOOK_SECRET را در Vercel تنظیم کنید.
-// توکن و سکرت فقط از متغیر محیطی — هرگز مقدار پیش‌فرض در کد نگذارید (خطر لو رفتن)
+// ⚠️ تاریخچه: توکن ربات اول (@TakrahTop_bot) در سورس عمومی لو رفته بود و بعداً ربات توسط
+// سیستم ضدسوءاستفاده تلگرام محدود شد (false positive). ربات جدید: @TakrahTop_support_bot
+// توکن از botToken() در student-gate می‌آید (متغیر TELEGRAM_BOT_TOKEN_V2 اولویت دارد)؛
+// سکرت وبهوک از متغیر TELEGRAM_WEBHOOK_SECRET.
 const WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET ?? "";
 
-const TOKEN = process.env.TELEGRAM_BOT_TOKEN ?? "";
+const TOKEN = botToken(); // مرکزی در student-gate — ربات جدید بعد از محدودیت ربات قبلی
 const CHANNEL = "@takrahTop";
 const SITE_URL = "https://takrah.top";
 const CHANNEL_URL = "https://t.me/takrahTop";
@@ -70,7 +71,7 @@ function articleBySlug(slug: string) {
 }
 
 /* ─── گیت دانلود بخش دانش‌آموزی ─────────────────────────────────
- * سایت دکمه‌ای با لینک t.me/TakrahTop_bot?start=dlv_<nonce> نشان می‌دهد؛
+ * سایت دکمه‌ای با لینک t.me/TakrahTop_support_bot?start=dlv_<nonce> نشان می‌دهد؛
  * بعد از چک عضویت، کد امضاشده‌ای به کاربر می‌دهیم تا در سایت وارد کند.
  * طراحی stateless — سایت با HMAC همان کد را تأیید می‌کند.
  */

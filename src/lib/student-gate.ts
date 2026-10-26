@@ -2,7 +2,7 @@
 // مسیر دانش‌آموز: ورود با گوگل ← تأیید عضویت کانال با کد ربات ← تبلیغ کوتاه ← دانلود.
 // طراحی کاملاً stateless (بدون دیتابیس): سشن داخل کوکی امضاشده با HMAC ذخیره می‌شود و
 // کد تأیید هم خودتأیید است (امضای HMAC روی nonce + شناسه تلگرام کاربر).
-// توضیح فلو: سایت دکمه‌ای به t.me/TakrahTop_bot?start=dlv_<nonce> می‌دهد؛ ربات بعد از
+// توضیح فلو: سایت دکمه‌ای به t.me/TakrahTop_support_bot?start=dlv_<nonce> می‌دهد؛ ربات بعد از
 // چک عضویت، کد «nonce.tgId.امضا» را می‌فرستد؛ سایت با بررسی امضا + چک مجدد عضویت،
 // کوکی تأییدشده می‌سازد. هیچ حالت مشترکی بین ربات و سایت لازم نیست.
 
@@ -11,7 +11,7 @@ import crypto from "crypto";
 export const STUDENT_COOKIE = "tk_student";
 export const GATE_CHANNEL = "@takrahTop";
 export const GATE_CHANNEL_URL = "https://t.me/takrahTop";
-export const GATE_BOT_USERNAME = "TakrahTop_bot";
+export const GATE_BOT_USERNAME = "TakrahTop_support_bot";
 export const GATE_SITE_URL = "https://takrah.top";
 export const GATE_DOWNLOAD_URL = `${GATE_SITE_URL}/student/download`;
 /** مدت تبلیغ قبل از باز شدن لینک دانلود (ثانیه) */
@@ -25,9 +25,12 @@ export const GOOGLE_CLIENT_ID: string =
   "383016294506-ota4k2ojrccbtkmtg06hu1ir76mfkonv.apps.googleusercontent.com";
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
-/** توکن بات — فقط از متغیر محیطی (پیش‌فرض هاردکد حذف شد؛ توکن در ریپو لو رفته بود) */
-function botToken(): string {
-  return process.env.TELEGRAM_BOT_TOKEN ?? "";
+/** توکن بات — ربات جایگزین بعد از محدودیت ناعادلانه تلگرام روی @TakrahTop_bot (اپیل ادامه دارد).
+ *  اولویت: متغیر TELEGRAM_BOT_TOKEN_V2 در Vercel → مقدار هاردکد فعلی (الگوی GOOGLE_CLIENT_ID).
+ *  تعویض آینده توکن فقط همین یک خط — gateSecret هم از همین مشتق می‌شود (کوکی‌ها ریست می‌شوند). */
+export function botToken(): string {
+  return process.env.TELEGRAM_BOT_TOKEN_V2 ??
+    "8887827849:AAEvYZ6l_rwSwucedP3K7ToIzhGEOkznIbs";
 }
 
 /** کلید امضای گیت — از توکن بات مشتق می‌شود (هرگز سمت کلاینت نیست). */
