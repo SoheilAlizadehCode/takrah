@@ -609,3 +609,22 @@ Work Log:
 Stage Summary:
 - منتظر Client ID از کاربر؛ بعد از دریافت: fallback در ۳ نقطه + lint/build + push + تأیید لایو دکمه گوگل در /student/download
 - Secret و redirect URI برای این معماری لازم نیستند (تأیید شد)
+
+---
+Task ID: 31 (نهایی)
+Agent: main
+Task: فعال‌سازی ورود گوگل در گیت دانلود با Client ID کاربر + فیکس‌های جانبی
+
+Work Log:
+- کاربر بعد از راهنمایی گام‌به‌گام: پروژه takrah را ساخت، Branding را کامل کرد (لوگوی برند ساخته‌شده با scripts/make-oauth-logo.py آپلود شد)، اپ را Publish کرد (In production) و OAuth Client ID را فرستاد: 383016294506-ota4k2ojrccbtkmtg06hu1ir76mfkonv.apps.googleusercontent.com
+- لوگوی OAuth سه نسخه رندر شد (512 گرد برند / 512 تمام‌مربع / 120) از روی public/logo.svg با cairosvg → download/takrah-oauth-logo*.png
+- GOOGLE_CLIENT_ID به‌صورت export مرکزی در student-gate.ts اضافه شد (fallback هاردکد مثل الگوی توکن بات؛ NEXT_PUBLIC_GOOGLE_CLIENT_ID اولویت دارد)؛ مصرف‌کننده‌ها: page.tsx + google/route.ts + guest/route.ts به import مهاجرت کردند؛ .env لوکال هم سینک شد
+- 🐛 فیکس مهم: در telegram-bot/route.ts مقدار CHANNEL_URL استفاده شده بود ولی تعریف نشده بود (باقی‌مانده از rebase) → دانش‌آموز غیرعضو هنگام /start dlv_ باعث ReferenceError و سکوت ربات می‌شد؛ ثابت اضافه شد
+- 🐛 فیکس UX: download-gate.tsx برای کاربر با کوکی مهمانِ قدیمی، مرحله ۱ را خالی نشان می‌داد (نه دکمه گوگل نه مهمان) → شرط user.guest از init گوگل حذف شد
+- rebase روی ۳ کامیت جدید سشن آوا (اینگرام/صدا) تداخل tool-results داشت → با حذف فایل زباله حل شد
+- deploy: 34cc089 + c180b87 پوش شد؛ راستی‌آزمایی لایو: /student/download=200 + Client ID داخل HTML + POST google با کد جعلی=401 invalid_token (یعنی مسیر فعال است، نه 501) + POST guest=403 login_required (مهمان غیرفعال شد)
+- نکته برای سشن آوا: tsc خطای src/lib/voice.ts (ماژول msedge-tts نصب نیست) — بیلد Vercel ignore می‌کند ولی لوکال تست صدا نیاز به bun add دارد
+
+Stage Summary:
+- کل فلوی دانلود لایو و نهایی: ورود گوگل (GIS با لوگوی برند در پنجره رضایت) → چک عضویت کانال با کد ربات → تبلیغ ۱۵ ثانیه‌ای → دانلود ۴ فایل PDF
+- مالک فقط باید در گوشی/دسکتاپ تست کند و اعلام کند؛ تیکت‌های احتمالی: invalid_client (تاخیر انتشار گوگل) یا خطای origin (باید https://takrah.top در origins باشد)
