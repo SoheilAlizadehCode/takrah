@@ -218,8 +218,9 @@ export function DownloadGate({ googleClientId, initialStep, initialUser }: GateP
   }, [goStep]);
 
   // آماده‌سازی دکمه Google Identity (فقط وقتی Client ID تنظیم شده)
+  // نکته: user.guest در شرط نیست — کوکی مهمان قدیمی هم باید دکمه گوگل را ببیند وگرنه مرحله ۱ خالی می‌ماند.
   useEffect(() => {
-    if (!googleClientId || user.name || user.guest || step !== 1) return;
+    if (!googleClientId || user.name || step !== 1) return;
     const iv = setInterval(() => {
       const g = (window as unknown as {
         google?: { accounts?: { id?: { initialize: (o: Record<string, unknown>) => void; renderButton: (el: HTMLElement, o: Record<string, unknown>) => void } } };
@@ -247,7 +248,7 @@ export function DownloadGate({ googleClientId, initialStep, initialUser }: GateP
       clearInterval(iv);
       clearTimeout(stop);
     };
-  }, [step, googleClientId, user.name, user.guest, loginGoogle]);
+  }, [step, googleClientId, user.name, loginGoogle]);
 
   /* مرحله ۲ — تأیید کد عضویت */
   const verifyCode = useCallback(async () => {
