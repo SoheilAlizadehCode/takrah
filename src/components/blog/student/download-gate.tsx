@@ -148,6 +148,7 @@ export function DownloadGate({ googleClientId, initialStep, initialUser }: GateP
   const [countdown, setCountdown] = useState(AD_SECONDS);
   const [files, setFiles] = useState<FileItem[] | null>(null);
   const [promoIdx, setPromoIdx] = useState(0);
+  const [gisFailed, setGisFailed] = useState(false);
   const t0Ref = useRef(Date.now());
   const gisDoneRef = useRef(false);
   const unlockBusyRef = useRef(false);
@@ -244,11 +245,23 @@ export function DownloadGate({ googleClientId, initialStep, initialUser }: GateP
       });
     }, 250);
     const stop = setTimeout(() => clearInterval(iv), 20000);
+    // اگر اسکریپت گوگل تا ۸ ثانیه نیامد (IP ایران معمولاً باز نمی‌کند) راه تلگرام را برجسته کن
+    const failT = setTimeout(() => {
+      if (!gisDoneRef.current) setGisFailed(true);
+    }, 8000);
     return () => {
       clearInterval(iv);
       clearTimeout(stop);
+      clearTimeout(failT);
     };
   }, [step, googleClientId, user.name, loginGoogle]);
+
+  /* مرحله ۱ (جایگزین) — ورود با تلگرام: مستقیم به تأیید عضویت؛ هویت از کد امضاشده ربات می‌آید
+     (کد = nonce.tgId.امضا → verify رکورد tgId را در سشن می‌نویسد؛ بدون نیاز به گوگل). */
+  const loginTelegram = useCallback(() => {
+    setError("");
+    goStep(2);
+  }, [goStep]);
 
   /* مرحله ۲ — تأیید کد عضویت */
   const verifyCode = useCallback(async () => {
@@ -381,7 +394,23 @@ export function DownloadGate({ googleClientId, initialStep, initialUser }: GateP
           </p>
           <div className="mt-5 flex flex-col items-center gap-4">
             {googleClientId ? (
-              <div ref={btnRef} className="flex min-h-[44px] items-center justify-center" aria-label="ورود با گوگل" />
+              <>
+                <div ref={btnRef} className="flex min-h-[44px] items-center justify-center" aria-label="ورود با گوگل" />
+                {gisFailed && (
+                  <p className="w-full rounded-lg bg-amber-500/10 px-3 py-2 text-center text-xs leading-6 text-amber-700 dark:text-amber-400">
+                    دکمه گوگل روی خیلی از IPهای ایران باز نمی‌شود؛ راه دوم برای تو آماده است 👇
+                  </p>
+                )}
+                <div className="flex w-full max-w-xs items-center gap-3 text-[11px] font-medium text-muted-foreground">
+                  <span className="h-px flex-1 bg-border" aria-hidden="true" />
+                  یا
+                  <span className="h-px flex-1 bg-border" aria-hidden="true" />
+                </div>
+                <Button variant="outline" onClick={loginTelegram} className="min-h-11 w-full max-w-xs gap-2">
+                  <Send className="h-4 w-4" aria-hidden="true" />
+                  ورود سریع با تلگرام (بدون گوگل)
+                </Button>
+              </>
             ) : (
               <div className="w-full rounded-xl border border-dashed border-border/80 bg-muted/40 p-4 text-center">
                 <p className="text-sm leading-7 text-muted-foreground">
