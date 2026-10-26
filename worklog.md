@@ -633,3 +633,23 @@ Stage Summary:
 - دنباله Task 31 — 🚨 حادثه: کاربر هنگام تست گیت، تلگرام پیام داد «This bot can't be displayed because it was used to spread pornographic content» → @TakrahTop_bot توسط سیستم ضدسوءاستفاده تلگرام RESTRICT شده (false positive آموزشی)؛ راستی‌آزمایی API: getMe و getChat هنوز 200 ولی getWebhookInfo url خالی (وب‌هوک تلگرام پاک کرده)
 - تصمیم: ربات جدید از BotFather (عملی، فوری) + اپیل موازی recover@telegram.org؛ تا رسیدن توکن جدید مرحله ۲ گیت برای بازدیدکننده‌ها غیرفعال عملاً (دکمه به ربات محدودشده می‌رود)
 - چک‌لیست سواپ برای رسیدن توکن جدید: توکن در route.ts + student-gate.ts، BOT_USERNAME در bot-search.ts + site.ts (telegramBot) + student-gate.ts (GATE_BOT_USERNAME) + download-gate.tsx، setWebhook با secret + allowed_updates ["message","callback_query"] (قبلی فقط message بود — باگ خاموش callback!)، setMyCommands، تست E2E، deploy
+---
+Task ID: 31-dنباله (webhook + BotFather خطا)
+Agent: main (سشن جاری)
+Task: رفع «قسمت کد بات تلگرام کار نمی‌کند» + خطای BotFather هنگام ساخت ربات جدید: Sorry, an error has occurred during your request. Please try again later. (Code 258337347)
+
+Work Log:
+- تشخیص: getWebhookInfo یعنی url خالی بود "" — تلگرام در جریان محدودیت ربات (حادثه قبلی) وبهوک را پاک کرده بود؛ ربات هیچ آپدیت دریافت نمی‌کرد
+- وبهوک دوباره ثبت شد روی ربات قدیمی (امکان دارد اپیل recover@telegram.org جواب داده باشد — getMe و setWebhook هر دو 200 می‌دهند ولی وضعیت restrict از API قابل تشخیص نیست؛ تست نهایی: باز کردن t.me/TakrahTop_bot توسط کاربر)
+- 🐛 فیکس آیتم چک‌لیست سواپ: allowed_updates قبلی فقط ["message"] بود → دکمه «بررسی مجدد عضویت» (callback_data dlvvre_/dlvre_) بی‌صدا نمی‌کارید؛ دوباره با ["message","callback_query"] ثبت شد
+- راستی‌آزمایی لایو: POST جعلی با سکرت به /api/telegram-bot → {"ok":true} (یعنی سکرت Vercel با tk9f... می‌خواند و مسیر سالم است) + GET smoke-check اوکی
+- scripts/telegram-token.txt ساخته شد (BOT_TOKEN/WEBHOOK_SECRET/WEBHOOK_URL/BOT_USERNAME) و به .gitignore اضافه شد (پیش‌تر الگوی تاریخی بود که با ریست سandbox گم می‌شد)
+- scripts/setup-telegram-webhook.sh ساخته شد: یک دستور بازیابی وبهوک (مقادیر از فایل توکن یا env؛ بعد از سواپ فقط BOT_TOKEN جدید در فایل + اجرا)
+- کرن روزانه ۹ صبح تهران (job 475848): چک getWebhookInfo → اگر url خالی بود اجرای اسکریپت setup و گزارش؛ اگر 401 داد یعنی توکن عوض شده
+- .env لوکال فقط DATABASE_URL دارد (سandbox ریست شده یا سشن موازی overwrite کرده) — TELEGRAM_BOT_TOKEN فقط در Vercel است
+
+Stage Summary:
+- اگر ربات قدیمی آزاد شده باشد: گیت دانلود همین الان کاملاً کار می‌کند (وهبهوک + callback فیکس شده)
+- اگر هنوز محدود باشد: منتظر توکن ربات جدید؛ چک‌لیست سواپ به‌روزشده: (1) توکن جدید در Vercel env TELEGRAM_BOT_TOKEN + scripts/telegram-token.txt (2) یوزرنیم جدید در ۴ نقطه: download-gate.tsx:29، site.ts:19 (telegramBot)، student-gate.ts:14 (GATE_BOT_USERNAME)، bot-search.ts:7 (3) redeploy (4) bash scripts/setup-telegram-webhook.sh (5) setMyCommands (6) تست E2E مرحله ۲
+- توصیه امنیتی برای سشن بعدی: .env با اینکه .gitignore قانون .env* دارد، از قبل tracked است → یک بار git rm --cached .env
+- خطای (Code 258337347) در BotFather: خطای موقت سمت تلگرام است (نه مشکل نام/یوزرنیم) → راه‌حل: تلاش مجدد بعد از فاصله زمانی، اپ/شبکه دیگر، آماده داشتن یوزرنیم‌های جایگزین
