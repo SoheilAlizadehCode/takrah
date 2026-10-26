@@ -653,3 +653,17 @@ Stage Summary:
 - اگر هنوز محدود باشد: منتظر توکن ربات جدید؛ چک‌لیست سواپ به‌روزشده: (1) توکن جدید در Vercel env TELEGRAM_BOT_TOKEN + scripts/telegram-token.txt (2) یوزرنیم جدید در ۴ نقطه: download-gate.tsx:29، site.ts:19 (telegramBot)، student-gate.ts:14 (GATE_BOT_USERNAME)، bot-search.ts:7 (3) redeploy (4) bash scripts/setup-telegram-webhook.sh (5) setMyCommands (6) تست E2E مرحله ۲
 - توصیه امنیتی برای سشن بعدی: .env با اینکه .gitignore قانون .env* دارد، از قبل tracked است → یک بار git rm --cached .env
 - خطای (Code 258337347) در BotFather: خطای موقت سمت تلگرام است (نه مشکل نام/یوزرنیم) → راه‌حل: تلاش مجدد بعد از فاصله زمانی، اپ/شبکه دیگر، آماده داشتن یوزرنیم‌های جایگزین
+---
+Task ID: 31-پایان
+Agent: main (سشن جاری)
+Task: نتیجه نتیجه‌گیری حادثه محدودیت ربات
+
+Work Log:
+- کاربر تأیید کرد: t.me/TakrahTop_bot الان عادی باز می‌شود و خبری از پیام پورن نیست → اپیل به recover@telegram.org جواب داده و محدودیت برداشته شد
+- چک نهایی: getWebhookInfo = url درست + allowed_updates [message,callback_query] + سایت /student/download = 200
+- ربات جدید لازم نشد؛ چک‌لیست سواپ توکن/یوزرنیم بی‌مصرف شد (فقط اگر حادثه تکرار شود)
+- کرن روزانه چک وبهوک (job 475848) سر جایش ماند — محافظ همین نوع خرابی بی‌صداست
+
+Stage Summary:
+- گیت دانلود بخش دانش‌آموزی حالا انتظار می‌رود سرتاسری کار کند: ورود (گوگل/تلگرام) → عضویت کانال با کد ربات → تبلیغ ۱۵ ثانیه → دانلود ۴ PDF
+- منتظر تست نهایی کاربر روی فلوی کامل؛ اگر مشکل جدیدی دید اعلام می‌کند
