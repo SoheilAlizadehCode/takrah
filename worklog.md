@@ -700,3 +700,18 @@ Stage Summary:
 - حادثه محدودیت ربات اول کاملاً بسته شد؛ گیت دانلود بخش دانش‌آموزی پروژه‌محور و لایو است
 - باقی‌مانده‌های اختیاری: آواتار ربات جدید (/setuserpic)، حذف ربات قدیمی از ادمین‌های کانال بعد از چند روز، ست کردن TELEGRAM_BOT_TOKEN_V2 در Vercel + /revoke برای امنیت
 - کرن روزانه چک وبهوک فعال است (job 475848، فایل توکن را می‌خواند)
+---
+Task ID: 33 — فیکس برگشت به مرحله ۱ + audit SEO
+Agent: main (سشن جاری)
+Task: باگ «بعد از گوگل+ربات، برگشت به صفحه = مرحله ۱» + چک SEO سایت + لیست کارهای باقی‌مانده کاربر
+
+Work Log:
+- ریشه باگ: page.tsx فقط initialStep={verified?3:1} می‌داد — کاربر لاگین‌کرده/تأییدنشده با کوکی معتبر موقع برگشت دوباره مرحله ۱ (لاگین) می‌دید
+- فیکس (1b69892): verified→3، داشتن هر هویت (email/guest/tgId)→2، وگرنه→1
+- راستی‌آزمایی لایو با کوکی واقعی امضاشده: scripts/test-gate-session.js ساخته شد (کوکی با secret مشتق از توکن جدید) → هر سه حالت درست: بدون کوکی=step1، لاگین=step2، تأیید=step3
+- audit SEO با curl: homepage (title/desc/canonical/OG کامل/JSON-LD/robots meta) + robots.txt (sitemap pointer) + sitemap.xml با 63 URL + مقاله نمونه (/article/what-is-ai-beginners-guide: title+desc+canonical+اسکیمای Article/BreadcrumbList/ImageObject/Organization/WebSite) + /privacy و /terms هر دو 200 (سازگار با Google Console)
+
+Stage Summary:
+- SEO فنی سایت وضعیت سبز دارد؛ برای کاربر: افزونه Detailed SEO Extension + Lighthouse (F12) + GSC + Ahrefs Webmaster Tools معرفی شد
+- کارهای منتظر کاربر: اسم/محتوای ۳ کتاب، تأیید اسکریپت ویدیو پایتون، عادت روزانه GSC indexing؛ اختیاری: آواتار ربات جدید، حذف ربات قدیمی از ادمین‌ها، TELEGRAM_BOT_TOKEN_V2 در Vercel+/revoke
+- scripts/test-gate-session.js برای تست‌های آینده گیت (بعد از هر تعویض توکن باید TOKEN آن آپدیت شود)
