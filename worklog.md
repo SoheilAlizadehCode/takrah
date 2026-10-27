@@ -731,3 +731,17 @@ Stage Summary:
 - حادثه بسته شد؛ هر کسی بعد از این سشن دیگری روی ریپو کار کند باید اول pull کند — سشن‌های موازی با snapshot کهنه = خطر رول‌بک مجدد
 - کاربر باید ربات قدیمی @TakrahTop_bot را از ادمین‌های کانال حذف کند (الان ضروری‌تر شد)
 - پیام کرن 475848 = چکر خودکار روزانهٔ وبهوک است (ساخت سشن‌های قبل) — برای کاربر توضیح داده شد
+
+---
+Task ID: 36-verify
+Agent: main (Z.ai)
+Task: Pre-flight verification before user's final test (after incident 36 rollback restore)
+
+Work Log:
+- git: local main = origin/main = 274901c (rollback restore pushed); only sales-kit + test scripts dirty
+- getWebhookInfo: healthy — url=takrah.top/api/telegram-bot, 0 pending, allowed_updates ok
+- live HTML: only TakrahTop_support_bot (old porn-flagged bot gone); Google Client ID + accounts.google.com/gsi present on /student/download
+- live API POST /api/student/verify: format→new message ✅, bad_signature→«کد درست نیست» ✅, validly-signed stale nonce→stale_code + new Persian message ✅
+
+Stage Summary:
+- ALL incident-36 fixes confirmed LIVE on production. User cleared to test end-to-end.
