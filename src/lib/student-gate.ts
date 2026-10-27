@@ -2,7 +2,7 @@
 // مسیر دانش‌آموز: ورود با گوگل ← تأیید عضویت کانال با کد ربات ← تبلیغ کوتاه ← دانلود.
 // طراحی کاملاً stateless (بدون دیتابیس): سشن داخل کوکی امضاشده با HMAC ذخیره می‌شود و
 // کد تأیید هم خودتأیید است (امضای HMAC روی nonce + شناسه تلگرام کاربر).
-// توضیح فلو: سایت دکمه‌ای به t.me/TakrahTop_bot?start=dlv_<nonce> می‌دهد؛ ربات بعد از
+// توضیح فلو: سایت دکمه‌ای به t.me/TakrahTop_support_bot?start=dlv_<nonce> می‌دهد؛ ربات بعد از
 // چک عضویت، کد «nonce.tgId.امضا» را می‌فرستد؛ سایت با بررسی امضا + چک مجدد عضویت،
 // کوکی تأییدشده می‌سازد. هیچ حالت مشترکی بین ربات و سایت لازم نیست.
 
@@ -11,16 +11,26 @@ import crypto from "crypto";
 export const STUDENT_COOKIE = "tk_student";
 export const GATE_CHANNEL = "@takrahTop";
 export const GATE_CHANNEL_URL = "https://t.me/takrahTop";
-export const GATE_BOT_USERNAME = "TakrahTop_bot";
+export const GATE_BOT_USERNAME = "TakrahTop_support_bot";
 export const GATE_SITE_URL = "https://takrah.top";
 export const GATE_DOWNLOAD_URL = `${GATE_SITE_URL}/student/download`;
 /** مدت تبلیغ قبل از باز شدن لینک دانلود (ثانیه) */
 export const GATE_AD_SECONDS = 15;
+
+/** Client ID گوگل برای دکمه «ورود با گوگل» — این مقدار عمومی است و Secret ندارد،
+ *  مثل توکن بات به‌عنوان پیش‌فرض در کد است؛ متغیر محیطی
+ *  NEXT_PUBLIC_GOOGLE_CLIENT_ID (اگر در Vercel تنظیم شود) اولویت دارد. */
+export const GOOGLE_CLIENT_ID: string =
+  process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ??
+  "383016294506-ota4k2ojrccbtkmtg06hu1ir76mfkonv.apps.googleusercontent.com";
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
-/** توکن بات — فقط از متغیر محیطی (پیش‌فرض هاردکد حذف شد؛ توکن در ریپو لو رفته بود) */
-function botToken(): string {
-  return process.env.TELEGRAM_BOT_TOKEN ?? "";
+/** توکن بات — ربات جایگزین بعد از محدودیت ناعادلانه تلگرام روی @TakrahTop_bot (اپیل ادامه دارد).
+ *  اولویت: متغیر TELEGRAM_BOT_TOKEN_V2 در Vercel → مقدار هاردکد فعلی (الگوی GOOGLE_CLIENT_ID).
+ *  تعویض آینده توکن فقط همین یک خط — gateSecret هم از همین مشتق می‌شود (کوکی‌ها ریست می‌شوند). */
+export function botToken(): string {
+  return process.env.TELEGRAM_BOT_TOKEN_V2 ??
+    "8887827849:AAEvYZ6l_rwSwucedP3K7ToIzhGEOkznIbs";
 }
 
 /** کلید امضای گیت — از توکن بات مشتق می‌شود (هرگز سمت کلاینت نیست). */
@@ -86,19 +96,41 @@ export function makeVerifyCode(nonce: string, tgId: number): string {
   return `${nonce}.${tgId}.${sig}`;
 }
 
-/** کد را با nonce صفحه بررسی می‌کند؛ درست بودن tgId برمی‌گردد وگرنه null. */
-export function parseVerifyCode(code: string, nonce: string): number | null {
-  const parts = (code ?? "").trim().split(".");
-  if (parts.length !== 3) return null;
+/** کد را از متن خام paste‌شده استخراج می‌کند — کاربر ممکن است کل پیام ربات را کپی کند
+ *  (با خط‌های فارسی اطراف)؛ الگوی «nonce.tgId.امضا» را داخل هر متنی پیدا می‌کنیم. */
+export function extractCode(raw: string): string | null {
+  const m = (raw ?? "").match(/[a-f0-9]{8,32}\.[0-9]{1,12}\.[a-f0-9]{16}/);
+  return m ? m[0] : null;
+}
+
+export type VerifyCodeCheck =
+  | { status: "ok"; tgId: number }
+  | { status: "format" | "stale" | "bad_signature" };
+
+/** نسخهٔ تشخیصی parseVerifyCode — علت رد شدن را هم می‌گوید تا پیام خطا دقیق باشد:
+ *  format = کدی پیدا/خوانا نبود، stale = کد مال تلاش قبلی است (nonce صفحه عوض شده —
+ *  مثلاً کد قدیمی از چت ربات یا مرورگر دیگر)، bad_signature = امضا غلط (دستکاری‌شده). */
+export function checkVerifyCode(raw: string, nonce: string): VerifyCodeCheck {
+  const code = extractCode(raw) ?? (raw ?? "").trim();
+  const parts = code.split(".");
+  if (parts.length !== 3) return { status: "format" };
   const [n, idRaw, sig] = parts;
-  if (n !== nonce) return null;
+  if (!/^[a-f0-9]{8,32}$/.test(n)) return { status: "format" };
   const tgId = Number(idRaw);
-  if (!Number.isInteger(tgId) || tgId < 1 || tgId > 1e12) return null;
+  if (!Number.isInteger(tgId) || tgId < 1 || tgId > 1e12) return { status: "format" };
+  if (!/^[a-f0-9]{16}$/.test(sig)) return { status: "format" };
   const expected = hmacHex(`${n}.${tgId}`).slice(0, 16);
   const a = Buffer.from(sig);
   const b = Buffer.from(expected);
-  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
-  return tgId;
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return { status: "bad_signature" };
+  if (n !== nonce) return { status: "stale" };
+  return { status: "ok", tgId };
+}
+
+/** کد را با nonce صفحه بررسی می‌کند؛ درست بودن tgId برمی‌گردد وگرنه null. */
+export function parseVerifyCode(code: string, nonce: string): number | null {
+  const r = checkVerifyCode(code, nonce);
+  return r.status === "ok" ? r.tgId : null;
 }
 
 /* ─── عضویت کانال ──────────────────────────────────────────────── */
