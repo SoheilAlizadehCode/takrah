@@ -96,19 +96,41 @@ export function makeVerifyCode(nonce: string, tgId: number): string {
   return `${nonce}.${tgId}.${sig}`;
 }
 
-/** کد را با nonce صفحه بررسی می‌کند؛ درست بودن tgId برمی‌گردد وگرنه null. */
-export function parseVerifyCode(code: string, nonce: string): number | null {
-  const parts = (code ?? "").trim().split(".");
-  if (parts.length !== 3) return null;
+/** کد را از متن خام paste‌شده استخراج می‌کند — کاربر ممکن است کل پیام ربات را کپی کند
+ *  (با خط‌های فارسی اطراف)؛ الگوی «nonce.tgId.امضا» را داخل هر متنی پیدا می‌کنیم. */
+export function extractCode(raw: string): string | null {
+  const m = (raw ?? "").match(/[a-f0-9]{8,32}\.[0-9]{1,12}\.[a-f0-9]{16}/);
+  return m ? m[0] : null;
+}
+
+export type VerifyCodeCheck =
+  | { status: "ok"; tgId: number }
+  | { status: "format" | "stale" | "bad_signature" };
+
+/** نسخهٔ تشخیصی parseVerifyCode — علت رد شدن را هم می‌گوید تا پیام خطا دقیق باشد:
+ *  format = کدی پیدا/خوانا نبود، stale = کد مال تلاش قبلی است (nonce صفحه عوض شده —
+ *  مثلاً کد قدیمی از چت ربات یا مرورگر دیگر)، bad_signature = امضا غلط (دستکاری‌شده). */
+export function checkVerifyCode(raw: string, nonce: string): VerifyCodeCheck {
+  const code = extractCode(raw) ?? (raw ?? "").trim();
+  const parts = code.split(".");
+  if (parts.length !== 3) return { status: "format" };
   const [n, idRaw, sig] = parts;
-  if (n !== nonce) return null;
+  if (!/^[a-f0-9]{8,32}$/.test(n)) return { status: "format" };
   const tgId = Number(idRaw);
-  if (!Number.isInteger(tgId) || tgId < 1 || tgId > 1e12) return null;
+  if (!Number.isInteger(tgId) || tgId < 1 || tgId > 1e12) return { status: "format" };
+  if (!/^[a-f0-9]{16}$/.test(sig)) return { status: "format" };
   const expected = hmacHex(`${n}.${tgId}`).slice(0, 16);
   const a = Buffer.from(sig);
   const b = Buffer.from(expected);
-  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
-  return tgId;
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return { status: "bad_signature" };
+  if (n !== nonce) return { status: "stale" };
+  return { status: "ok", tgId };
+}
+
+/** کد را با nonce صفحه بررسی می‌کند؛ درست بودن tgId برمی‌گردد وگرنه null. */
+export function parseVerifyCode(code: string, nonce: string): number | null {
+  const r = checkVerifyCode(code, nonce);
+  return r.status === "ok" ? r.tgId : null;
 }
 
 /* ─── عضویت کانال ──────────────────────────────────────────────── */

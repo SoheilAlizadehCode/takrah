@@ -5,9 +5,9 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   STUDENT_COOKIE,
   channelMembership,
+  checkVerifyCode,
   cookieOptions,
   parseSession,
-  parseVerifyCode,
   signSession,
   type StudentSession,
 } from "@/lib/student-gate";
@@ -21,13 +21,28 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, reason: "bad_nonce" }, { status: 400 });
   }
 
-  const tgId = parseVerifyCode(body?.code ?? "", nonce);
-  if (!tgId) {
-    return NextResponse.json(
-      { ok: false, reason: "bad_code", message: "کد درست نیست! از پیام ربات دوباره کپی کن." },
-      { status: 401 },
-    );
+  const check = checkVerifyCode(body?.code ?? "", nonce);
+  if (check.status !== "ok") {
+    // پیام هر علت جدا است — stale یعنی کد مال تلاش قبلی است (نیاز به کد تازه، نه کپی دوباره)
+    const fail = {
+      format: {
+        reason: "bad_code",
+        message:
+          "کدی توی متنی که چسبوندی پیدا نکردم! تو پیام ربات روی خودِ کد بزن تا کپی بشه، بعد همین‌جا بچسبونش.",
+      },
+      stale: {
+        reason: "stale_code",
+        message:
+          "این کد مال تلاش قبلی است! برگرد به صفحه، دوباره روی «بررسی عضویت در تلگرام» بزن تا کد تازه بگیری و همان را وارد کن (کد را با همان مرورگری بگیر که صفحه دانلود توش باز است).",
+      },
+      bad_signature: {
+        reason: "bad_code",
+        message: "کد درست نیست! از پیام ربات دوباره کپی کن.",
+      },
+    }[check.status];
+    return NextResponse.json({ ok: false, reason: fail.reason, message: fail.message }, { status: 401 });
   }
+  const tgId = check.tgId;
 
   const membership = await channelMembership(tgId);
   if (membership === "unknown") {
