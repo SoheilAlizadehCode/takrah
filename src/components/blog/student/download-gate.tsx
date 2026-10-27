@@ -154,15 +154,21 @@ export function DownloadGate({ googleClientId, initialStep, initialUser }: GateP
   const unlockBusyRef = useRef(false);
   const btnRef = useRef<HTMLDivElement | null>(null);
 
-  // nonce برای دیپ‌لینک ربات — ثابت در طول عمر تب
+  // nonce برای دیپ‌لینک ربات — در localStorage ماندگار است (نه فقط عمر تب):
+  // کدهای قبلی ربات بعد از بستن تب/ری‌استارت مرورگر هم معتبر می‌مانند و باگ
+  // «کد درست نیست» بعد از برگشت به صفحه رخ نمی‌دهد. تب‌های مختلف هم
+  // nonce مشترک دارند (sessionStorage قدیمی مهاجرت می‌شود).
   useEffect(() => {
-    let n = sessionStorage.getItem("tk_dlv_nonce");
-    if (!n || !/^[a-f0-9]{8,32}$/.test(n)) {
+    const ok = (v: string | null): v is string => !!v && /^[a-f0-9]{8,32}$/.test(v);
+    let n = localStorage.getItem("tk_dlv_nonce");
+    if (!ok(n)) n = sessionStorage.getItem("tk_dlv_nonce"); // مهاجرت از نسخهٔ قبل
+    if (!ok(n)) {
       const bytes = new Uint8Array(8);
       crypto.getRandomValues(bytes);
       n = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
-      sessionStorage.setItem("tk_dlv_nonce", n);
     }
+    localStorage.setItem("tk_dlv_nonce", n);
+    sessionStorage.removeItem("tk_dlv_nonce");
     setNonce(n);
   }, []);
 
@@ -473,10 +479,21 @@ export function DownloadGate({ googleClientId, initialStep, initialUser }: GateP
                 dir="ltr"
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
+                onPaste={(e) => {
+                  // اگر کل پیام ربات را کپی کرده‌اند، فقط خودِ کد را بردار
+                  const m = e.clipboardData.getData("text").match(/[a-f0-9]{8,32}\.[0-9]{1,12}\.[a-f0-9]{16}/);
+                  if (m) {
+                    e.preventDefault();
+                    setCode(m[0]);
+                  }
+                }}
                 placeholder="xxxx.yyyyyyy.xxxxxxxxxxxxxxxx"
                 className="text-center font-mono text-sm"
                 autoComplete="off"
               />
+              <p className="text-[11px] leading-5 text-muted-foreground">
+                کل پیام ربات را کپی کنی هم کافیه؛ کد را خودم از داخلش پیدا می‌کنم.
+              </p>
               <Button onClick={() => void verifyCode()} disabled={busy} className="min-h-11 gap-2">
                 {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <BadgeCheck className="h-4 w-4" aria-hidden="true" />}
                 تأیید و ادامه
