@@ -11,7 +11,6 @@
   - پلن ۲ → `/api/telegram/clinic` (نوبت‌دهی) + `/api/telegram/clinic-reminders` (یادآوری کرونی)
   - پلن ۳ → `/api/telegram/vip` (منشی هوشمند «آوا»: متن + وویس)
   - ربات عمومی سایت → `/api/telegram-bot`
-  - **اینستاگرام** → `/api/instagram/webhook` (منشی دایرکت + کامنت→دایرکت — راهنمای جداگانه: `INSTAGRAM-SETUP-FA.md`)
 - **دیتابیس:** Upstash Redis (REST) — وضعیت گفتگو، نوبت‌ها، کش، لاگ خطا
 - **هوش مصنوعی آوا (همه با پلن رایگان):**
   - گوش (ASR): **Whisper روی Groq** ← فال‌بک ElevenLabs Scribe ← فال‌بک GLM-ASR
