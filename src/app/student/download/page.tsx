@@ -29,7 +29,13 @@ export default async function StudentDownloadPage() {
   return (
     <DownloadGate
       googleClientId={GOOGLE_CLIENT_ID}
-      initialStep={session?.verified ? 3 : 1}
+      initialStep={
+        session?.verified
+          ? 3
+          : session?.email || session?.guest || session?.tgId
+            ? 2
+            : 1
+      }
       initialUser={{
         name: session?.name ?? "",
         email: session?.email ?? "",
