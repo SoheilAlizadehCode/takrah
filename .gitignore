@@ -55,3 +55,7 @@ server.log
 # telegram bot secrets (هرگز کامیت نشود)
 scripts/telegram-token.txt
 telegram-token.txt
+tool-results/
+
+# telegram bot secrets (never commit)
+scripts/telegram-token.txt

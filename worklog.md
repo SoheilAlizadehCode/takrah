@@ -568,3 +568,150 @@ Stage Summary:
 - انتظار کاربر («۳ شاخه») فعلاً با ۲ کتاب برآورده شده؛ کتاب سوم بعد از دریافت PDF با اضافه‌کردن یک شیء به studentBooks + مقاله‌ها اضافه می‌شود
 - کار کاربر: Request Indexing برای /student، دو صفحه کتاب و ۱۰ مقاله (اولویت: مقالات پودمان‌ها)؛ می‌تواند در کانال هم اعلامش کند
 - درس فنی: قبل از push همیشه git pull --rebase چک شود — ریپو ممکن است از سشن‌های دیگر جلوتر باشد؛ تداخل‌های header را با حفظ هر دو فیچر حل کن
+
+---
+Task ID: 30
+Agent: main
+Task: بخش «دانلود» در قسمت دانش‌آموز — گیت ورود گوگل + تأیید عضویت کانال با کد ربات + تبلیغ ۱۵ ثانیه‌ای + دانلود امن
+
+Work Log:
+- کاربر خواست: بخش دانلود داخل دانش‌آموز؛ ورود راحت با گوگل → چک عضویت کانال تکراه (اگه نبود عضو بشه) → تبلیغ ۱۰-۲۰ ثانیه‌ای قبل از باز شدن لینک → دانلود فایل‌ها؛ هدف: ترافیک سایت + عضو شدن همه دانش‌آموزها
+- معماری stateless بدون دیتابیس: سشن در کوکی HMAC-امضاشده (tk_student، ۳۰ روز، HttpOnly) + کد تأیید خودتأیید «nonce.tgId.امضا» با HMAC از توکن بات؛ کلید مشترک بین webhook و APIهای گیت از TELEGRAM_BOT_TOKEN مشتق می‌شود
+- src/lib/student-gate.ts: signSession/parseSession + makeVerifyCode/parseVerifyCode (timingSafeEqual) + channelMembership (getChatMember؛ restricted/is_member هم هندل شد)
+- فلوی عضویت: سایت دکمه t.me/TakrahTop_bot?start=dlv_<nonce> → ربات عضویت را چک می‌کند → عضو بود: کد امضاشده با <code> (tap-to-copy) + دکمه بازگشت؛ نبود: دکمه کانال + «بررسی مجدد» (callback dlvre_<nonce> با answerCallbackQuery alert)؛ همه در route.ts بدون دست‌زدن به ref_ قبلی
+- APIها: /api/student/google (اعتبارسنجی ID Token با tokeninfo گوگل، چک aud/email_verified/exp)، /api/student/guest (فقط وقتی Client ID تنظیم نیست)، /api/student/verify (کد + چک مجدد عضویت از تلگرام)، /api/student/unlock (سشن verified + هنوز عضو است + حداقل ۱۲.۵ ثانیه از تأیید/لود صفحه — enforce سمت سرور انتظار تبلیغ با 425) و /api/student/file/[id] (سرو PDF فقط با کوکی verified)
+- فایل‌ها private شدند: پوشه private-downloads/ خارج از public + outputFileTracingIncludes در next.config → لینک مستقیم هیچ فایلی از بیرون کار نمی‌کند (لایو ۴۰۳ تایید شد)
+- کاتالوگ: src/lib/student-downloads.ts (۴ فایل: دو کتاب PDF آپلودی کاربر ۲۱۲۲۸۸/۲۱۲۲۹۰ + ۲ هدیه) — افزودن فایل جدید = یک شیء
+- ۲ PDF هدیه فارسی با PIL/raqm ساخته شد (scripts/make-student-downloads.py): نقشه‌راه برنامه‌نویسی ۲ صفحه‌ای + برنامه‌ریز مطالعه هفتگی قابل چاپ؛ باکگ wrap RTL و ستون‌بندی جدول؛ پیش‌نمایش بصری تک‌تک صفحات چک شد
+- UI: صفحه /student/download (سروری، کوکی خوانی → بازدیدکننده تأییدشده مستقیم به مرحله تبلیغ می‌رود) + DownloadGate چهارمرحله‌ای (استپر RTL، دکمه GIS گوگل با fallback مهمان وقتی Client ID نیست، ورودی کد، حلقه شمارش معکوس SVG، روتاتور ۳ اسلاید تبلیغ داخلی [ربات/کانال/محل تبلیغ شما] + جایگاه آماده ادسنس وقتی adsenseClientId پر شود، کارت فایل‌ها + اشتراک‌گذاری)
+- ناوبری: آیتم «دانلود فایل‌های آموزشی» با نشان پالس در اول منوی کشویی دانش‌آموز (دسکتاپ+موبایل) + بنر بزرگ دانلود در بالای صفحه کتابخانه /student
+- بات: دکمه «📥 دانلود فایل‌های آموزشی» به mainKeyboard اضافه شد (سطر جدید؛ articleKeyboard هنوز ۲ سطر اول) + خط دانلود در welcomeText
+- تست‌ها: lint و build موفق؛ bun scripts/test-gate-flow.ts (E2E لوکال: verify با کد واقعی سازنده کانال 200+کوکی، کد خراب 401، unlock زودهنگام 425، بعد از ۱۶ث 200+۴ فایل، دانلود PDF با magic %PDF، بدون کوکی 403)؛ بازبینی بصری agent-browser (دسکتاپ+موبایل+منو+بنر، فلوی کامل تا مرحله ۴)؛ تست لایو scripts/test-gate-live.ts روی takrah.top همه سبز
+- دیپلوی: rebase روی ۲ کامیت جدید سشن آوا (با stash تغییرات mode) → push 46b06a4 → راستی‌آزمایی لایو: /student/download=200، فایل خصوصی بدون سشن=403، unlock بدون سشن=خطای JSON، sitemap شامل /student/download، بنر در /student
+- پیام دمو: اپدیت شبیه‌سازی‌شده /start dlv_<nonce> به webhook لایو → بات پیام کد واقعی را به چت خصوصی کاربر (5289089807) فرستاد تا تجربه دانش‌آموز را ببیند
+
+Stage Summary:
+- بخش دانلود کامل لایو: https://takrah.top/student/download — ورود گوگل (فعلاً fallback مهمان چون NEXT_PUBLIC_GOOGLE_CLIENT_ID هنوز تنظیم نشده) → تأیید عضویت با کد ربات → تبلیغ ۱۵ ثانیه‌ای → دانلود ۴ فایل
+- کار باقی‌مانده برای کاربر: (۱) ساخت OAuth Client ID در Google Cloud Console و ست کردن NEXT_PUBLIC_GOOGLE_CLIENT_ID در Vercel + redeploy (۲) BotFather نیازی به تغییر ندارد (۳) برای فایل‌های جدید فقط شیء به student-downloads.ts اضافه شود
+- درس فنی: nonce باید hex خالص باشد (regex سمت سرور)؛ تست لوکال با nonce غیر hex شکست ظاهری داد؛ enforce زمانی 425 هم برای برگشت‌دهنده‌ها با x-gate-t0 کار می‌کند
+
+---
+Task ID: 31
+Agent: main
+Task: راهنمایی کاربر برای ساخت OAuth Client ID گوگل (قدم کاربری باقی‌مانده از Task 30)
+
+Work Log:
+- کاربر در صفحه Credentials کنسول گوگل گیر کرد — اسکرین‌شات فرستاد: بنر آبی «To view this page, select a project» + دکمه Create project؛ چون هنوز هیچ پروژه‌ای ساخته/انتخاب نشده، گزینه‌های Create Credentials اصلاً نمایش داده نمی‌شوند
+- راستی‌آزمایی کد: گیت دانلود فقط NEXT_PUBLIC_GOOGLE_CLIENT_ID می‌خواهد (GIS ID Token flow؛ بدون Secret، بدون redirect URI) — مصرف‌کننده‌ها: src/app/student/download/page.tsx (SSR) + api/student/google + api/student/guest
+- نکته استقرار: TELEGRAM_BOT_TOKEN به‌صورت fallback هاردکد در کد است (ریپو private) و از .env کامیت‌شده Vercel در runtime استفاده نمی‌کند → تصمیم: Client ID (مقدار عمومی و غیرمحرمانه) را کاربر در چت می‌فرستد و به‌عنوان fallback در همان ۳ نقطه هاردکد می‌شود تا نیازی به تنظیمات Vercel نباشد
+- الگوی راهنما تهیه شد: (۱) Dismiss بنر ۳۰۰ دلار (۲) Create project با نام takrah (۳) OAuth consent screen → Get started → External → Publish app تا In production (۴) Credentials → + Create Credentials → OAuth client ID → Web application → فقط Authorized JavaScript origins = https://takrah.top، redirect URIs خالی (۵) کپی Client ID و ارسال در چت
+
+Stage Summary:
+- منتظر Client ID از کاربر؛ بعد از دریافت: fallback در ۳ نقطه + lint/build + push + تأیید لایو دکمه گوگل در /student/download
+- Secret و redirect URI برای این معماری لازم نیستند (تأیید شد)
+
+---
+Task ID: 31 (نهایی)
+Agent: main
+Task: فعال‌سازی ورود گوگل در گیت دانلود با Client ID کاربر + فیکس‌های جانبی
+
+Work Log:
+- کاربر بعد از راهنمایی گام‌به‌گام: پروژه takrah را ساخت، Branding را کامل کرد (لوگوی برند ساخته‌شده با scripts/make-oauth-logo.py آپلود شد)، اپ را Publish کرد (In production) و OAuth Client ID را فرستاد: 383016294506-ota4k2ojrccbtkmtg06hu1ir76mfkonv.apps.googleusercontent.com
+- لوگوی OAuth سه نسخه رندر شد (512 گرد برند / 512 تمام‌مربع / 120) از روی public/logo.svg با cairosvg → download/takrah-oauth-logo*.png
+- GOOGLE_CLIENT_ID به‌صورت export مرکزی در student-gate.ts اضافه شد (fallback هاردکد مثل الگوی توکن بات؛ NEXT_PUBLIC_GOOGLE_CLIENT_ID اولویت دارد)؛ مصرف‌کننده‌ها: page.tsx + google/route.ts + guest/route.ts به import مهاجرت کردند؛ .env لوکال هم سینک شد
+- 🐛 فیکس مهم: در telegram-bot/route.ts مقدار CHANNEL_URL استفاده شده بود ولی تعریف نشده بود (باقی‌مانده از rebase) → دانش‌آموز غیرعضو هنگام /start dlv_ باعث ReferenceError و سکوت ربات می‌شد؛ ثابت اضافه شد
+- 🐛 فیکس UX: download-gate.tsx برای کاربر با کوکی مهمانِ قدیمی، مرحله ۱ را خالی نشان می‌داد (نه دکمه گوگل نه مهمان) → شرط user.guest از init گوگل حذف شد
+- rebase روی ۳ کامیت جدید سشن آوا (اینگرام/صدا) تداخل tool-results داشت → با حذف فایل زباله حل شد
+- deploy: 34cc089 + c180b87 پوش شد؛ راستی‌آزمایی لایو: /student/download=200 + Client ID داخل HTML + POST google با کد جعلی=401 invalid_token (یعنی مسیر فعال است، نه 501) + POST guest=403 login_required (مهمان غیرفعال شد)
+- نکته برای سشن آوا: tsc خطای src/lib/voice.ts (ماژول msedge-tts نصب نیست) — بیلد Vercel ignore می‌کند ولی لوکال تست صدا نیاز به bun add دارد
+
+Stage Summary:
+- کل فلوی دانلود لایو و نهایی: ورود گوگل (GIS با لوگوی برند در پنجره رضایت) → چک عضویت کانال با کد ربات → تبلیغ ۱۵ ثانیه‌ای → دانلود ۴ فایل PDF
+- مالک فقط باید در گوشی/دسکتاپ تست کند و اعلام کند؛ تیکت‌های احتمالی: invalid_client (تاخیر انتشار گوگل) یا خطای origin (باید https://takrah.top در origins باشد)
+- دنباله Task 31: کاربر گزارش داد دکمه گوگل در صفحه دانلود دیده نمی‌شود؛ تست agent-browser از شبکه خارج ایران نشان داد دکمه درست رندر می‌شود → علت: accounts.google.com/gsi/client برای IP ایران باز نمی‌شود
+- فیکس (27b7fbd): مسیر دوم «ورود سریع با تلگرام» در مرحله ۱ اضافه شد (فقط UI — verify هویت را از کد امضاشده ربات می‌گیرد، tgId در سشن می‌نشیند) + تشخیص ۸ ثانیه‌ای شکست لود GIS با هشدار کهربایی؛ تست لایو: دکمه گوگل + دکمه تلگرام هر دو در صفحه، کلیک تلگرام → مستقیم مرحله ۲ با دیپ‌لینک و ورودی کد
+- دنباله Task 31 — 🚨 حادثه: کاربر هنگام تست گیت، تلگرام پیام داد «This bot can't be displayed because it was used to spread pornographic content» → @TakrahTop_bot توسط سیستم ضدسوءاستفاده تلگرام RESTRICT شده (false positive آموزشی)؛ راستی‌آزمایی API: getMe و getChat هنوز 200 ولی getWebhookInfo url خالی (وب‌هوک تلگرام پاک کرده)
+- تصمیم: ربات جدید از BotFather (عملی، فوری) + اپیل موازی recover@telegram.org؛ تا رسیدن توکن جدید مرحله ۲ گیت برای بازدیدکننده‌ها غیرفعال عملاً (دکمه به ربات محدودشده می‌رود)
+- چک‌لیست سواپ برای رسیدن توکن جدید: توکن در route.ts + student-gate.ts، BOT_USERNAME در bot-search.ts + site.ts (telegramBot) + student-gate.ts (GATE_BOT_USERNAME) + download-gate.tsx، setWebhook با secret + allowed_updates ["message","callback_query"] (قبلی فقط message بود — باگ خاموش callback!)، setMyCommands، تست E2E، deploy
+---
+Task ID: 31-dنباله (webhook + BotFather خطا)
+Agent: main (سشن جاری)
+Task: رفع «قسمت کد بات تلگرام کار نمی‌کند» + خطای BotFather هنگام ساخت ربات جدید: Sorry, an error has occurred during your request. Please try again later. (Code 258337347)
+
+Work Log:
+- تشخیص: getWebhookInfo یعنی url خالی بود "" — تلگرام در جریان محدودیت ربات (حادثه قبلی) وبهوک را پاک کرده بود؛ ربات هیچ آپدیت دریافت نمی‌کرد
+- وبهوک دوباره ثبت شد روی ربات قدیمی (امکان دارد اپیل recover@telegram.org جواب داده باشد — getMe و setWebhook هر دو 200 می‌دهند ولی وضعیت restrict از API قابل تشخیص نیست؛ تست نهایی: باز کردن t.me/TakrahTop_bot توسط کاربر)
+- 🐛 فیکس آیتم چک‌لیست سواپ: allowed_updates قبلی فقط ["message"] بود → دکمه «بررسی مجدد عضویت» (callback_data dlvvre_/dlvre_) بی‌صدا نمی‌کارید؛ دوباره با ["message","callback_query"] ثبت شد
+- راستی‌آزمایی لایو: POST جعلی با سکرت به /api/telegram-bot → {"ok":true} (یعنی سکرت Vercel با tk9f... می‌خواند و مسیر سالم است) + GET smoke-check اوکی
+- scripts/telegram-token.txt ساخته شد (BOT_TOKEN/WEBHOOK_SECRET/WEBHOOK_URL/BOT_USERNAME) و به .gitignore اضافه شد (پیش‌تر الگوی تاریخی بود که با ریست سandbox گم می‌شد)
+- scripts/setup-telegram-webhook.sh ساخته شد: یک دستور بازیابی وبهوک (مقادیر از فایل توکن یا env؛ بعد از سواپ فقط BOT_TOKEN جدید در فایل + اجرا)
+- کرن روزانه ۹ صبح تهران (job 475848): چک getWebhookInfo → اگر url خالی بود اجرای اسکریپت setup و گزارش؛ اگر 401 داد یعنی توکن عوض شده
+- .env لوکال فقط DATABASE_URL دارد (سandbox ریست شده یا سشن موازی overwrite کرده) — TELEGRAM_BOT_TOKEN فقط در Vercel است
+
+Stage Summary:
+- اگر ربات قدیمی آزاد شده باشد: گیت دانلود همین الان کاملاً کار می‌کند (وهبهوک + callback فیکس شده)
+- اگر هنوز محدود باشد: منتظر توکن ربات جدید؛ چک‌لیست سواپ به‌روزشده: (1) توکن جدید در Vercel env TELEGRAM_BOT_TOKEN + scripts/telegram-token.txt (2) یوزرنیم جدید در ۴ نقطه: download-gate.tsx:29، site.ts:19 (telegramBot)، student-gate.ts:14 (GATE_BOT_USERNAME)، bot-search.ts:7 (3) redeploy (4) bash scripts/setup-telegram-webhook.sh (5) setMyCommands (6) تست E2E مرحله ۲
+- توصیه امنیتی برای سشن بعدی: .env با اینکه .gitignore قانون .env* دارد، از قبل tracked است → یک بار git rm --cached .env
+- خطای (Code 258337347) در BotFather: خطای موقت سمت تلگرام است (نه مشکل نام/یوزرنیم) → راه‌حل: تلاش مجدد بعد از فاصله زمانی، اپ/شبکه دیگر، آماده داشتن یوزرنیم‌های جایگزین
+---
+Task ID: 31-پایان
+Agent: main (سشن جاری)
+Task: نتیجه نتیجه‌گیری حادثه محدودیت ربات
+
+Work Log:
+- کاربر تأیید کرد: t.me/TakrahTop_bot الان عادی باز می‌شود و خبری از پیام پورن نیست → اپیل به recover@telegram.org جواب داده و محدودیت برداشته شد
+- چک نهایی: getWebhookInfo = url درست + allowed_updates [message,callback_query] + سایت /student/download = 200
+- ربات جدید لازم نشد؛ چک‌لیست سواپ توکن/یوزرنیم بی‌مصرف شد (فقط اگر حادثه تکرار شود)
+- کرن روزانه چک وبهوک (job 475848) سر جایش ماند — محافظ همین نوع خرابی بی‌صداست
+
+Stage Summary:
+- گیت دانلود بخش دانش‌آموزی حالا انتظار می‌رود سرتاسری کار کند: ورود (گوگل/تلگرام) → عضویت کانال با کد ربات → تبلیغ ۱۵ ثانیه → دانلود ۴ PDF
+- منتظر تست نهایی کاربر روی فلوی کامل؛ اگر مشکل جدیدی دید اعلام می‌کند
+---
+Task ID: 32 — سواپ ربات دانلودگیت به ربات جدید
+Agent: main (سشن جاری)
+Task: تعویض ربات گیت دانلود به ربات جدید BotFather بعد از اینکه محدودیت ربات اول پابرجا ماند (t.me سالم بود ولی اپ پاپ‌آپ پورن می‌داد → محدودیت سرور-ساید پابرجا؛ کاربر توکن ربات جدید داد)
+
+Work Log:
+- توکن جدید: 8887827849:AAEvYZ6l_... → getMe: @TakrahTop_support_bot «تک‌راه | جستجو و دانلود»
+- getChatMember جدید روی @takrahTop = "member list is inaccessible" → ربات جدید هنوز ادمین کانال نیست (اقدام کاربر)
+- vercel CLI در سندباکس نیست → توکن طبق الگوی GOOGLE_CLIENT_ID متمرکز شد: botToken() اکسپورت در student-gate.ts (اولویت TELEGRAM_BOT_TOKEN_V2 → هاردکد) و route.ts + setup/route.ts از همان می‌خوانند (env قدیمی TELEGRAM_BOT_TOKEN با توکن مرده عملاً بی‌اثر شد)
+- سواپ یوزرنیم در ۴ نقطه: GATE_BOT_USERNAME، download-gate.tsx BOT_USERNAME، site.ts telegramBot، bot-search.ts BOT_USERNAME
+- ⚠️ نکته: gateSecret از botToken مشتق است → کلید امضا چرخید؛ کوکی‌های دانش‌آموزی قبلی باطلی (فقط تست مالک بود)
+- scripts/telegram-token.txt + setup-telegram-webhook.sh به‌روز شدند؛ کرن روزانه (475848) چون فایل را می‌خواند خودکار با ربات جدید کار می‌کند
+- deploy cbb623e (ریموت همگام بود، rebase لازم نشد) → راستی‌آزمایی لایو: /student/download=200 + homepage HTML حاوی TakrahTop_support_bot + smoke endpoint
+- setWebhook ربات جدید (سکرت همان قبلی + allowed_updates [message,callback_query]) + setMyCommands (start/top/new/help فارسی) + setMyDescription + deleteWebhook ربات قدیمی (پاکسازی) + POST جعلی → {"ok":true}
+
+Stage Summary:
+- تمام زیرساخت سمت ما تمام است؛ فقط کاربر باید @TakrahTop_support_bot را ادمین کانال @takrahTop کند تا getChatMember کار کند، بعد فلوی دانلود را سرتاسری تست کند
+- بعد از تأیید کاربر: اختیاری — حذف ربات قدیمی از ادمین‌های کانال، آواتار ربات جدید از BotFather /setuserpic
+- ایمیل اپیل برای ربات اول آماده است (در پاسخ‌های سشن)؛ اگر روزی اپیل جواب داد می‌توان برگرداند ولی ضرورتی نیست
+- توصیه امنیتی آینده: TELEGRAM_BOT_TOKEN_V2 در Vercel ست شود + /revoke در BotFather تا مقدار هاردکد بی‌اثر شود (gateSecret دوباره می‌چرخد و کوکی‌ها ریست می‌شوند — در زمان کم‌ترافیک)
+---
+Task ID: 32-پایان
+Agent: main (سشن جاری)
+Task: تأیید نهایی کاربر
+
+Work Log:
+- کاربر تأیید کرد: «کار کرد، هورا!» — فلوی سرتاسری گیت دانلود سالم است: ورود تلگرام → کد ربات جدید → چک عضویت → تبلیغ ۱۵ ثانیه → دانلود PDFها
+- ربات @TakrahTop_support_bot ادمین کانال شد و همه‌چیز کار می‌کند
+
+Stage Summary:
+- حادثه محدودیت ربات اول کاملاً بسته شد؛ گیت دانلود بخش دانش‌آموزی پروژه‌محور و لایو است
+- باقی‌مانده‌های اختیاری: آواتار ربات جدید (/setuserpic)، حذف ربات قدیمی از ادمین‌های کانال بعد از چند روز، ست کردن TELEGRAM_BOT_TOKEN_V2 در Vercel + /revoke برای امنیت
+- کرن روزانه چک وبهوک فعال است (job 475848، فایل توکن را می‌خواند)
+---
+Task ID: 33 — فیکس برگشت به مرحله ۱ + audit SEO
+Agent: main (سشن جاری)
+Task: باگ «بعد از گوگل+ربات، برگشت به صفحه = مرحله ۱» + چک SEO سایت + لیست کارهای باقی‌مانده کاربر
+
+Work Log:
+- ریشه باگ: page.tsx فقط initialStep={verified?3:1} می‌داد — کاربر لاگین‌کرده/تأییدنشده با کوکی معتبر موقع برگشت دوباره مرحله ۱ (لاگین) می‌دید
+- فیکس (1b69892): verified→3، داشتن هر هویت (email/guest/tgId)→2، وگرنه→1
+- راستی‌آزمایی لایو با کوکی واقعی امضاشده: scripts/test-gate-session.js ساخته شد (کوکی با secret مشتق از توکن جدید) → هر سه حالت درست: بدون کوکی=step1، لاگین=step2، تأیید=step3
+- audit SEO با curl: homepage (title/desc/canonical/OG کامل/JSON-LD/robots meta) + robots.txt (sitemap pointer) + sitemap.xml با 63 URL + مقاله نمونه (/article/what-is-ai-beginners-guide: title+desc+canonical+اسکیمای Article/BreadcrumbList/ImageObject/Organization/WebSite) + /privacy و /terms هر دو 200 (سازگار با Google Console)
+
+Stage Summary:
+- SEO فنی سایت وضعیت سبز دارد؛ برای کاربر: افزونه Detailed SEO Extension + Lighthouse (F12) + GSC + Ahrefs Webmaster Tools معرفی شد
+- کارهای منتظر کاربر: اسم/محتوای ۳ کتاب، تأیید اسکریپت ویدیو پایتون، عادت روزانه GSC indexing؛ اختیاری: آواتار ربات جدید، حذف ربات قدیمی از ادمین‌ها، TELEGRAM_BOT_TOKEN_V2 در Vercel+/revoke
+- scripts/test-gate-session.js برای تست‌های آینده گیت (بعد از هر تعویض توکن باید TOKEN آن آپدیت شود)
