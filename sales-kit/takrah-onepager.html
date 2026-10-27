@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>تکره — برگه معرفی دستیار نوبت‌دهی کلینیک</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --c-bg: #F7F4EC;      /* warm paper — ground 60% */
+    --c-ink: #1F1C17;     /* deep ink — structure 30% */
+    --c-gold: #B8994A;    /* muted gold — emphasis 10% */
+    --c-muted: #6E6759;   /* muted text */
+    --hairline: rgba(31, 28, 23, 0.16);
+  }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--c-bg);
+    font-family: 'Vazirmatn', 'Tahoma', sans-serif;
+    color: var(--c-ink);
+  }
+  .poster {
+    width: 720px;
+    position: relative;
+    background: var(--c-bg);
+  }
+  @media screen {
+    html {
+      height: auto;
+      display: flex;
+      justify-content: center;
+      background: #F7F4EC;
+    }
+    body {
+      transform-origin: top center;
+      scale: min(1, calc(100vw / 720));
+      margin: 0 auto;
+      box-shadow: 0 0 60px rgba(31,28,23,0.18);
+    }
+  }
+
+  /* ── Header band (container 1) ── */
+  .band {
+    background: var(--c-ink);
+    color: #F7F4EC;
+    padding: 44px 56px 38px;
+  }
+  .band .brand-row {
+    display: flex; align-items: baseline; justify-content: space-between;
+  }
+  .band h1 {
+    margin: 0; font-size: 46px; font-weight: 900; letter-spacing: 0.5px;
+    line-height: 1.0;
+  }
+  .band h1 .dot { color: var(--c-gold); }
+  .band .latin {
+    font-size: 12px; letter-spacing: 6px; color: var(--c-gold); font-weight: 700;
+  }
+  .band .tagline {
+    margin-top: 14px; font-size: 17px; font-weight: 400; color: #D8D2C4;
+    line-height: 1.7;
+  }
+  .band .tagline b { color: #F7F4EC; font-weight: 700; }
+  .band .rule {
+    margin-top: 22px; height: 2px; width: 88px; background: var(--c-gold);
+  }
+
+  /* ── Pain section (pure typography) ── */
+  .pain { padding: 36px 56px 8px; }
+  .pain .kicker {
+    font-size: 12px; font-weight: 700; letter-spacing: 3px; color: var(--c-gold);
+    margin-bottom: 10px;
+  }
+  .pain h2 {
+    margin: 0; font-size: 29px; font-weight: 900; line-height: 1.35;
+  }
+  .pain h2 .g { color: var(--c-gold); }
+  .pain-row {
+    display: flex; flex-wrap: wrap; gap: 0;
+    margin-top: 22px; border-top: 1px solid var(--hairline);
+  }
+  .pain-item {
+    flex: 1 1 30%; padding: 16px 0 4px;
+  }
+  .pain-item + .pain-item { border-right: 1px solid var(--hairline); padding-right: 18px; margin-right: 18px; }
+  .pain-item .t { font-size: 14.5px; font-weight: 700; line-height: 1.5; }
+  .pain-item .d { font-size: 12.5px; color: var(--c-muted); line-height: 1.6; margin-top: 4px; }
+
+  /* ── Solutions (typographic rows, hairline separators) ── */
+  .solutions { padding: 30px 56px 6px; }
+  .solutions .kicker {
+    font-size: 12px; font-weight: 700; letter-spacing: 3px; color: var(--c-gold);
+    margin-bottom: 6px;
+  }
+  .sol-row {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
+    padding: 17px 0; border-bottom: 1px solid var(--hairline);
+  }
+  .sol-row:first-of-type { border-top: 1px solid var(--hairline); }
+  .sol-name { font-size: 18.5px; font-weight: 900; white-space: nowrap; }
+  .sol-desc { font-size: 13px; color: var(--c-muted); line-height: 1.65; flex: 1; }
+  .sol-price { font-size: 19px; font-weight: 900; color: var(--c-gold); white-space: nowrap; }
+  .sol-price small { font-size: 11px; font-weight: 400; color: var(--c-muted); display: block; text-align: left; }
+  .sol-note {
+    font-size: 12.5px; color: var(--c-muted); line-height: 1.7; margin-top: 12px;
+  }
+  .sol-note b { color: var(--c-ink); }
+
+  /* ── Ava features (2x2 typography grid) ── */
+  .ava { padding: 30px 56px 34px; }
+  .ava .kicker {
+    font-size: 12px; font-weight: 700; letter-spacing: 3px; color: var(--c-gold);
+    margin-bottom: 6px;
+  }
+  .ava h3 { margin: 0 0 18px; font-size: 23px; font-weight: 900; }
+  .ava-grid { display: flex; flex-wrap: wrap; }
+  .ava-item { flex: 1 1 46%; padding: 12px 0; }
+  .ava-item:nth-child(odd) { margin-left: 24px; }
+  .ava-item:nth-child(even) { border-right: 2px solid var(--c-gold); padding-right: 14px; }
+  .ava-item:nth-child(odd) { border-right: 2px solid var(--c-gold); padding-right: 14px; }
+  .ava-item .t { font-size: 15.5px; font-weight: 700; line-height: 1.5; }
+  .ava-item .d { font-size: 12.5px; color: var(--c-muted); line-height: 1.6; margin-top: 3px; }
+
+  /* ── Footer band with QR (container 2) ── */
+  .footer-band {
+    background: var(--c-ink); color: #F7F4EC;
+    padding: 34px 56px 36px;
+    display: flex; align-items: center; gap: 26px;
+  }
+  .qr-wrap {
+    background: #FFFFFF; padding: 10px; border-radius: 6px; flex-shrink: 0;
+  }
+  .qr-wrap img { display: block; width: 118px; height: 118px; }
+  .cta { flex: 1; }
+  .cta .big { font-size: 21px; font-weight: 900; line-height: 1.45; }
+  .cta .big .g { color: var(--c-gold); }
+  .cta .sub { font-size: 13px; color: #B9B2A3; margin-top: 6px; line-height: 1.7; }
+  .cta .contact {
+    margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(247,244,236,0.18);
+    font-size: 12.5px; color: #D8D2C4; line-height: 2;
+  }
+  .cta .contact .g { color: var(--c-gold); font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="poster">
+
+  <!-- Header -->
+  <div class="band">
+    <div class="brand-row">
+      <h1>تکره<span class="dot">.</span></h1>
+      <div class="latin">T A K R A H</div>
+    </div>
+    <div class="tagline">دستیار نوبت‌دهی هوشمند برای کلینیک و مطب شما — <b>رزرو، یادآوری و پاسخگویی ۲۴ ساعته، بدون نوبت‌های از دست‌رفته.</b></div>
+    <div class="rule"></div>
+  </div>
+
+  <!-- Pain -->
+  <div class="pain">
+    <div class="kicker">مشکل رایج مطب‌ها</div>
+    <h2>هر تماس بی‌جواب، <span class="g">یک بیمار از دست‌رفته‌ست.</span></h2>
+    <div class="pain-row">
+      <div class="pain-item">
+        <div class="t">شب و تعطیلات کسی جواب نمی‌دهد</div>
+        <div class="d">بیمار ساعت ۲۳:۰۰ زنگ می‌زند، جواب نمی‌گیرد و می‌رود کلینیک بعدی.</div>
+      </div>
+      <div class="pain-item">
+        <div class="t">ساعات شلوغ، خط اشغال</div>
+        <div class="d">وقتی منشی مشغول پذیرش است، تماس‌های جدید از دست می‌رود.</div>
+      </div>
+      <div class="pain-item">
+        <div class="t">یادآوری نشده = مراجعه نشده</div>
+        <div class="d">بخشی از نوبت‌ها بدون یادآوری، «فراموش» می‌شوند و صندلی خالی می‌ماند.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Solutions -->
+  <div class="solutions">
+    <div class="kicker">راه‌حل تکره</div>
+    <div class="sol-row">
+      <div class="sol-name">ربات نوبت‌دهی تلگرام</div>
+      <div class="sol-desc">رزرو نوبت، پنل منشی، یادآوری خودکار ۲۴ ساعته با پیام و تماس صوتی</div>
+      <div class="sol-price">۱۸ میلیون<small>تومان</small></div>
+    </div>
+    <div class="sol-row">
+      <div class="sol-name">پکیج استاندارد</div>
+      <div class="sol-desc">وب‌سایت حرفه‌ای + نوبت‌دهی کامل + یادآوری — یک‌جا و آماده</div>
+      <div class="sol-price">۳۵ میلیون<small>تومان</small></div>
+    </div>
+    <div class="sol-row">
+      <div class="sol-name">پکیج VIP با آوا</div>
+      <div class="sol-desc">همه‌چیز + منشی صوتی هوش مصنوعی «آوا» که با صدای فارسی جواب می‌دهد</div>
+      <div class="sol-price">۵۵ میلیون<small>تومان</small></div>
+    </div>
+    <div class="sol-note"><b>پله ورود:</b> لندینگ‌پیج حرفه‌ای از ۶ میلیون و ربات سفارش‌گیری از ۱۲ میلیون — ارتقای پله‌به‌پله، بدون فشار خرید.</div>
+  </div>
+
+  <!-- Ava -->
+  <div class="ava">
+    <div class="kicker">منشی صوتی هوش مصنوعی</div>
+    <h3>آوا چه می‌کند؟</h3>
+    <div class="ava-grid">
+      <div class="ava-item">
+        <div class="t">🎤 با ویس بیمار حرف می‌زند</div>
+        <div class="d">بیمار فارسی ویس می‌فرستد، آوا می‌فهمد و با صدای طبیعی جواب می‌دهد.</div>
+      </div>
+      <div class="ava-item">
+        <div class="t">📞 تماس یادآوری می‌گیرد</div>
+        <div class="d">۲۴ ساعت قبل نوبت، تماس صوتی و پیام یادآوری خودکار.</div>
+      </div>
+      <div class="ava-item">
+        <div class="t">📊 گزارش روزانه به مدیر</div>
+        <div class="d">آمار نوبت‌ها، سرنخ‌ها و پرسش‌های پرتکرار بیماران.</div>
+      </div>
+      <div class="ava-item">
+        <div class="t">🌙 ۲۴ ساعته بیدار است</div>
+        <div class="d">نیمه‌شب، تعطیلات، ساعت شلوغ — هیچ تماسی بی‌جواب نمی‌ماند.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer / CTA -->
+  <div class="footer-band">
+    <div class="qr-wrap"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASIAAAEiCAIAAADS3EjhAAAFAElEQVR4nO3dQW7UQBBAUYJyCDZI3P9USGy4hblBi6T4dNvz3t4T25mvXkyp++26ri9A6evuG4DnkxnkZAY5mUFOZpCTGeRkBjmZQU5mkJMZ5GQGOZlBTmaQkxnkZAY5mUFOZpCTGeRkBrn3ycU/vn/7V/dxiJ+/fn/62vXbWH/y5E3uuufJJ9/R5G1YzSAnM8jJDHIyg5zMICczyMkMcjKDnMwgN5oCWZv8at6ZTCd0MxOTGZFdkxzd8+7STa5YzSAnM8jJDHIyg5zMICczyMkMcjKDnMwgF06BrHW/uHcTBt1+HhNn7jIyccfvxprVDHIyg5zMICczyMkMcjKDnMwgJzPIyQxy26ZAXk03f9Dt2MG/YjWDnMwgJzPIyQxyMoOczCAnM8jJDHIyg5wpkA/YdfbKxB33AnkeqxnkZAY5mUFOZpCTGeRkBjmZQU5mkJMZ5LZNgdxxwuCOZ6/sOqdm4o7fjTWrGeRkBjmZQU5mkJMZ5GQGOZlBTmaQkxnkwimQO84frE32Apm8jW4Pksk9n7n3yZmsZpCTGeRkBjmZQU5mkJMZ5GQGOZlBTmaQG02BPG/PhrU7Pm83mzL5u6/GagY5mUFOZpCTGeRkBjmZQU5mkJMZ5GQGudEUSLc3xpnXdnbtjXHmrMauPUi6t2E1g5zMICczyMkMcjKDnMwgJzPIyQxyMoPc23Vdn7541wkpZ8557HqiySevvdpOId03x2oGOZlBTmaQkxnkZAY5mUFOZpCTGeRkBrnRFMiaGZG//7sTZ+6bcua1E6ZA4Ggyg5zMICczyMkMcjKDnMwgJzPIyQxy4RRI53knhkw8b2Km40QYeCyZQU5mkJMZ5GQGOZlBTmaQkxnkZAa5W54Is3bm6Sq7dO+5c+ZOIfYCgaPJDHIyg5zMICczyMkMcjKDnMwgJzPIvU8uvuOcx/POfNn1yXecp9n1jbWaQU5mkJMZ5GQGOZlBTmaQkxnkZAY5mUHu0L1AnjdfcsdTbJ73yRP2AoGjyQxyMoOczCAnM8jJDHIyg5zMICczyI2mQNbMefyfayfOnPM4864mrGaQkxnkZAY5mUFOZpCTGeRkBjmZQU5mkLMXyAc8b3Zh15vs7DprZs1qBjmZQU5mkJMZ5GQGOZlBTmaQkxnkZAa5cC+Q53m1yZXJJ090d7Xrea1mkJMZ5GQGOZlBTmaQkxnkZAY5mUFOZpB7n1z8ajtJnLm7yZnTJ7vOXjmT1QxyMoOczCAnM8jJDHIyg5zMICczyMkMcqMpkLUzf+nvpiJ2zYicOUFy5n9/F6sZ5GQGOZlBTmaQkxnkZAY5mUFOZpCTGeTCKZC1XdMYE909dztn7LrnM+3aN8VqBjmZQU5mkJMZ5GQGOZlBTmaQkxnkZAa5bVMgd3TmNEbn1eZpuue1mkFOZpCTGeRkBjmZQU5mkJMZ5GQGOZlBzhTIB5x5QsqZ+4hM5i26J1rr/q7VDHIyg5zMICczyMkMcjKDnMwgJzPIyQxy26ZAut/yO915Irt2sLjjDiWTd7VrvsRqBjmZQU5mkJMZ5GQGOZlBTmaQkxnkZAa5cArkjhMGa7vmPHbNLqx10ye7nsheIHBjMoOczCAnM8jJDHIyg5zMICczyMkMcm/Xde2+B3g4qxnkZAY5mUFOZpCTGeRkBjmZQU5mkJMZ5GQGOZlBTmaQkxnkZAY5mUFOZpCTGeRkBjmZQe4P2ZC2pR+Lf50AAAAASUVORK5CYII=" alt="QR — takrah.top"></div>
+    <div class="cta">
+      <div class="big">دموی زنده را <span class="g">همین حالا</span> ببینید</div>
+      <div class="sub">با دوربین گوشی QR را اسکن کنید — ربات نوبت‌دهی و آوا را در عمل تجربه کنید. جلسه دموی حضوری برای کلینیک شما رایگان است.</div>
+      <div class="contact">
+        <span class="g">🌐</span> takrah.top &nbsp;&nbsp;·&nbsp;&nbsp; <span class="g">📷</span> @takrah.top &nbsp;&nbsp;·&nbsp;&nbsp; <span class="g">✈️</span> @TakrahTop_bot
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
