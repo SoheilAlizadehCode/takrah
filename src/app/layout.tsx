@@ -146,7 +146,11 @@ export default function RootLayout({
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
                 gtag('js', new Date());
-                gtag('config', '${gaId}');
+                // فیلتر ترافیک داخلی: اگر مرورگر با ?tk_internal=1 یک بار باز شده باشد،
+                // دیگر هیچ داده‌ای به GA ارسال نمی‌شود (بازدیدهای خودِ صاحب سایت).
+                var tkInternal = false;
+                try { tkInternal = localStorage.getItem('tk_internal') === '1'; } catch (e) {}
+                if (!tkInternal) { gtag('config', '${gaId}'); }
               `}
             </Script>
             <GAPageView gaId={gaId} />

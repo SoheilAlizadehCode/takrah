@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { TrackedLink } from "@/components/blog/tracked-link";
 import { Route, Mail, Send, Bot, Sparkles } from "lucide-react";
 import { categories, hrefs, siteConfig, staticPages } from "@/lib/site";
 
@@ -71,26 +72,26 @@ export function Footer() {
               {siteConfig.email}
             </a>
             {siteConfig.telegramChannel ? (
-              <a
+              <TrackedLink
                 href={siteConfig.telegramChannel}
-                target="_blank"
-                rel="noopener noreferrer"
+                event="telegram_click"
+                params={{ location: "footer", target: "channel" }}
                 className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-primary"
               >
                 <Send className="h-4 w-4" aria-hidden="true" />
                 کانال تلگرام تک‌راه
-              </a>
+              </TrackedLink>
             ) : null}
             {siteConfig.telegramBot ? (
-              <a
+              <TrackedLink
                 href={siteConfig.telegramBot}
-                target="_blank"
-                rel="noopener noreferrer"
+                event="telegram_click"
+                params={{ location: "footer", target: "bot" }}
                 className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-primary"
               >
                 <Bot className="h-4 w-4" aria-hidden="true" />
                 ربات جستجوی مقاله‌ها
-              </a>
+              </TrackedLink>
             ) : null}
           </div>
         </div>
