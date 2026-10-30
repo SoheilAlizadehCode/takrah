@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { TrackedLink } from "@/components/blog/tracked-link";
 import Link from "next/link";
 import { Clock, User, Lightbulb, ChevronLeft, Home, ListTree, Bot, Send, BookOpen } from "lucide-react";
 import type { Article } from "@/lib/blog-types";
@@ -282,24 +283,24 @@ export function ArticleView({ article }: { article: Article }) {
                   💬 این مقاله رو با کلمه‌ی کلیدی توی <b className="text-foreground">ربات تلگرام تک‌راه</b> هم می‌تونی پیدا کنی و برای دوستات بفرستی.
                 </p>
                 <div className="flex shrink-0 gap-2">
-                  <a
+                  <TrackedLink
                     href={siteConfig.telegramBot}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    event="telegram_click"
+                    params={{ location: "article", target: "bot" }}
                     className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
                   >
                     <Bot className="h-4 w-4" aria-hidden="true" />
                     ربات تک‌راه
-                  </a>
-                  <a
+                  </TrackedLink>
+                  <TrackedLink
                     href={siteConfig.telegramChannel}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    event="telegram_click"
+                    params={{ location: "article", target: "channel" }}
                     className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-4 py-2 text-sm font-bold transition-colors hover:bg-muted"
                   >
                     <Send className="h-4 w-4" aria-hidden="true" />
                     کانال
-                  </a>
+                  </TrackedLink>
                 </div>
               </div>
             ) : null}

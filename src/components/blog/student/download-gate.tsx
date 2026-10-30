@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Script from "next/script";
+import { gaEvent } from "@/lib/ga";
 import {
   ArrowLeft,
   BadgeCheck,
@@ -191,6 +192,7 @@ export function DownloadGate({ googleClientId, initialStep, initialUser }: GateP
         });
         const j = (await res.json().catch(() => ({}))) as { ok?: boolean; name?: string; email?: string; picture?: string };
         if (res.ok && j.ok) {
+          gaEvent("google_signup_success");
           setUser({ name: j.name || "", email: j.email || "", picture: j.picture || "", guest: false });
           goStep(2);
         } else {
@@ -212,6 +214,7 @@ export function DownloadGate({ googleClientId, initialStep, initialUser }: GateP
       const res = await fetch("/api/student/guest", { method: "POST" });
       const j = (await res.json().catch(() => ({}))) as { ok?: boolean };
       if (res.ok && j.ok) {
+        gaEvent("guest_signup_success");
         setUser({ name: "", email: "", picture: "", guest: true });
         goStep(2);
       } else {
@@ -265,6 +268,7 @@ export function DownloadGate({ googleClientId, initialStep, initialUser }: GateP
   /* مرحله ۱ (جایگزین) — ورود با تلگرام: مستقیم به تأیید عضویت؛ هویت از کد امضاشده ربات می‌آید
      (کد = nonce.tgId.امضا → verify رکورد tgId را در سشن می‌نویسد؛ بدون نیاز به گوگل). */
   const loginTelegram = useCallback(() => {
+    gaEvent("gate_telegram_start");
     setError("");
     goStep(2);
   }, [goStep]);
@@ -285,6 +289,7 @@ export function DownloadGate({ googleClientId, initialStep, initialUser }: GateP
       });
       const j = (await res.json().catch(() => ({}))) as { ok?: boolean; message?: string; reason?: string };
       if (res.ok && j.ok) {
+        gaEvent("gate_verify_success");
         goStep(3);
       } else {
         setError(j.message || "تأیید نشد؛ دوباره تلاش کن.");
@@ -314,6 +319,7 @@ export function DownloadGate({ googleClientId, initialStep, initialUser }: GateP
         backToStep?: number;
       };
       if (res.ok && j.ok && j.files) {
+        gaEvent("gate_unlock_success");
         setFiles(j.files);
         goStep(4);
       } else if (j.reason === "not_member") {

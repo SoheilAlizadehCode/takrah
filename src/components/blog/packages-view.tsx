@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { TrackedLink } from "@/components/blog/tracked-link";
 import {
   Check,
   Sparkles,
@@ -177,10 +178,10 @@ export function PackagesView() {
               </ul>
 
               <div className="mt-6">
-                <a
+                <TrackedLink
                   href={`/demos/plan${plan.id}.html`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  event="package_demo_click"
+                  params={{ plan: `plan${plan.id}` }}
                   className={`group flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-transform active:scale-[0.98] ${
                     plan.featured
                       ? "bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600"
@@ -189,7 +190,7 @@ export function PackagesView() {
                 >
                   <ExternalLink className="h-4 w-4" aria-hidden="true" />
                   {plan.demoLabel}
-                </a>
+                </TrackedLink>
                 <p className="mt-2 text-center text-[11px] text-muted-foreground">
                   دمو شامل: {plan.demoHint}
                 </p>
@@ -218,31 +219,34 @@ export function PackagesView() {
           بگیرید تا دموی اختصاصی کسب‌وکار خودتان را ببینید.
         </p>
         <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
-          <a
+          <TrackedLink
             href="tel:+989229033102"
+            event="package_contact_click"
+            params={{ method: "call" }}
+            useExternal={false}
             className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600"
           >
             <Phone className="h-4 w-4" aria-hidden="true" />
             ۰۹۲۲ ۹۰۳ ۳۱۰۲
-          </a>
-          <a
+          </TrackedLink>
+          <TrackedLink
             href="https://wa.me/989229033102"
-            target="_blank"
-            rel="noopener noreferrer"
+            event="package_contact_click"
+            params={{ method: "whatsapp" }}
             className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-5 py-3 text-sm font-bold transition-colors hover:bg-muted"
           >
             <MessageCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
             گفتگو در واتساپ
-          </a>
-          <a
+          </TrackedLink>
+          <TrackedLink
             href="https://jsdevelop.ir"
-            target="_blank"
-            rel="noopener noreferrer"
+            event="package_contact_click"
+            params={{ method: "jsdevelop" }}
             className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-5 py-3 text-sm font-bold transition-colors hover:bg-muted"
           >
             <Globe className="h-4 w-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
             jsdevelop.ir
-          </a>
+          </TrackedLink>
         </div>
       </section>
 
