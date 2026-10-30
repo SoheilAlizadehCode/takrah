@@ -745,3 +745,19 @@ Work Log:
 
 Stage Summary:
 - ALL incident-36 fixes confirmed LIVE on production. User cleared to test end-to-end.
+
+---
+Task ID: analytics-37
+Agent: main (Z.ai)
+Task: GA key events + internal-traffic filter + weekly report; verify tracking is live
+
+Work Log:
+- discovered tracking infra already wired: src/lib/ga.ts (gaEvent, tk_internal opt-out via ?tk_internal=1), TrackedLink, gate events (google_signup_success, gate_telegram_start, gate_verify_success, gate_unlock_success, guest_signup_success), telegram_click (footer+article), package_demo_click, package_contact_click
+- verified LIVE in prod chunks: gate_verify_success, google_signup_success, gate_unlock_success, tk_internal ✓
+- built /api/telegram/weekly-report (GA4 Data API via service-account JWT; Telegram to TELEGRAM_ADMIN_CHAT_ID else Persian HTML page; auth: CRON_SECRET bearer or ?key=REPORT_KEY fallback webhook-secret; setup instructions self-served in HTML)
+- vercel.json: added cron Mon 05:30 UTC (09:00 Tehran)
+- committed 5d896ad, pushed, verified: endpoint 200 (setup page) / 401 unauth
+
+Stage Summary:
+- user TODO: mark key events in GA4 Admin→Events; visit ?tk_internal=1 on own devices; add 3 env vars (GA_PROPERTY_ID=556099118, GA_SERVICE_ACCOUNT_JSON, TELEGRAM_ADMIN_CHAT_ID)
+- next: monetization guide delivered in chat (packages=JSDevelop clinic automation 18/35/55M + affiliate digikala/arvan/exchanges)
