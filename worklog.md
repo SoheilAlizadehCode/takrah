@@ -761,3 +761,20 @@ Work Log:
 Stage Summary:
 - user TODO: mark key events in GA4 Admin→Events; visit ?tk_internal=1 on own devices; add 3 env vars (GA_PROPERTY_ID=556099118, GA_SERVICE_ACCOUNT_JSON, TELEGRAM_ADMIN_CHAT_ID)
 - next: monetization guide delivered in chat (packages=JSDevelop clinic automation 18/35/55M + affiliate digikala/arvan/exchanges)
+
+---
+Task ID: i18n-38
+Agent: main (Z.ai)
+Task: Launch bilingual site (Persian + English) per user request
+
+Work Log:
+- data: src/data/en/ (2 pilot articles fully translated by editor: what-is-ai-beginners-guide, phishing-awareness) + en-slugs.ts (client-safe slim list) + index (englishArticles, getEnArticle, EN_CATEGORY_NAMES)
+- chrome: lang-chrome.tsx (LangChrome/LangFooter/HtmlLangSetter via usePathname) replacing SiteChrome/Footer in root layout; en-header.tsx + en-footer.tsx with فارسی switch; html lang/dir flips on /en
+- pages: /en (hero + featured + cards + telegram CTA) and /en/article/[slug] (generateStaticParams, dynamicParams=false, EN ArticleView with blocks renderer + telegram_click event)
+- SEO: sitemap /en entries with alternates.languages; FA article pages get hreflang en when translated; header FA nav + mobile menu got EN link
+- GA: page_view fires on /en automatically; telegram_click tracked with location=en_article
+- commit 97a61ed pushed; live verified: /en 200, /en/article 200, sitemap 6 EN entries, FA home 200
+
+Stage Summary:
+- next EN articles: user decides cadence; recommended top evergreens (chatgpt-pro-tips, smartphone-buying-guide, python-roadmap)
+- affiliate/package action plan delivered in chat
