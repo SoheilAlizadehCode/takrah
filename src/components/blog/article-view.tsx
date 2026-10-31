@@ -10,6 +10,7 @@ import { toFaDigits } from "@/lib/format";
 import { CategoryIcon } from "./category-icon";
 import { AdSlot } from "./ad-slot";
 import { AffiliateBox } from "./affiliate-box";
+import { ChannelJoinBox } from "./channel-join-box";
 import { AFFILIATE_BOX_SLUGS } from "@/data/affiliates";
 import { PackageCtaBox } from "./package-cta-box";
 import { PACKAGE_CTA_SLUGS } from "@/data/package-cta";
@@ -259,7 +260,13 @@ export function ArticleView({ article }: { article: Article }) {
                 <div key={i}>
                   <BlockView block={block} id={block.type === "h2" ? `sec-${i}` : undefined} />
                   {/* تبلیغ بعد از پاراگراف اول و وسط مقاله */}
-                  {i === firstPIndex && <AdSlot slotKey={`${article.slug}-top`} format="horizontal" />}
+                  {i === firstPIndex && (
+                    <>
+                      {/* نوار عضویت کانال — بعد از پاراگراف اول همهٔ مقاله‌ها */}
+                      <ChannelJoinBox variant="inline" articleSlug={article.slug} />
+                      <AdSlot slotKey={`${article.slug}-top`} format="horizontal" />
+                    </>
+                  )}
                   {i === midIndex && <AdSlot slotKey={`${article.slug}-mid`} format="inline" />}
                 </div>
               ))}
@@ -274,6 +281,9 @@ export function ArticleView({ article }: { article: Article }) {
             {AFFILIATE_BOX_SLUGS.includes(article.slug) && (
               <AffiliateBox articleSlug={article.slug} />
             )}
+
+            {/* باکس عضویت کانال تلگرام — انتهای همهٔ مقاله‌ها */}
+            <ChannelJoinBox variant="full" articleSlug={article.slug} />
 
             {/* تبلیغ پایین مقاله */}
             <AdSlot slotKey={`${article.slug}-bottom`} format="horizontal" />

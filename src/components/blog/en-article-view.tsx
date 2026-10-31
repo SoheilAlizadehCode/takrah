@@ -2,8 +2,7 @@ import Link from "next/link";
 import { Clock, Calendar, ArrowLeft } from "lucide-react";
 import type { Article, Block } from "@/lib/blog-types";
 import { EN_CATEGORY_NAMES } from "@/data/en";
-import { TrackedLink } from "./tracked-link";
-import { siteConfig } from "@/lib/site";
+import { ChannelJoinBox } from "./channel-join-box";
 
 /** رندر بلوک‌های محتوا — نسخهٔ انگلیسی/LTR */
 function EnBlocks({ blocks }: { blocks: Block[] }) {
@@ -139,6 +138,9 @@ export function EnArticleView({ article }: { article: Article }) {
 
       <EnBlocks blocks={article.blocks} />
 
+      {/* Telegram channel strip — after the body of every English article */}
+      <ChannelJoinBox lang="en" variant="inline" articleSlug={article.slug} />
+
       {/* برچسب‌ها */}
       <div className="mt-10 flex flex-wrap gap-2">
         {article.tags.map((t) => (
@@ -151,21 +153,8 @@ export function EnArticleView({ article }: { article: Article }) {
         ))}
       </div>
 
-      {/* CTA تلگرام — با ثبت رویداد telegram_click در GA4 */}
-      <div className="mt-10 rounded-3xl border border-emerald-600/25 bg-gradient-to-l from-emerald-600/10 via-transparent to-emerald-600/10 p-6 text-center">
-        <h2 className="text-lg font-extrabold">Want more plain-language tech guides?</h2>
-        <p className="mx-auto mt-2 max-w-md text-sm leading-7 text-muted-foreground">
-          Join the TakRah Telegram channel for new articles, tools, and practical AI tips.
-        </p>
-        <TrackedLink
-          href={siteConfig.telegramChannel}
-          event="telegram_click"
-          params={{ location: "en_article" }}
-          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600"
-        >
-          Join on Telegram
-        </TrackedLink>
-      </div>
+      {/* Telegram channel join box — bottom of every English article */}
+      <ChannelJoinBox lang="en" variant="full" articleSlug={article.slug} />
 
       <div className="mt-8 flex flex-wrap items-center justify-between gap-3 text-sm">
         <Link href="/en" className="font-medium text-muted-foreground transition-colors hover:text-foreground">
