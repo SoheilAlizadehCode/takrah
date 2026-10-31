@@ -1,0 +1,416 @@
+{
+ "what-is-ai-beginners-guide": {
+  "date_en": "September 16, 2026",
+  "fa_date": "۲۵ شهریور ۱۴۰۵",
+  "file": "articles-1.ts",
+  "title": "هوش مصنوعی چیست؟ راهنمای جامع برای مبتدی‌ها",
+  "category": "ai",
+  "featured": true,
+  "book": ""
+ },
+ "chatgpt-pro-tips": {
+  "date_en": "September 9, 2026",
+  "fa_date": "۱۸ شهریور ۱۴۰۵",
+  "file": "articles-1.ts",
+  "title": "۱۰ ترفند طلایی برای استفاده حرفه‌ای از ChatGPT",
+  "category": "ai",
+  "featured": false,
+  "book": ""
+ },
+ "smartphone-buying-guide": {
+  "date_en": "September 1, 2026",
+  "fa_date": "۱۰ شهریور ۱۴۰۵",
+  "file": "articles-1.ts",
+  "title": "راهنمای کامل خرید گوشی موبایل؛ از بودجه تا انتخاب نهایی",
+  "category": "mobile",
+  "featured": false,
+  "book": ""
+ },
+ "battery-life-tips": {
+  "date_en": "July 24, 2026",
+  "fa_date": "۲ مرداد ۱۴۰۵",
+  "file": "articles-2.ts",
+  "title": "۱۵ ترفند عملی برای افزایش عمر باتری گوشی",
+  "category": "mobile",
+  "featured": false,
+  "book": ""
+ },
+ "strong-password-guide": {
+  "date_en": "July 16, 2026",
+  "fa_date": "۲۵ تیر ۱۴۰۵",
+  "file": "articles-2.ts",
+  "title": "چطور رمز عبور امن بسازیم؟ راهنمای جامع و عملی",
+  "category": "security",
+  "featured": false,
+  "book": ""
+ },
+ "phishing-awareness": {
+  "date_en": "July 9, 2026",
+  "fa_date": "۱۸ تیر ۱۴۰۵",
+  "file": "articles-2.ts",
+  "title": "فیشینگ چیست؟ چطور فریب کلاهبرداران اینترنتی را نخوریم",
+  "category": "security",
+  "featured": false,
+  "book": ""
+ },
+ "excel-for-everyday": {
+  "date_en": "July 1, 2026",
+  "fa_date": "۱۰ تیر ۱۴۰۵",
+  "file": "articles-3.ts",
+  "title": "آموزش اکسل برای کارهای روزمره؛ از صفر تا کاربردی",
+  "category": "software",
+  "featured": false,
+  "book": ""
+ },
+ "free-productivity-tools": {
+  "date_en": "June 22, 2026",
+  "fa_date": "۱ تیر ۱۴۰۵",
+  "file": "articles-3.ts",
+  "title": "۱۲ ابزار آنلاین رایگان که بهره‌وری شما را متحول می‌کنند",
+  "category": "web-tools",
+  "featured": false,
+  "book": ""
+ },
+ "programming-roadmap": {
+  "date_en": "June 10, 2026",
+  "fa_date": "۲۰ خرداد ۱۴۰۵",
+  "file": "articles-4.ts",
+  "title": "نقشه راه برنامه‌نویسی از صفر؛ از کجا شروع کنیم؟",
+  "category": "programming",
+  "featured": false,
+  "book": ""
+ },
+ "build-website-with-wordpress": {
+  "date_en": "June 2, 2026",
+  "fa_date": "۱۲ خرداد ۱۴۰۵",
+  "file": "articles-4.ts",
+  "title": "ساخت سایت با وردپرس؛ راهنمای گام‌به‌گام بدون کدنویسی",
+  "category": "web-tools",
+  "featured": false,
+  "book": ""
+ },
+ "make-money-with-ai": {
+  "date_en": "September 27, 2026",
+  "fa_date": "۵ مهر ۱۴۰۵",
+  "file": "articles-5.ts",
+  "title": "۱۰ راه واقعی کسب درآمد از هوش مصنوعی؛ راهنمای عملی ۱۴۰۵",
+  "category": "ai",
+  "featured": false,
+  "book": ""
+ },
+ "freelancing-with-ai-guide": {
+  "date_en": "September 27, 2026",
+  "fa_date": "۵ مهر ۱۴۰۵",
+  "file": "articles-6.ts",
+  "title": "راهنمای فریلنسری با هوش مصنوعی از صفر؛ قدم‌به‌قدم تا اولین سفارش",
+  "category": "ai",
+  "featured": false,
+  "book": ""
+ },
+ "free-ai-tools": {
+  "date_en": "September 29, 2026",
+  "fa_date": "۷ مهر ۱۴۰۵",
+  "file": "articles-7.ts",
+  "title": "۷ ابزار رایگان هوش مصنوعی که زندگی روزمره‌ات را متحول می‌کند",
+  "category": "ai",
+  "featured": false,
+  "book": ""
+ },
+ "ai-income-iran": {
+  "date_en": "September 29, 2026",
+  "fa_date": "۷ مهر ۱۴۰۵",
+  "file": "articles-8.ts",
+  "title": "کسب درآمد از هوش مصنوعی در ایران؛ راهنمای واقعی ریالی و دلاری",
+  "category": "ai",
+  "featured": false,
+  "book": ""
+ },
+ "learn-ai-from-zero": {
+  "date_en": "September 29, 2026",
+  "fa_date": "۷ مهر ۱۴۰۵",
+  "file": "articles-8.ts",
+  "title": "آموزش هوش مصنوعی از صفر؛ نقشه راه کامل برای شروع در ۱۴۰۵",
+  "category": "ai",
+  "featured": false,
+  "book": ""
+ },
+ "chatgpt-vs-gemini-vs-claude": {
+  "date_en": "September 30, 2026",
+  "fa_date": "۸ مهر ۱۴۰۵",
+  "file": "articles-9.ts",
+  "title": "مقایسه ChatGPT، Gemini و Claude؛ کدام هوش مصنوعی برای تو بهتره؟",
+  "category": "ai",
+  "featured": false,
+  "book": ""
+ },
+ "ai-income-methods-comparison": {
+  "date_en": "September 30, 2026",
+  "fa_date": "۸ مهر ۱۴۰۵",
+  "file": "articles-9.ts",
+  "title": "مقایسه روش‌های کسب درآمد از هوش مصنوعی؛ کدام مسیر برای تو مناسب‌تره؟",
+  "category": "ai",
+  "featured": false,
+  "book": ""
+ },
+ "prompt-engineering-guide": {
+  "date_en": "October 2, 2026",
+  "fa_date": "۱۰ مهر ۱۴۰۵",
+  "file": "articles-10.ts",
+  "title": "پرامپت‌نویسی حرفه‌ای؛ فرمول ساده‌ای که جواب‌های هوش مصنوعی را ۱۰ برابر بهتر می‌کند",
+  "category": "ai",
+  "featured": false,
+  "book": ""
+ },
+ "ai-image-generators-comparison": {
+  "date_en": "October 2, 2026",
+  "fa_date": "۱۰ مهر ۱۴۰۵",
+  "file": "articles-10.ts",
+  "title": "مقایسه ابزارهای تولید تصویر با هوش مصنوعی؛ کدام برای کار تو مناسبه؟",
+  "category": "ai",
+  "featured": false,
+  "book": ""
+ },
+ "ai-video-income": {
+  "date_en": "October 4, 2026",
+  "fa_date": "۱۲ مهر ۱۴۰۵",
+  "file": "articles-11.ts",
+  "title": "کسب درآمد از ویدیوهای هوش مصنوعی؛ طلای جدید عصر Sora و Runway",
+  "category": "ai",
+  "featured": false,
+  "book": ""
+ },
+ "digital-products-ai-income": {
+  "date_en": "October 4, 2026",
+  "fa_date": "۱۲ مهر ۱۴۰۵",
+  "file": "articles-11.ts",
+  "title": "ساخت و فروش محصول دیجیتال با هوش مصنوعی؛ حقیقت درآمد غیرفعال",
+  "category": "ai",
+  "featured": false,
+  "book": ""
+ },
+ "adsense-vs-yektanet": {
+  "date_en": "October 4, 2026",
+  "fa_date": "۱۲ مهر ۱۴۰۵",
+  "file": "articles-11.ts",
+  "title": "ادسنس یا یکتانت؟ راهنمای صادقانه درآمد سایت‌های فارسی",
+  "category": "ai",
+  "featured": false,
+  "book": ""
+ },
+ "ai-in-sales-guide": {
+  "date_en": "October 5, 2026",
+  "fa_date": "۱۳ مهر ۱۴۰۵",
+  "file": "articles-12.ts",
+  "title": "هوش مصنوعی در فروش؛ چطور تیم فروشت را با AI چند برابر کنی؟",
+  "category": "ai",
+  "featured": false,
+  "book": ""
+ },
+ "ai-chatbot-business": {
+  "date_en": "October 5, 2026",
+  "fa_date": "۱۳ مهر ۱۴۰۵",
+  "file": "articles-12.ts",
+  "title": "ساخت چت‌بات فروش و پشتیبانی با هوش مصنوعی؛ بدون حتی یک خط کد",
+  "category": "ai",
+  "featured": false,
+  "book": ""
+ },
+ "ai-ecommerce-guide": {
+  "date_en": "October 5, 2026",
+  "fa_date": "۱۳ مهر ۱۴۰۵",
+  "file": "articles-12.ts",
+  "title": "هوش مصنوعی در فروشگاه اینترنتی؛ از عکس محصول تا قیمت‌گذاری هوشمند",
+  "category": "ai",
+  "featured": false,
+  "book": ""
+ },
+ "ai-marketing-business": {
+  "date_en": "October 5, 2026",
+  "fa_date": "۱۳ مهر ۱۴۰۵",
+  "file": "articles-12.ts",
+  "title": "بازاریابی هوشمند با هوش مصنوعی؛ جذب مشتری با کمترین هزینه",
+  "category": "ai",
+  "featured": false,
+  "book": ""
+ },
+ "ai-agents-guide": {
+  "date_en": "October 13, 2026",
+  "fa_date": "۲۱ مهر ۱۴۰۵",
+  "file": "articles-13.ts",
+  "title": "ایجنت‌های هوش مصنوعی؛ دستیارهایی که خودشان کار می‌کنند",
+  "category": "ai",
+  "featured": false,
+  "book": ""
+ },
+ "vibe-coding-guide": {
+  "date_en": "October 13, 2026",
+  "fa_date": "۲۱ مهر ۱۴۰۵",
+  "file": "articles-13.ts",
+  "title": "وایب کدینگ؛ ساخت اپلیکیشن و سایت با هوش مصنوعی بدون یک خط کد",
+  "category": "programming",
+  "featured": false,
+  "book": ""
+ },
+ "ai-music-income": {
+  "date_en": "October 13, 2026",
+  "fa_date": "۲۱ مهر ۱۴۰۵",
+  "file": "articles-13.ts",
+  "title": "کسب درآمد از موسیقی هوش مصنوعی؛ راهنمای کامل Suno و Udio",
+  "category": "ai",
+  "featured": false,
+  "book": ""
+ },
+ "deepfake-guide": {
+  "date_en": "October 13, 2026",
+  "fa_date": "۲۱ مهر ۱۴۰۵",
+  "file": "articles-13.ts",
+  "title": "عصر دایپ‌فیک؛ چطور ویدیوها و صداهای جعلی هوش مصنوعی را تشخیص دهیم؟",
+  "category": "security",
+  "featured": false,
+  "book": ""
+ },
+ "learn-python-from-zero": {
+  "date_en": "October 14, 2026",
+  "fa_date": "۲۲ مهر ۱۴۰۵",
+  "file": "articles-14.ts",
+  "title": "آموزش پایتون از صفر؛ نقشه ۳۰ روزه برای شروع بدون هیچ سابقه‌ای",
+  "category": "programming",
+  "featured": false,
+  "book": ""
+ },
+ "python-automation-income": {
+  "date_en": "October 14, 2026",
+  "fa_date": "۲۲ مهر ۱۴۰۵",
+  "file": "articles-14.ts",
+  "title": "اتوماسیون با پایتون؛ اسکریپت‌هایی که کارهایت را خودکار و پول‌ساز می‌کنند",
+  "category": "programming",
+  "featured": false,
+  "book": ""
+ },
+ "python-for-ai-guide": {
+  "date_en": "October 14, 2026",
+  "fa_date": "۲۲ مهر ۱۴۰۵",
+  "file": "articles-14.ts",
+  "title": "پایتون برای هوش مصنوعی؛ مسیر یادگیری از اولین کد تا اولین مدل",
+  "category": "programming",
+  "featured": false,
+  "book": ""
+ },
+ "best-iranian-crypto-exchanges": {
+  "date_en": "October 16, 2026",
+  "fa_date": "۲۴ مهر ۱۴۰۵",
+  "file": "articles-15.ts",
+  "title": "بهترین صرافی‌های ارز دیجیتال ایرانی؛ مقایسه امنیت، کارمزد و درآمد معرفی",
+  "category": "web-tools",
+  "featured": false,
+  "book": ""
+ },
+ "affiliate-marketing-guide": {
+  "date_en": "October 16, 2026",
+  "fa_date": "۲۴ مهر ۱۴۰۵",
+  "file": "articles-15.ts",
+  "title": "افیلیت مارکتینگ؛ هنر درآمد از معرفی — از صفر تا اولین کمیسیون",
+  "category": "ai",
+  "featured": false,
+  "book": ""
+ },
+ "ai-service-business": {
+  "date_en": "October 16, 2026",
+  "fa_date": "۲۴ مهر ۱۴۰۵",
+  "file": "articles-15.ts",
+  "title": "کسب‌وکار خدمات هوش مصنوعی؛ ابزارهای AI را بخری، نتیجه‌اش را چند برابر می‌فروشی",
+  "category": "ai",
+  "featured": false,
+  "book": ""
+ },
+ "network-equipment-installation-12": {
+  "date_en": "October 18, 2026",
+  "fa_date": "۲۶ مهر ۱۴۰۵",
+  "file": "articles-16.ts",
+  "title": "نصب تجهیزات شبکه؛ راهنمای کامل و ساده پودمان اول کتاب دوازدهم",
+  "category": "student",
+  "featured": false,
+  "book": "network-hardware-12"
+ },
+ "network-setup-dhcp-dns-12": {
+  "date_en": "October 18, 2026",
+  "fa_date": "۲۶ مهر ۱۴۰۵",
+  "file": "articles-16.ts",
+  "title": "راه‌اندازی شبکه؛ آموزش کامل IP، DHCP و DNS و اشتراک‌گذاری منابع (پودمان دوم)",
+  "category": "student",
+  "featured": false,
+  "book": "network-hardware-12"
+ },
+ "wireless-network-modem-config-12": {
+  "date_en": "October 18, 2026",
+  "fa_date": "۲۶ مهر ۱۴۰۵",
+  "file": "articles-16.ts",
+  "title": "پیکربندی شبکه بی‌سیم و مودم؛ از کارت وایرلس تا تنظیم AP و مودم ADSL (پودمان سوم)",
+  "category": "student",
+  "featured": false,
+  "book": "network-hardware-12"
+ },
+ "centralized-network-management-ad-gpo-12": {
+  "date_en": "October 18, 2026",
+  "fa_date": "۲۶ مهر ۱۴۰۵",
+  "file": "articles-16.ts",
+  "title": "مدیریت متمرکز منابع شبکه؛ آموزش ADDS، GPO و DFS (پودمان چهارم)",
+  "category": "student",
+  "featured": false,
+  "book": "network-hardware-12"
+ },
+ "network-troubleshooting-packet-tracer-12": {
+  "date_en": "October 18, 2026",
+  "fa_date": "۲۶ مهر ۱۴۰۵",
+  "file": "articles-16.ts",
+  "title": "عیب‌یابی شبکه؛ آموزش Packet Tracer و رفع قطعی اینترنت (پودمان پنجم)",
+  "category": "student",
+  "featured": false,
+  "book": "network-hardware-12"
+ },
+ "e-commerce-business-idea-12": {
+  "date_en": "October 18, 2026",
+  "fa_date": "۲۶ مهر ۱۴۰۵",
+  "file": "articles-17.ts",
+  "title": "ایجاد کار و کسب الکترونیکی؛ از ایده‌پردازی SCAMPER تا بوم مدل کسب‌وکار (پودمان اول)",
+  "category": "student",
+  "featured": false,
+  "book": "ecommerce-security-12"
+ },
+ "online-store-development-12": {
+  "date_en": "October 18, 2026",
+  "fa_date": "۲۶ مهر ۱۴۰۵",
+  "file": "articles-17.ts",
+  "title": "توسعه کار و کسب الکترونیکی؛ ساخت فروشگاه اینترنتی و سئو (پودمان دوم)",
+  "category": "student",
+  "featured": false,
+  "book": "ecommerce-security-12"
+ },
+ "mikrotik-router-setup-12": {
+  "date_en": "October 18, 2026",
+  "fa_date": "۲۶ مهر ۱۴۰۵",
+  "file": "articles-17.ts",
+  "title": "راه‌اندازی مسیریاب میکروتیک؛ آموزش گام‌به‌گام با WinBox (پودمان سوم)",
+  "category": "student",
+  "featured": false,
+  "book": "ecommerce-security-12"
+ },
+ "network-security-firewall-12": {
+  "date_en": "October 18, 2026",
+  "fa_date": "۲۶ مهر ۱۴۰۵",
+  "file": "articles-17.ts",
+  "title": "تنظیمات امنیت شبکه؛ از تست نفوذ تا فایروال ویندوز و میکروتیک (پودمان چهارم)",
+  "category": "student",
+  "featured": false,
+  "book": "ecommerce-security-12"
+ },
+ "ip-camera-nvr-setup-12": {
+  "date_en": "October 18, 2026",
+  "fa_date": "۲۶ مهر ۱۴۰۵",
+  "file": "articles-17.ts",
+  "title": "نصب دوربین مداربسته تحت شبکه؛ آموزش NVR و جانمایی (پودمان پنجم)",
+  "category": "student",
+  "featured": false,
+  "book": "ecommerce-security-12"
+ }
+}
