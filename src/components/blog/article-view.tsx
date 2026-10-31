@@ -9,6 +9,8 @@ import { getRelated } from "@/data";
 import { toFaDigits } from "@/lib/format";
 import { CategoryIcon } from "./category-icon";
 import { AdSlot } from "./ad-slot";
+import { AffiliateBox } from "./affiliate-box";
+import { AFFILIATE_BOX_SLUGS } from "@/data/affiliates";
 import { ArticleCard } from "./cards";
 import { ReadingProgress } from "./reading-progress";
 
@@ -260,6 +262,11 @@ export function ArticleView({ article }: { article: Article }) {
                 </div>
               ))}
             </div>
+
+            {/* باکس افیلیت صرافی‌ها — فقط مقاله‌های هدف (AFFILIATE_BOX_SLUGS) */}
+            {AFFILIATE_BOX_SLUGS.includes(article.slug) && (
+              <AffiliateBox articleSlug={article.slug} />
+            )}
 
             {/* تبلیغ پایین مقاله */}
             <AdSlot slotKey={`${article.slug}-bottom`} format="horizontal" />
