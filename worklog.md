@@ -778,3 +778,20 @@ Work Log:
 Stage Summary:
 - next EN articles: user decides cadence; recommended top evergreens (chatgpt-pro-tips, smartphone-buying-guide, python-roadmap)
 - affiliate/package action plan delivered in chat
+
+---
+Task ID: affiliate-39
+Agent: main (Z.ai)
+Task: Insert user's 3 exchange referral links into site with tracking
+
+Work Log:
+- user registered at nobitex/wallex/tabdeal and delivered referral links (F4D02B4 / abgsyvu / 9smaa8)
+- data: src/data/affiliates.ts — single source of truth (AFFILIATE_EXCHANGES + AFFILIATE_BOX_SLUGS)
+- component: affiliate-box.tsx — honest CTA box (perk per exchange + tabdeal invite code + disclosure line), TrackedLink with affiliate_click event (params: partner/article/location)
+- wiring: article-view.tsx renders box at end of body for best-iranian-crypto-exchanges + affiliate-marketing-guide
+- docs: ga.ts event list now documents affiliate_click
+- digikala affiliate: user blocked at "select media → not found" — advised to add media (takrah.top + t.me/takrahTop) first and wait for approval
+- commit 2d2795b pushed; live verified: both articles contain all 3 refcodes + box text
+
+Stage Summary:
+- next: digikala product links after media approval; package CTA box still awaiting user's "بساز"; watch affiliate_click in GA (custom report: partner × article)
