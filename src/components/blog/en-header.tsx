@@ -85,6 +85,10 @@ export function EnHeader() {
         </nav>
 
         <div className="ms-auto flex items-center gap-1 lg:ms-0">
+          {/* Language switch — always visible on the bar itself for mobile/tablet */}
+          <span className="lg:hidden">
+            <LanguageSwitch from="en" />
+          </span>
           {/* حالت روشن/تیره */}
           <button
             type="button"
@@ -116,12 +120,6 @@ export function EnHeader() {
           aria-label="Mobile navigation"
         >
           <ul className="grid grid-cols-2 gap-1.5">
-            {/* Language switch — always first */}
-            <li className="col-span-2">
-              <span className="flex items-center">
-                <LanguageSwitch from="en" />
-              </span>
-            </li>
             <li>
               <Link
                 href="/en"

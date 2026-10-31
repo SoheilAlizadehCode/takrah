@@ -155,6 +155,10 @@ export function Header({ onOpenSearch }: HeaderProps) {
         </nav>
 
         <div className="ms-auto flex items-center gap-1 lg:ms-0">
+          {/* تغییر زبان — در موبایل و تبلت همیشه روی خود نوار دیده شود */}
+          <span className="lg:hidden">
+            <LanguageSwitch from="fa" />
+          </span>
           {/* جستجو */}
           <button
             type="button"
@@ -201,12 +205,6 @@ export function Header({ onOpenSearch }: HeaderProps) {
           aria-label="ناوبری موبایل"
         >
           <ul className="grid grid-cols-2 gap-1.5">
-            {/* تغییر زبان — همیشه اولین آیتم منو */}
-            <li className="col-span-2">
-              <span className="flex items-center">
-                <LanguageSwitch from="fa" />
-              </span>
-            </li>
             <li>
               <Link
                 href="/"
