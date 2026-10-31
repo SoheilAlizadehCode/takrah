@@ -811,3 +811,22 @@ Work Log:
 Stage Summary:
 - GA: watch package_cta_click × article and package_contact_click × article to find selling articles
 - remaining user items: digikala media approval → product links; mark affiliate_click + package_cta_click as key events when visible in GA
+
+---
+Task ID: i18n-full-41
+Agent: main (Z.ai) + 8 parallel translator subagents
+Task: Translate ALL 46 articles to English (user: full FA/EN parity + Google indexing)
+
+Work Log:
+- precompute: scripts/extract-fa-dates.py → Jalali→Gregorian dates for all 46 (jdatetime), en-dates.json (verified vs pilot file)
+- brief: scripts/en-translation-brief.md (strict contract: uniform EN_ARTICLE export, 1:1 block parity, no Persian in strings, dates preassigned)
+- translation: 8 parallel subagents (Task IDs 2-a..2-h) → 44 new files in src/data/en/ (+2 pilots = 46); each self-verified block/type/table parity vs FA
+- aggregator: scripts/build-en-index.py regenerates src/data/en/index.ts (46 imports, EN_ARTICLE as alias) + en-slugs.ts (46 slugs); idempotent for future translations
+- fixed own bug: import must be "EN_ARTICLE as alias" (tsc TS2305 x44 caught it)
+- local next build OK: /en/article/[slug] = 46 static paths
+- commit 1d1fb27 pushed; live verified: 46/46 EN URLs 200, sitemap 92 /en/article refs (46 loc + 46 FA alternates), hreflang fa-IR↔en pair on FA pages, FA pages 200, EN spotcheck (Nobitex/Iranian crypto) OK
+- affiliate research: Arvan = partner program (arvancloud.ir/fa/partners, application-based, not instant referral); Jasper/foreign AI tools = real programs but PayPal/Stripe payout rails → blocked for Iran (honest guidance given, no workarounds)
+
+Stage Summary:
+- EN site now full parity: 46 articles, EN chrome, sitemap, hreflang; covers still shared FA images (may contain Persian text — optional future fix)
+- waiting on user: Search Console indexing will follow sitemap (can request /en manually); digikala media approval; arvan partner application decision
