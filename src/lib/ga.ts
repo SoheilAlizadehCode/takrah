@@ -12,6 +12,7 @@
  *   gate_unlock_success   — باز شدن فایل‌های دانلود
  *   package_demo_click    — کلیک روی دموی زندهٔ پکیج
  *   package_contact_click — کلیک روی تماس (واتساپ/تلفن) پکیج
+ *   package_cta_click     — کلیک «مشاهدهٔ پکیج‌ها» در باکس انتهای مقاله‌های کسب‌وکاری
  *   affiliate_click       — کلیک روی لینک افیلیت (باکس صرافی‌ها؛
  *     partner = صرافی، article = مقاله — در GA با این دو بعد تفکیک کن)
  *
