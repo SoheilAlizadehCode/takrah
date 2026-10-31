@@ -5,7 +5,8 @@
  *
  * رویدادهای مهم سایت (که بعداً در GA به‌عنوان Key Event علامت می‌خورند):
  *   telegram_click        — کلیک روی لینک کانال/ربات تلگرام (فوتر و مقاله‌ها)
- *   google_signup_success — ورود موفق با گوگل در گیت دانلود
+ *   signup_google_success — ورود موفق با گوگل در گیت دانلود
+ *     (قبلاً google_signup_success بود که پیشوند رزروشدهٔ GA4 است و رد می‌شد)
  *   gate_telegram_start   — انتخاب مسیر تلگرام در گیت
  *   gate_verify_success   — تأیید موفق کد عضویت
  *   gate_unlock_success   — باز شدن فایل‌های دانلود
