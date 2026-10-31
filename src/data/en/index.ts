@@ -118,3 +118,16 @@ export const EN_CATEGORY_NAMES: Record<string, string> = {
   programming: "Programming",
   student: "Student",
 };
+
+/**
+ * شناسهٔ دسته‌هایی که در نسخهٔ انگلیسی ناوبری و صفحهٔ دسته دارند.
+ * طبق تصمیم محصول، بخش «دانش‌آموز» فقط در نسخهٔ فارسی است.
+ */
+export const EN_NAV_CATEGORY_IDS: string[] = [
+  "ai",
+  "mobile",
+  "security",
+  "software",
+  "web-tools",
+  "programming",
+];

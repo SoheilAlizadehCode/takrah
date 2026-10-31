@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { articles } from "@/data";
-import { englishArticles } from "@/data/en";
+import { englishArticles, EN_NAV_CATEGORY_IDS } from "@/data/en";
 import { categories, hrefs, staticPages, siteConfig } from "@/lib/site";
 import { studentBooks } from "@/lib/student";
 
@@ -80,6 +80,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
         languages: {
           en: `${siteConfig.url}/en/article/${a.slug}`,
           "fa-IR": `${siteConfig.url}${hrefs.article(a.slug)}`,
+        },
+      },
+    })),
+    // دسته‌بندی‌های نسخهٔ انگلیسی (بدون «دانش‌آموز»)
+    ...EN_NAV_CATEGORY_IDS.map((id) => ({
+      url: `${siteConfig.url}/en/category/${id}`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.5,
+      alternates: {
+        languages: {
+          en: `${siteConfig.url}/en/category/${id}`,
+          "fa-IR": `${siteConfig.url}/category/${id}`,
         },
       },
     })),
