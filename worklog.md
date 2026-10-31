@@ -795,3 +795,19 @@ Work Log:
 
 Stage Summary:
 - next: digikala product links after media approval; package CTA box still awaiting user's "بساز"; watch affiliate_click in GA (custom report: partner × article)
+
+---
+Task ID: package-cta-40
+Agent: main (Z.ai)
+Task: Build JSDevelop clinic automation CTA box in business articles (user said "بساز")
+
+Work Log:
+- data: src/data/package-cta.ts — PACKAGE_CTA_SLUGS (6 business articles) + PACKAGE_CTA_PLANS teaser (18M / 35M+4M / 55M+7M, synced with PackagesView)
+- component: package-cta-box.tsx — emerald brand style matching /packages, 3 plan chips, 2 CTAs: /packages (package_cta_click) + wa.me/989229033102 (package_contact_click with article param)
+- wiring: article-view.tsx renders PackageCtaBox before AffiliateBox; ga.ts docs updated
+- target articles: ai-in-sales-guide, ai-chatbot-business, ai-ecommerce-guide, ai-marketing-business, ai-service-business, ai-income-iran
+- commit 4791ffe pushed; live verified: box+whatsapp+/packages in 3 sampled articles; crypto article correctly package-free (affiliate box only); home 200
+
+Stage Summary:
+- GA: watch package_cta_click × article and package_contact_click × article to find selling articles
+- remaining user items: digikala media approval → product links; mark affiliate_click + package_cta_click as key events when visible in GA
