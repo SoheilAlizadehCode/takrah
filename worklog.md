@@ -830,3 +830,30 @@ Work Log:
 Stage Summary:
 - EN site now full parity: 46 articles, EN chrome, sitemap, hreflang; covers still shared FA images (may contain Persian text — optional future fix)
 - waiting on user: Search Console indexing will follow sitemap (can request /en manually); digikala media approval; arvan partner application decision
+
+---
+Task ID: i18n-nav-41
+Agent: main (Z.ai)
+Task: Language switcher UX + EN navbar full parity (user request: switch first+pretty, EN nav = FA minus student, bigger clearer icons)
+
+Work Log:
+- new: src/components/blog/language-switch.tsx — globe pill (sky gradient, hover rotate), FIRST nav item both languages, smart href (same article via EN_ARTICLE_SLUGS, same category), gaEvent language_switch {from,to,path}
+- category-icon.tsx: added CATEGORY_ICON_COLORS (violet/sky/emerald/amber/cyan/rose/indigo per category)
+- header.tsx (FA): switch first (desktop nav + mobile top bar lg:hidden), removed old plain EN button, nav icons 14→18px colored, labels font-semibold, mobile menu icons 20px
+- en-header.tsx: full rewrite mirroring FA header — Home, Packages (emerald pulse), 6 categories, theme toggle, mobile menu; NO student section
+- new route: src/app/en/category/[id]/page.tsx — 6 static EN category pages (EN_CATEGORY_DESCRIPTIONS, empty-state safe, hreflang fa↔en, student id → notFound)
+- data/en/index.ts: exported EN_NAV_CATEGORY_IDS (6 ids, no student)
+- sitemap.ts: EN category URLs with hreflang alternates
+- ga.ts: documented language_switch event
+- commits: dcd9375 + e7dd4cc, both pushed and live-verified
+
+Verification:
+- build 121 pages OK; tsc clean (project code)
+- live: FA home has switch first; /en nav = Home/Packages/6 cats + theme toggle, no student; /en/category/ai 200 (22 guides); /en/category/student 404; sitemap 12 en/category refs
+- smart switch verified live: /article/make-money-with-ai ↔ /en/article/make-money-with-ai
+- screenshots: FA desktop (switch first, colored icons), EN desktop (full parity), FA mobile (switch on bar), EN cat mobile — all good
+- known gaps: EN "Packages" links to FA /packages page (translation later); EN search not added yet (searchArticles is FA-only)
+
+Stage Summary:
+- EN and FA navbars now visually identical except student; switch always first; GA can now measure language_switch as key event
+- next steps: translate /packages page to EN, add EN search index (EN_ARTICLE data), EN covers with English text
