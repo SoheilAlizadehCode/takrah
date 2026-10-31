@@ -3,8 +3,7 @@ import localFont from "next/font/local";
 import Script from "next/script";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/toaster";
-import { SiteChrome } from "@/components/blog/site-chrome";
-import { Footer } from "@/components/blog/footer";
+import { LangChrome, LangFooter, HtmlLangSetter } from "@/components/blog/lang-chrome";
 import { GAPageView } from "@/components/analytics";
 import { siteConfig } from "@/lib/site";
 import "./globals.css";
@@ -170,11 +169,12 @@ export default function RootLayout({
         />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <div className="flex min-h-screen flex-col">
-            <SiteChrome />
+            <LangChrome />
+            <HtmlLangSetter />
             <main className="flex-1" id="main-content">
               {children}
             </main>
-            <Footer />
+            <LangFooter />
           </div>
         </ThemeProvider>
         <Toaster />

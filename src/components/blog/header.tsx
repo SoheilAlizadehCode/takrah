@@ -77,6 +77,14 @@ export function Header({ onOpenSearch }: HeaderProps) {
             <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
             پکیج‌ها
           </Link>
+          {/* نسخهٔ انگلیسی سایت */}
+          <Link
+            href="/en"
+            className="rounded-lg border border-border px-2.5 py-2 text-xs font-bold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            aria-label="English version"
+          >
+            EN
+          </Link>
           {categories.map((c) =>
             c.id === "student" ? (
               // بخش دانش‌آموز: منوی کشویی کتاب‌های درسی
@@ -214,6 +222,16 @@ export function Header({ onOpenSearch }: HeaderProps) {
               >
                 <Sparkles className="h-4 w-4" aria-hidden="true" />
                 پکیج‌ها و دموهای زنده
+              </Link>
+            </li>
+            <li className="col-span-2">
+              <Link
+                href="/en"
+                className={`flex items-center gap-2 rounded-lg border border-border px-3 py-2.5 text-sm font-bold text-muted-foreground hover:bg-muted hover:text-foreground ${navLink}`}
+                onClick={() => setMenuOpen(false)}
+                aria-label="English version"
+              >
+                EN — English version
               </Link>
             </li>
             {categories.map((c) =>

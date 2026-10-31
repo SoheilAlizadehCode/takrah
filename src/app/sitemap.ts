@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { articles } from "@/data";
+import { englishArticles } from "@/data/en";
 import { categories, hrefs, staticPages, siteConfig } from "@/lib/site";
 import { studentBooks } from "@/lib/student";
 
@@ -56,6 +57,31 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: now,
       changeFrequency: "weekly" as const,
       priority: 0.7,
+    })),
+    // ─── نسخهٔ انگلیسی (/en) با hreflang فارسی↔انگلیسی ───
+    {
+      url: `${siteConfig.url}/en`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+      alternates: {
+        languages: {
+          en: `${siteConfig.url}/en`,
+          "fa-IR": siteConfig.url,
+        },
+      },
+    },
+    ...englishArticles.map((a) => ({
+      url: `${siteConfig.url}/en/article/${a.slug}`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.6,
+      alternates: {
+        languages: {
+          en: `${siteConfig.url}/en/article/${a.slug}`,
+          "fa-IR": `${siteConfig.url}${hrefs.article(a.slug)}`,
+        },
+      },
     })),
     // صفحات ثابت
     ...staticPages.map((p) => ({
