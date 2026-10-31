@@ -192,7 +192,8 @@ export function DownloadGate({ googleClientId, initialStep, initialUser }: GateP
         });
         const j = (await res.json().catch(() => ({}))) as { ok?: boolean; name?: string; email?: string; picture?: string };
         if (res.ok && j.ok) {
-          gaEvent("google_signup_success");
+          // ⚠️ پیشوند google_ در GA4 رزرو است — اسم رویداد نباید با google_ شروع شود
+          gaEvent("signup_google_success");
           setUser({ name: j.name || "", email: j.email || "", picture: j.picture || "", guest: false });
           goStep(2);
         } else {
