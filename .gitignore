@@ -63,3 +63,6 @@ scripts/telegram-token.txt
 # never commit cookies / pipeline outputs
 scripts/video-pipeline/cookies.txt
 scripts/video-pipeline/out/
+
+# runtime state of the referral bot (روی سرور ساخته می‌شود)
+data/

@@ -113,6 +113,7 @@ export function mainKeyboard(): InlineKeyboard {
         { text: "🌐 سایت تک‌راه", url: SITE },
         { text: "📢 عضویت در کانال", url: CHANNEL_URL },
       ],
+      [{ text: "🎁 پک ۵۰ پرامپت پول‌ساز (هدیه)", callback_data: "pack50" }],
       [{ text: "📥 دانلود فایل‌های آموزشی", url: `${SITE}/student/download` }],
       [
         { text: "🏆 محبوب‌ترین مقاله‌ها", callback_data: "top" },
@@ -175,6 +176,7 @@ export function welcomeText(isMember: boolean | null): string {
     "سلام! 👋 من ربات تک‌راه هستم.",
     "",
     "هر موضوعی درباره‌ی هوش مصنوعی، برنامه‌نویسی و درآمد اینترنتی داشته باشی، برات مقاله‌ش رو پیدا می‌کنم. کافیه کلمه‌ش رو بنویسی: «پایتون»، «درآمد»، «صرافی»، «امنیت» و...",
+    "🎁 پک ۵۰ پرامپت پول‌ساز هم با دکمه‌ی زیر مال توست — فقط عضو کانال باش.",
     "📥 فایل‌های آموزشی کتاب‌های درسی هم تو سایت قابل دانلوده: takrah.top/student/download",
     memberLine,
     "",

@@ -1,7 +1,10 @@
 // Telegram webhook for @TakrahTop_support_bot — search + growth bot for takrah.top
 // Telegram sends POST updates here; we reply via the Bot API and always return 200.
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { NextRequest } from "next/server";
 import {
+  BOT_USERNAME,
   articleKeyboard,
   mainKeyboard,
   newReplyMessage,
@@ -12,6 +15,14 @@ import {
   type InlineKeyboard,
 } from "@/lib/bot-search";
 import { botToken, makeVerifyCode } from "@/lib/student-gate";
+import {
+  REFERRAL_TARGET,
+  isRewarded,
+  joinedCount,
+  markJoined,
+  markRewarded,
+  recordReferral,
+} from "@/lib/referral-store";
 import { articles } from "@/data";
 
 export const dynamic = "force-dynamic";
@@ -26,6 +37,25 @@ const TOKEN = botToken(); // مرکزی در student-gate — ربات جدید 
 const CHANNEL = "@takrahTop";
 const SITE_URL = "https://takrah.top";
 const CHANNEL_URL = "https://t.me/takrahTop";
+
+// فایل‌های قفل‌شده — عمداً بیرون public/ هستند تا بدون عضویت در کانال دانلود نشوند
+const GATED_DIR = path.join(process.cwd(), "assets", "gated");
+const PACK_PDF = path.join(GATED_DIR, "takrah-50-prompt-pack.pdf");
+const BONUS_FILES = ["bonus-checklist-1.png", "bonus-checklist-2.png", "bonus-checklist-3.png"];
+
+const PACK_CAPTION = [
+  "🎁 پک ۵۰ پرامپت پول‌ساز — هدیهٔ تک‌راه",
+  "",
+  "۵۰ دستور آماده برای ChatGPT روی ۸ مسیر درآمدی:",
+  "فریلنسری، تولید محتوا، محصولات دیجیتال، ای‌کامرس،",
+  "سئو، یوتیوب، تدریس و مدیریت پول.",
+  "📌 قانون: هر روز فقط ۱ پرامپت را کامل اجرا کن.",
+  "💬 کدوم پرامپت رو اجرا کردی؟ نتیجه‌ش رو تو کانال بنویس!",
+].join("\n");
+
+function referralLink(tgId: number): string {
+  return `https://t.me/${BOT_USERNAME}?start=r${tgId}`;
+}
 
 type Keyboard = { inline_keyboard: { text: string; url?: string; callback_data?: string }[][] };
 
@@ -54,6 +84,31 @@ async function reply(
     disable_web_page_preview: true,
     ...(keyboard ? { reply_markup: keyboard } : {}),
   });
+}
+
+/** ارسال فایل (عکس/سند) به‌صورت multipart — برای فایل‌های قفل‌شدهٔ داخل assets/gated */
+async function tgFile(
+  method: string,
+  chatId: number | string,
+  buffer: Buffer,
+  filename: string,
+  extra: Record<string, unknown> = {},
+): Promise<unknown> {
+  try {
+    const form = new FormData();
+    form.append("chat_id", String(chatId));
+    for (const [k, v] of Object.entries(extra)) {
+      form.append(k, typeof v === "string" ? v : JSON.stringify(v));
+    }
+    form.append(method === "sendPhoto" ? "photo" : "document", new Blob([new Uint8Array(buffer)]), filename);
+    const res = await fetch(`https://api.telegram.org/bot${TOKEN}/${method}`, {
+      method: "POST",
+      body: form,
+    });
+    return await res.json().catch(() => null);
+  } catch {
+    return null;
+  }
 }
 
 /** آیا کاربر عضو کانال است؟ (بات ادمین کانال است) null = نامطمئن */
@@ -97,6 +152,8 @@ async function downloadVerify(tgId: number | undefined, chatId: number | string,
     return;
   }
   const member = await isMember(tgId);
+  const rewardInviter = markJoined(tgId, member); // شاید این کاربر دعوت‌شدهٔ کسی باشد
+  if (rewardInviter) await maybeRewardInviter(rewardInviter);
   if (member === true) {
     await sendVerifyCode(chatId, nonce, tgId);
   } else if (member === false) {
@@ -120,6 +177,107 @@ async function downloadVerify(tgId: number | undefined, chatId: number | string,
   }
 }
 
+/* ─── پک ۵۰ پرامپت (قفل محتوا) + رفرال ───────────────────────── */
+
+/** پیشنهاد دعوت دوستان — بعد از تحویل پک */
+async function sendReferralPitch(chatId: number | string, tgId: number): Promise<void> {
+  const count = joinedCount(tgId);
+  const remaining = Math.max(0, REFERRAL_TARGET - count);
+  await reply(
+    chatId,
+    [
+      "🤝 یه درخواست کوچولو:",
+      "",
+      "این پک با دعوت دوستانت هم قابل دریافت است — با لینک اختصاصی زیر، هر ۳ دوستی که از طریق لینکت عضو ربات و کانال بشن، «چک‌لیست ۳۰ روزهٔ پول درآوردن با پرامپت‌ها» (۳ تصویر ویژه) هم مال تو می‌شه.",
+      "",
+      count > 0
+        ? `📊 تا الان ${count} نفر از دعوت‌هات عضو شدن — ${remaining} نفر مونده!`
+        : "🎯 ۳ دعوت موفق = چک‌لیست ویژهٔ ۳۰ روزه",
+    ].join("\n"),
+    {
+      inline_keyboard: [
+        [{ text: "🤝 لینک دعوت اختصاصی من", url: referralLink(tgId) }],
+        [{ text: "📊 پیشرفت دعوت‌هام", callback_data: "refs" }],
+      ],
+    },
+  );
+}
+
+/** تحویل پک + پاداش رفرال اگر کامل شده */
+async function pack50(tgId: number | undefined, chatId: number | string): Promise<void> {
+  if (!tgId) {
+    await reply(chatId, "شناسایی نشدی 🤔 یک بار /start بزن و دوباره امتحان کن.");
+    return;
+  }
+  const member = await isMember(tgId);
+  const rewardInviter = markJoined(tgId, member);
+  if (rewardInviter) await maybeRewardInviter(rewardInviter);
+
+  if (member === true) {
+    try {
+      const buf = await readFile(PACK_PDF);
+      const res = (await tgFile("sendDocument", chatId, buf, "takrah-50-prompt-pack.pdf", {
+        caption: PACK_CAPTION,
+      })) as { ok?: boolean } | null;
+      if (!res?.ok) throw new Error("send failed");
+    } catch {
+      await reply(chatId, "فایل الان در دسترس نیست 😔 چند دقیقه بعد دوباره دکمه را بزن.");
+      return;
+    }
+    await sendReferralPitch(chatId, tgId);
+  } else if (member === false) {
+    await reply(
+      chatId,
+      [
+        "🎁 پک ۵۰ پرامپت پول‌ساز مخصوص اعضای کانال تک‌راه است.",
+        "",
+        "۱️⃣ با دکمه زیر عضو شو",
+        "۲️⃣ برگرد و «بررسی مجدد» را بزن — فایل همینجا تحویل داده می‌شود",
+      ].join("\n"),
+      {
+        inline_keyboard: [
+          [{ text: "📢 عضویت در کانال", url: CHANNEL_URL }],
+          [{ text: "🔄 بررسی مجدد", callback_data: "pack50re" }],
+        ],
+      },
+    );
+  } else {
+    await reply(chatId, "الان نمی‌توانم عضویتت را چک کنم 😔 چند لحظه بعد دوباره امتحان کن.");
+  }
+}
+
+/** اگر دعوت‌کننده به سهمیه رسید، پاداش را یک‌بار بفرست؛ وگرنه پیشرفت را بگو */
+async function maybeRewardInviter(inviter: number): Promise<void> {
+  const count = joinedCount(inviter);
+  if (count >= REFERRAL_TARGET && !isRewarded(inviter)) {
+    markRewarded(inviter);
+    await reply(
+      inviter,
+      [
+        "🎉 تبریک! ۳ نفر از دوستانی که دعوت کردی عضو تک‌راه شدن.",
+        "",
+        "پاداشت: «چک‌لیست ۳۰ روزهٔ پول درآوردن با پرامپت‌ها» — ۳ تصویر ویژه که فقط دعوت‌کننده‌ها می‌گیرن:",
+      ].join("\n"),
+    );
+    for (const f of BONUS_FILES) {
+      try {
+        const buf = await readFile(path.join(GATED_DIR, f));
+        await tgFile("sendPhoto", inviter, buf, f);
+      } catch {
+        // فایل نبود؟ پیام اصلی رسیده؛ کاربر می‌تواند دوباره امتحان کند
+      }
+    }
+    return;
+  }
+  if (count > 0) {
+    const remaining = REFERRAL_TARGET - count;
+    await reply(
+      inviter,
+      `🤝 خبر خوب: یکی از دعوت‌هات عضو کانال شد!\n\n📊 ${count} از ${REFERRAL_TARGET} — ${remaining} نفر مونده تا چک‌لیست ویژه.\nلینکت: ${referralLink(inviter)}`,
+    );
+  }
+}
+
 async function handleMessage(message: {
   chat?: { id?: number | string };
   from?: { id?: number };
@@ -139,6 +297,35 @@ async function handleMessage(message: {
       return;
     }
 
+    // deep link: /start r<inviterId> — لینک دعوت دوستان (رفرال)
+    const refM = payload.match(/^r(\d{3,})$/);
+    if (refM) {
+      const tgId = message.from?.id;
+      const inviter = Number(refM[1]);
+      if (tgId) {
+        const rec = recordReferral(inviter, tgId);
+        const member = await isMember(tgId);
+        const joinedNow = markJoined(tgId, member);
+        if (rec.ok) {
+          await reply(
+            chatId,
+            [
+              "سلام! 👋 یکی از دوستات تو رو به تک‌راه دعوت کرده.",
+              "",
+              "اینجا هر هفته: ویدیوهای آموزشی با زیرنویس فارسی، پک‌های پرامپت و راه‌های واقعی درآمد با هوش مصنوعی.",
+              member === true
+                ? "✅ عضویتت در کانال هم تأیید شد — دعوتت برای دوستت شمرده شد!"
+                : "📌 اگه هنوز عضو کانال نشدی، عضو شو تا دعوتت برای دوستت شمرده بشه.",
+            ].join("\n"),
+            mainKeyboard(),
+          );
+          if (joinedNow) await maybeRewardInviter(joinedNow);
+          return;
+        }
+        // duplicate/self — با خوش‌آمد عادی ادامه بده
+      }
+    }
+
     const refSlug = payload.startsWith("ref_") ? payload.slice(4) : "";
     const refArticle = /^[a-z0-9-]+$/.test(refSlug) ? articleBySlug(refSlug) : undefined;
 
@@ -148,8 +335,30 @@ async function handleMessage(message: {
     }
 
     const member = message.from?.id ? await isMember(message.from.id) : null;
+    // اگر این کاربر قبلاً دعوت شده بود و الان عضو شده، به دعوت‌کننده‌اش خبر بده
+    const rewardInviter = message.from?.id ? markJoined(message.from.id, member) : null;
+    if (rewardInviter) await maybeRewardInviter(rewardInviter);
     await reply(chatId, welcomeText(member), mainKeyboard());
     return;
+  }
+
+  if (text.startsWith("/my")) {
+    const tgId = message.from?.id;
+    if (tgId) {
+      const count = joinedCount(tgId);
+      const remaining = Math.max(0, REFERRAL_TARGET - count);
+      await reply(
+        chatId,
+        [
+          "📊 پیشرفت دعوت‌های تو:",
+          `🤝 ${count} از ${REFERRAL_TARGET} دعوت موفق`,
+          remaining > 0 ? `⏳ ${remaining} نفر مونده تا چک‌لیست ویژهٔ ۳۰ روزه` : "✅ پاداشت کامل شده!",
+          "",
+          `لینک اختصاصیت: ${referralLink(tgId)}`,
+        ].join("\n"),
+      );
+      return;
+    }
   }
 
   if (text.startsWith("/top")) {
@@ -172,6 +381,39 @@ async function handleCallback(cb: {
   const chatId = cb.message?.chat?.id;
   const data = cb.data || "";
   if (!chatId) return;
+
+  // پک ۵۰ پرامپت: باز کردن + بررسی مجدد بعد از عضویت
+  if (data === "pack50" || data === "pack50re") {
+    await tg("answerCallbackQuery", {
+      callback_query_id: cb.id ?? "",
+      text: data === "pack50re" ? "دارم عضویتت را چک می‌کنم…" : undefined,
+    });
+    await pack50(cb.from?.id, chatId);
+    return;
+  }
+
+  // پیشرفت دعوت‌ها
+  if (data === "refs") {
+    await tg("answerCallbackQuery", { callback_query_id: cb.id ?? "" });
+    const tgId = cb.from?.id;
+    if (tgId) {
+      const count = joinedCount(tgId);
+      const remaining = Math.max(0, REFERRAL_TARGET - count);
+      await reply(
+        chatId,
+        [
+          "📊 پیشرفت دعوت‌های تو:",
+          `🤝 ${count} از ${REFERRAL_TARGET} دعوت موفق`,
+          remaining > 0 ? `⏳ ${remaining} نفر مونده تا چک‌لیست ویژهٔ ۳۰ روزه` : "✅ پاداشت کامل شده!",
+          "",
+          `لینک اختصاصیت: ${referralLink(tgId)}`,
+          "",
+          "دوستت با این لینک بیاد تو ربات و عضو کانال بشه، برای تو شمرده می‌شه.",
+        ].join("\n"),
+      );
+    }
+    return;
+  }
 
   // گیت دانلود: بررسی مجدد عضویت بعد از عضویت در کانال
   if (data.startsWith("dlvre_")) {
