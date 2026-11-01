@@ -59,3 +59,7 @@ tool-results/
 
 # telegram bot secrets (never commit)
 scripts/telegram-token.txt
+
+# never commit cookies / pipeline outputs
+scripts/video-pipeline/cookies.txt
+scripts/video-pipeline/out/

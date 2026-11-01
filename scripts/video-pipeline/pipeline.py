@@ -188,6 +188,8 @@ def main():
     ap.add_argument("--no-burn", action="store_true", help="زیرنویس را روی ویدیو نچسبان (فقط srt و پست)")
     ap.add_argument("--cookies", help="فایل cookies.txt مرورگر برای دور زدن محدودیت یوتیوب")
     ap.add_argument("--download-only", action="store_true", help="فقط دانلود — ادامهٔ کار بعداً/بعداً")
+    ap.add_argument("--from-srt", action="store_true",
+                    help="بدون دانلود مجدد — ادامه از source.mp4 و en.srt موجود در پوشهٔ خروجی")
     args = ap.parse_args()
 
     vid = video_id(args.url)
@@ -197,14 +199,32 @@ def main():
     print(f"\n🎬 پایپ‌لاین تک‌راه — ویدیو: {vid}")
     print(f"   پوشهٔ خروجی: {outdir}\n")
 
-    print("۱) دانلود ویدیو و زیرنویس انگلیسی")
-    video, meta, en_srt = download(args.url, outdir, args.cookies)
-    en_srt = en_srt.rename(outdir / "en.srt")
-    print(f"   ✔ {video.name} — «{meta.get('title', '?')}»")
-    if args.download_only:
-        print(f"   ✅ حالت download-only — فایل‌ها در: {outdir}")
-        print("   (برای ادامهٔ ترجمه و ساخت ویدیو، همین پوشه را برای من بفرست)")
-        return
+    if args.from_srt:
+        video = outdir / "source.mp4"
+        en_srt = outdir / "en.srt"
+        if not video.exists() or not en_srt.exists():
+            print("\n❌ حالت --from-srt به source.mp4 و en.srt در پوشهٔ خروجی نیاز دارد")
+            sys.exit(1)
+        meta = {}
+        info_file = outdir / "source.info.json"
+        if info_file.exists():
+            raw = json.loads(info_file.read_text(encoding="utf-8"))
+            meta = {
+                "title": raw.get("title") or video.stem,
+                "channel": raw.get("channel") or raw.get("uploader") or "",
+                "url": raw.get("webpage_url") or args.url,
+                "duration": raw.get("duration") or 0,
+            }
+        print(f"۱) ادامه از فایل‌های موجود — «{meta.get('title', '?')}»")
+    else:
+        print("۱) دانلود ویدیو و زیرنویس انگلیسی")
+        video, meta, en_srt = download(args.url, outdir, args.cookies)
+        en_srt = en_srt.rename(outdir / "en.srt")
+        print(f"   ✔ {video.name} — «{meta.get('title', '?')}»")
+        if args.download_only:
+            print(f"   ✅ حالت download-only — فایل‌ها در: {outdir}")
+            print("   (برای ادامهٔ ترجمه و ساخت ویدیو، همین پوشه را برای من بفرست)")
+            return
     print()
 
     if args.limit_seconds:

@@ -17,6 +17,23 @@ pip install yt-dlp arabic-reshaper python-bidi
 # ffmpeg (نسخهٔ ۵ به بالا) و node (برای ترجمه) نصب باشند
 ```
 
+### مهم: JS Runtime برای دانلود از یوتیوب (deno)
+
+yt-dlp برای حل چالش n-challenge یوتیوب به یک JS runtime نیاز دارد؛ بدون آن
+خطای «Only images are available» می‌گیری. بهترین گزینه **deno** است:
+
+```bash
+# لینوکس x86_64 — باینری مستقیم:
+curl -sL -o /tmp/deno.zip \
+  "https://github.com/denoland/deno/releases/latest/download/deno-x86_64-unknown-linux-gnu.zip"
+unzip -o -q /tmp/deno.zip -d ~/.local/bin && chmod +x ~/.local/bin/deno
+export PATH="$HOME/.local/bin:$PATH"   # موقع اجرای pipeline.py لازم است
+```
+
+اگر کوکی هم لازم شد (خط «Sign in to confirm you're not a bot»): با افزونهٔ
+Get cookies.txt LOCALLY فایل بگیر و با `--cookies` بده. هرگز فایل کوکی را
+کامیت نکن (در .gitignore هست).
+
 ## استفاده
 
 ```bash
