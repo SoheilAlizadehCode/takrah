@@ -673,7 +673,7 @@ Agent: main (سشن جاری)
 Task: تعویض ربات گیت دانلود به ربات جدید BotFather بعد از اینکه محدودیت ربات اول پابرجا ماند (t.me سالم بود ولی اپ پاپ‌آپ پورن می‌داد → محدودیت سرور-ساید پابرجا؛ کاربر توکن ربات جدید داد)
 
 Work Log:
-- توکن جدید: 8887827849:AAEvYZ6l_... → getMe: @TakrahTop_support_bot «تک‌راه | جستجو و دانلود»
+- توکن جدید: توکن-فقط-در-env → getMe: @TakrahTop_support_bot «تک‌راه | جستجو و دانلود»
 - getChatMember جدید روی @takrahTop = "member list is inaccessible" → ربات جدید هنوز ادمین کانال نیست (اقدام کاربر)
 - vercel CLI در سندباکس نیست → توکن طبق الگوی GOOGLE_CLIENT_ID متمرکز شد: botToken() اکسپورت در student-gate.ts (اولویت TELEGRAM_BOT_TOKEN_V2 → هاردکد) و route.ts + setup/route.ts از همان می‌خوانند (env قدیمی TELEGRAM_BOT_TOKEN با توکن مرده عملاً بی‌اثر شد)
 - سواپ یوزرنیم در ۴ نقطه: GATE_BOT_USERNAME، download-gate.tsx BOT_USERNAME، site.ts telegramBot، bot-search.ts BOT_USERNAME

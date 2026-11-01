@@ -3,7 +3,11 @@
 // سناریو ۲: کد معتبر برای nonceA + body nonceB (متفاوت) → انتظار: bad_code (401) = رفتار stale فعلی
 const crypto = require("crypto");
 
-const TOKEN = "***REMOVED-LEAKED-TOKEN***";
+const TOKEN = process.env.TELEGRAM_BOT_TOKEN_V2;
+if (!TOKEN) {
+  console.error("متغیر TELEGRAM_BOT_TOKEN_V2 ست نشده — توکن به‌دلیل لو رفتن قبلی، دیگر در کد نوشته نمی‌شود.");
+  process.exit(1);
+}
 const secret = crypto.createHash("sha256").update(`${TOKEN}:student-gate-v1`).digest();
 const hmacHex = (d) => crypto.createHmac("sha256", secret).update(d).digest("hex");
 

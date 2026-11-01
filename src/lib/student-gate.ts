@@ -25,12 +25,12 @@ export const GOOGLE_CLIENT_ID: string =
   "383016294506-ota4k2ojrccbtkmtg06hu1ir76mfkonv.apps.googleusercontent.com";
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
-/** توکن بات — ربات جایگزین بعد از محدودیت ناعادلانه تلگرام روی @TakrahTop_bot (اپیل ادامه دارد).
- *  اولویت: متغیر TELEGRAM_BOT_TOKEN_V2 در Vercel → مقدار هاردکد فعلی (الگوی GOOGLE_CLIENT_ID).
- *  تعویض آینده توکن فقط همین یک خط — gateSecret هم از همین مشتق می‌شود (کوکی‌ها ریست می‌شوند). */
+/** توکن بات — فقط از متغیر محیطی می‌آید و هرگز در کد/گیت هاردکد نمی‌شود.
+ *  (توکن قبلی چون در همین فایل کامیت شده بود از ریپوی پابلیک لو رفت و ربات هک شد!)
+ *  مقدار را در Vercel → Settings → Environment Variables → TELEGRAM_BOT_TOKEN_V2 بگذار.
+ *  تعویض توکن = همین متغیر — gateSecret هم از توکن مشتق می‌شود (کوکی‌های گیت ریست می‌شوند). */
 export function botToken(): string {
-  return process.env.TELEGRAM_BOT_TOKEN_V2 ??
-    "***REMOVED-LEAKED-TOKEN***";
+  return process.env.TELEGRAM_BOT_TOKEN_V2 ?? "";
 }
 
 /** کلید امضای گیت — از توکن بات مشتق می‌شود (هرگز سمت کلاینت نیست). */

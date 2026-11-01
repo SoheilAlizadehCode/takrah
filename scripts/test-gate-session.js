@@ -2,7 +2,11 @@
 // استفاده: node scripts/test-gate-session.js
 const crypto = require("crypto");
 
-const TOKEN = "***REMOVED-LEAKED-TOKEN***";
+const TOKEN = process.env.TELEGRAM_BOT_TOKEN_V2;
+if (!TOKEN) {
+  console.error("متغیر TELEGRAM_BOT_TOKEN_V2 ست نشده — توکن به‌دلیل لو رفتن قبلی، دیگر در کد نوشته نمی‌شود.");
+  process.exit(1);
+}
 const COOKIE_NAME = "tk_student";
 const BASE = "https://takrah.top/student/download";
 
