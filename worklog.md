@@ -857,3 +857,9 @@ Verification:
 Stage Summary:
 - EN and FA navbars now visually identical except student; switch always first; GA can now measure language_switch as key event
 - next steps: translate /packages page to EN, add EN search index (EN_ARTICLE data), EN covers with English text
+
+## 2026-11-01 — بستن پروندهٔ هک ربات
+- بیو آلودهٔ هکر فقط روی پیش‌فرض نبود: روی ۶ زبان (en/ru/de/fr/es/uk) ست شده بود و کلاینت انگلیسی‌زبان نسخهٔ en را نشان می‌داد
+- فیکس: setMyShortDescription با language_code برای هر ۶ زبان + اسکن ۵۳ زبان با scripts/clean-bot-bios.sh → همه ✅ clean (وریفای API)
+- کاربر تأیید کرد: بیو درست شد + ورود دو مرحله‌ای (2FA) تلگرام فعال شد
+- پروندهٔ هک بسته؛ باقی‌مانده: پست هشدار کانال، ۳ لینک افیلیت
