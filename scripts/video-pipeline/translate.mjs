@@ -166,6 +166,43 @@ async function makePost(inPath, videoTitle, outPath) {
   console.log(`  💾 متن پست ذخیره شد: ${outPath}`);
 }
 
+// ─── حالت fix: دوباره‌ترجمهٔ فقط خطوط ترجمه‌نشده (انگلیسی‌مانده) ───
+
+function latinRatio(s) {
+  const letters = [...s].filter((c) => /[a-zA-Z]/.test(c));
+  if (letters.length === 0) return 0;
+  return letters.length / [...s.replace(/\s/g, "")].length;
+}
+
+async function fixSubs(enPath, faPath) {
+  const en = parseSrt(fs.readFileSync(enPath, "utf8"));
+  const fa = parseSrt(fs.readFileSync(faPath, "utf8"));
+  if (en.length !== fa.length) throw new Error(`تعداد خطوط en (${en.length}) و fa (${fa.length}) برابر نیست`);
+  const bad = [];
+  for (let i = 0; i < fa.length; i++) {
+    // معیار: بیش از نصف کاراکترهای غیرفاصله لاتین باشند (اصطلاح‌های فنی مثل ChatGPT زیر ۵۰٪ می‌مانند)
+    if (latinRatio(fa[i].text) > 0.5) bad.push(i);
+  }
+  console.log(`  🔍 ${bad.length} خط ترجمه‌نشده پیدا شد: ${bad.map((i) => i + 1).join(", ") || "—"}`);
+  if (bad.length === 0) return;
+
+  const zai = await ZAI.create();
+  const payload = Object.fromEntries(bad.map((i) => [String(i), en[i].text]));
+  const raw = await ask(zai, SYS_TRANSLATE, JSON.stringify(payload));
+  const translated = extractJson(raw);
+  let fixed = 0;
+  for (const key of Object.keys(translated)) {
+    const i = Number(key);
+    if (bad.includes(i) && typeof translated[key] === "string" && translated[key].trim()) {
+      fa[i].text = translated[key].trim();
+      fixed++;
+      console.log(`  ✅ #${i + 1}: ${fa[i].text}`);
+    }
+  }
+  fs.writeFileSync(faPath, writeSrt(fa), "utf8");
+  console.log(`  💾 ${fixed} خط اصلاح شد → ${faPath}`);
+}
+
 // ─── اجرا ───
 
 const [, , mode, ...rest] = process.argv;
@@ -174,8 +211,10 @@ try {
     await translateSubs(rest[0], rest[1]);
   } else if (mode === "post") {
     await makePost(rest[0], rest[1], rest[2]);
+  } else if (mode === "fix") {
+    await fixSubs(rest[0], rest[1]);
   } else {
-    console.error("حالت نامعتبر — از subs یا post استفاده کن");
+    console.error("حالت نامعتبر — از subs / post / fix استفاده کن");
     process.exit(1);
   }
 } catch (err) {
