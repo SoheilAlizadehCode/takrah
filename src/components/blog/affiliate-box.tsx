@@ -46,6 +46,7 @@ export function AffiliateBox({
               href={p.url}
               event="affiliate_click"
               params={{ partner: p.id, article: articleSlug, location }}
+              rel="sponsored nofollow noopener"
               className="mt-3 inline-flex items-center justify-center rounded-lg bg-primary px-3 py-2 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
             >
               ثبت‌نام با لینک دعوت

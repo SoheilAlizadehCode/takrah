@@ -55,3 +55,53 @@ export const AFFILIATE_BOX_SLUGS: string[] = [
   "best-iranian-crypto-exchanges",
   "affiliate-marketing-guide",
 ];
+
+/* ------------------------------------------------------------------ */
+/* افیلیو (پلتفرم افیلیت ایرانی) — دیجی‌کالا و اسنپ‌شاپ، کمیسیون تومانی */
+/* ------------------------------------------------------------------ */
+
+export type AffiliateStore = "digikala" | "snappshop";
+
+/** نام نمایشی و متن دکمهٔ هر فروشگاه */
+export const AFFILIATE_STORES: Record<AffiliateStore, { name: string; cta: string }> = {
+  digikala: { name: "دیجی‌کالا", cta: "مشاهدهٔ قیمت در دیجی‌کالا" },
+  snappshop: { name: "اسنپ‌شاپ", cta: "مشاهدهٔ قیمت در اسنپ‌شاپ" },
+};
+
+/**
+ * محصول‌های افیلیت — لینک کوتاه (aflo.ir/…) از پنل افیلیو ساخته می‌شود
+ * (پنل → کارت فروشگاه → «افیلیت لینک‌ها» → پیست‌کردن URL محصول).
+ * هر کلیک با affiliate_click ثبت می‌شود: partner = فروشگاه، item = همین id.
+ * قیمت‌ها نمایشی‌اند و باید هر چند هفته دستی آپدیت شوند.
+ */
+export type AffiliateProduct = {
+  /** شناسهٔ یکتا — در GA4 به‌عنوان item ثبت می‌شود، مثلا laptop-lenovo-loq-15 */
+  id: string;
+  store: AffiliateStore;
+  /** نام نمایشی محصول */
+  title: string;
+  /** یک خط مشخصهٔ کلیدی برای مقایسه */
+  spec?: string;
+  /** قیمت نمایشی (اختیاری) */
+  price?: string;
+  /** لینک کوتاه افیلیو — از پنل ناشر */
+  url: string;
+};
+
+export const AFFILIATE_PRODUCTS: AffiliateProduct[] = [
+  // لینک‌ها از پنل افیلیو ساخته می‌شوند و اینجا اضافه می‌شوند.
+  // نمونهٔ ساختار:
+  // {
+  //   id: "laptop-lenovo-loq-15-rtx4060",
+  //   store: "digikala",
+  //   title: "لپ‌تاپ لنوو LOQ 15 — RTX 4060",
+  //   spec: "Core i5-12450HX | 16GB | SSD 512GB | 144Hz",
+  //   url: "https://aflo.ir/xxxx",
+  // },
+];
+
+/**
+ * نقشهٔ مقاله → ترتیب نمایش محصول‌ها (با id محصول).
+ * کلید = slug مقاله فارسی؛ باکس فقط برای این مقاله‌ها رندر می‌شود.
+ */
+export const PRODUCT_BOX_SLUGS: Record<string, string[]> = {};

@@ -10,6 +10,7 @@ import { toFaDigits } from "@/lib/format";
 import { CategoryIcon } from "./category-icon";
 import { AdSlot } from "./ad-slot";
 import { AffiliateBox } from "./affiliate-box";
+import { ProductAffiliateBox } from "./product-affiliate-box";
 import { ChannelJoinBox } from "./channel-join-box";
 import { AFFILIATE_BOX_SLUGS } from "@/data/affiliates";
 import { PackageCtaBox } from "./package-cta-box";
@@ -281,6 +282,9 @@ export function ArticleView({ article }: { article: Article }) {
             {AFFILIATE_BOX_SLUGS.includes(article.slug) && (
               <AffiliateBox articleSlug={article.slug} />
             )}
+
+            {/* باکس محصول‌های افیلیو (دیجی‌کالا/اسنپ‌شاپ) — فقط مقاله‌های دارای محصول */}
+            <ProductAffiliateBox articleSlug={article.slug} />
 
             {/* باکس عضویت کانال تلگرام — انتهای همهٔ مقاله‌ها */}
             <ChannelJoinBox variant="full" articleSlug={article.slug} />

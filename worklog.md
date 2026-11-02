@@ -863,3 +863,10 @@ Stage Summary:
 - فیکس: setMyShortDescription با language_code برای هر ۶ زبان + اسکن ۵۳ زبان با scripts/clean-bot-bios.sh → همه ✅ clean (وریفای API)
 - کاربر تأیید کرد: بیو درست شد + ورود دو مرحله‌ای (2FA) تلگرام فعال شد
 - پروندهٔ هک بسته؛ باقی‌مانده: پست هشدار کانال، ۳ لینک افیلیت
+
+## 2026-11-03 — افیلیو (دیجی‌کالا + اسنپ‌شاپ) به زیرساخت افیلیت اضافه شد
+- کاربر در پنل افیلیو دیجی‌کالا (تا ۷.۶۷٪) و اسنپ‌شاپ (تا ۷.۱۰٪) فعال دارد — تسویه روزانه، تومانی
+- affiliates.ts: AffiliateProduct/AFFILIATE_STORES/AFFILIATE_PRODUCTS/PRODUCT_BOX_SLUGS
+- کامپوننت product-affiliate-box.tsx (RTL) + رندر در article-view + rel="sponsored nofollow" در TrackedLink
+- GA4 affiliate_click: partner=digikala|snappshop, item=شناسه محصول, article, location
+- باکس تا ثبت محصول در PRODUCT_BOX_SLUGS هیچ‌جا رندر نمی‌شود (امن برای دیپلوی)
