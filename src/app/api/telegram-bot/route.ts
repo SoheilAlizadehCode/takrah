@@ -21,7 +21,11 @@ import {
   joinedCount,
   markJoined,
   markRewarded,
+  monthlyJoinedCount,
+  monthlyLeaderboard,
+  monthlyRank,
   recordReferral,
+  rememberUser,
 } from "@/lib/referral-store";
 import { articles } from "@/data";
 
@@ -55,6 +59,66 @@ const PACK_CAPTION = [
 
 function referralLink(tgId: number): string {
   return `https://t.me/${BOT_USERNAME}?start=r${tgId}`;
+}
+
+/** جایزهٔ مسابقهٔ دعوت — صاحب سایت می‌تواند متنش را هر ماه عوض کند */
+const COMPETITION_PRIZE =
+  "پست معرفی اختصاصی (کانال/پیج/کسب‌وکار تو) در @takrahTop + پک پرامپت ویژه";
+
+/** متن جدول امتیاز مسابقهٔ دعوت */
+function leaderboardText(tgId?: number): string {
+  const board = monthlyLeaderboard(10);
+  const lines: string[] = ["🏆 جدول امتیاز مسابقهٔ دعوت — این ماه", ""];
+  if (board.length === 0) {
+    lines.push("هنوز امتیازی ثبت نشده — اولین نفر باش! 🚀");
+  } else {
+    board.forEach((row, i) => {
+      const medal = (["🥇", "🥈", "🥉"] as const)[i] ?? `${i + 1}.`;
+      lines.push(`${medal} ${row.name} — ${row.count} دعوت`);
+    });
+  }
+  if (tgId) {
+    const my = monthlyJoinedCount(tgId);
+    const rank = monthlyRank(tgId);
+    lines.push(
+      "",
+      rank ? `📍 تو: رتبهٔ ${rank} با ${my} امتیاز` : "📍 تو هنوز امتیاز این ماه نداری — با اولین دعوت وارد مسابقه شو!",
+    );
+  }
+  lines.push("", `🎁 جایزهٔ نفر اول: ${COMPETITION_PRIZE}`);
+  return lines.join("\n");
+}
+
+/** مسابقهٔ دعوت — /invite */
+async function sendInviteCompetition(chatId: number | string, tgId: number | undefined): Promise<void> {
+  if (!tgId) {
+    await reply(chatId, "برای گرفتن لینک دعوت اختصاصی، اول /start را بزن 🙏");
+    return;
+  }
+  const my = monthlyJoinedCount(tgId);
+  const rank = monthlyRank(tgId);
+  const total = joinedCount(tgId);
+  const remaining = Math.max(0, REFERRAL_TARGET - total);
+  await reply(
+    chatId,
+    [
+      "🏆 مسابقهٔ دعوت تک‌راه — این ماه",
+      "",
+      "هر دوستی که با لینک اختصاصیت وارد ربات بشه و عضو کانال بشه، ۱ امتیاز برای تو ثبت می‌شه.",
+      `🎁 جایزهٔ نفر اول ماه: ${COMPETITION_PRIZE}`,
+      "",
+      rank ? `📊 امتیاز این ماهت: ${my} — رتبهٔ ${rank}` : `📊 امتیاز این ماهت: ${my} — هنوز رتبه‌ای نداری، اولین دعوت رو بزن!`,
+      total >= REFERRAL_TARGET
+        ? "✅ چک‌لیست ویژهٔ ۳۰ روزه رو هم قبلاً گرفتی!"
+        : `⏳ یادآوری: با هر ${REFERRAL_TARGET} دعوت موفق (مجموع)، چک‌لیست ویژهٔ ۳۰ روزه هم مال توئه — ${remaining} نفر مونده.`,
+    ].join("\n"),
+    {
+      inline_keyboard: [
+        [{ text: "🤝 لینک دعوت اختصاصی من", url: referralLink(tgId) }],
+        [{ text: "🏆 جدول امتیاز", callback_data: "comp" }],
+      ],
+    },
+  );
 }
 
 type Keyboard = { inline_keyboard: { text: string; url?: string; callback_data?: string }[][] };
@@ -280,12 +344,15 @@ async function maybeRewardInviter(inviter: number): Promise<void> {
 
 async function handleMessage(message: {
   chat?: { id?: number | string };
-  from?: { id?: number };
+  from?: { id?: number; first_name?: string };
   text?: string;
 }): Promise<void> {
   const chatId = message.chat?.id;
   const text = (message.text || "").trim();
   if (!chatId || !text) return;
+
+  // اسم نمایشی برای جدول امتیاز مسابقه (فقط نام کوچک تلگرام)
+  if (message.from?.id) rememberUser(message.from.id, message.from.first_name);
 
   if (text.startsWith("/start")) {
     // deep link: /start ref_<slug> — از اشتراک‌گذاری مقاله
@@ -342,17 +409,38 @@ async function handleMessage(message: {
     return;
   }
 
+  if (text.startsWith("/invite")) {
+    await sendInviteCompetition(chatId, message.from?.id);
+    return;
+  }
+
+  if (text.startsWith("/leaderboard") || text.startsWith("/comp")) {
+    const tgId = message.from?.id;
+    await reply(
+      chatId,
+      leaderboardText(tgId),
+      tgId
+        ? {
+            inline_keyboard: [[{ text: "🤝 لینک دعوت اختصاصی من", url: referralLink(tgId) }]],
+          }
+        : undefined,
+    );
+    return;
+  }
+
   if (text.startsWith("/my")) {
     const tgId = message.from?.id;
     if (tgId) {
       const count = joinedCount(tgId);
       const remaining = Math.max(0, REFERRAL_TARGET - count);
+      const my = monthlyJoinedCount(tgId);
       await reply(
         chatId,
         [
           "📊 پیشرفت دعوت‌های تو:",
           `🤝 ${count} از ${REFERRAL_TARGET} دعوت موفق`,
           remaining > 0 ? `⏳ ${remaining} نفر مونده تا چک‌لیست ویژهٔ ۳۰ روزه` : "✅ پاداشت کامل شده!",
+          `🏆 امتیاز مسابقهٔ این ماه: ${my} — جدول کامل: /leaderboard`,
           "",
           `لینک اختصاصیت: ${referralLink(tgId)}`,
         ].join("\n"),
@@ -374,7 +462,7 @@ async function handleMessage(message: {
 
 async function handleCallback(cb: {
   id?: string;
-  from?: { id?: number };
+  from?: { id?: number; first_name?: string };
   message?: { chat?: { id?: number | string } };
   data?: string;
 }): Promise<void> {
@@ -396,6 +484,7 @@ async function handleCallback(cb: {
   if (data === "refs") {
     await tg("answerCallbackQuery", { callback_query_id: cb.id ?? "" });
     const tgId = cb.from?.id;
+    if (tgId) rememberUser(tgId, cb.from?.first_name);
     if (tgId) {
       const count = joinedCount(tgId);
       const remaining = Math.max(0, REFERRAL_TARGET - count);
@@ -412,6 +501,23 @@ async function handleCallback(cb: {
         ].join("\n"),
       );
     }
+    return;
+  }
+
+  // مسابقهٔ دعوت — جدول امتیاز
+  if (data === "comp") {
+    await tg("answerCallbackQuery", { callback_query_id: cb.id ?? "" });
+    const tgId = cb.from?.id;
+    if (tgId) rememberUser(tgId, cb.from?.first_name);
+    await reply(
+      chatId,
+      leaderboardText(tgId),
+      tgId
+        ? {
+            inline_keyboard: [[{ text: "🤝 لینک دعوت اختصاصی من", url: referralLink(tgId) }]],
+          }
+        : undefined,
+    );
     return;
   }
 
@@ -454,7 +560,7 @@ export async function POST(req: NextRequest) {
     message?: Parameters<typeof handleMessage>[0];
     callback_query?: {
       id?: string;
-      from?: { id?: number };
+      from?: { id?: number; first_name?: string };
       data?: string;
       message?: { chat?: { id?: number | string } };
     };

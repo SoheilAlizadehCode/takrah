@@ -870,3 +870,8 @@ Stage Summary:
 - کامپوننت product-affiliate-box.tsx (RTL) + رندر در article-view + rel="sponsored nofollow" در TrackedLink
 - GA4 affiliate_click: partner=digikala|snappshop, item=شناسه محصول, article, location
 - باکس تا ثبت محصول در PRODUCT_BOX_SLUGS هیچ‌جا رندر نمی‌شود (امن برای دیپلوی)
+
+## 2026-11-03 — مسابقهٔ دعوت ربات + اسکریپت یکتانت
+- referral-store: فال‌بک حافظه برای فایل‌سیستم فقط‌خواندنی ورسل + اسم کاربران + امتیاز/جدول/رتبهٔ ماهانه (کلید ماه به وقت تهران)
+- ربات: /invite و /leaderboard (و /comp) + دکمهٔ «🏆 مسابقهٔ دعوت دوستان» در کیبورد اصلی + خط امتیاز ماه در /my؛ جایزه: پست معرفی اختصاصی در کانال
+- layout.tsx: اسکریپت رویدادنگار یکتانت (ua-script-FXwLxZRJ) به‌عنوان اولین اسکریپت بدنه نصب شد
