@@ -875,3 +875,9 @@ Stage Summary:
 - referral-store: فال‌بک حافظه برای فایل‌سیستم فقط‌خواندنی ورسل + اسم کاربران + امتیاز/جدول/رتبهٔ ماهانه (کلید ماه به وقت تهران)
 - ربات: /invite و /leaderboard (و /comp) + دکمهٔ «🏆 مسابقهٔ دعوت دوستان» در کیبورد اصلی + خط امتیاز ماه در /my؛ جایزه: پست معرفی اختصاصی در کانال
 - layout.tsx: اسکریپت رویدادنگار یکتانت (ua-script-FXwLxZRJ) به‌عنوان اولین اسکریپت بدنه نصب شد
+
+## 2026-11-03 — محصولات لپ‌تاپ اسنپ‌شاپ در باکس افیلیو
+- ۶ لینک کوتاه aflo.ir کاربر تست شد (302 → publisher.affilio.ir/click → snappshop.ir/product/snp-XXX) — همه سالم
+- AFFILIATE_PRODUCTS: LOQ 15 / TUF Gaming / Victus 15 / IdeaPad Slim 5 / VivoBook 16 / MacBook Air (همه snappshop — دیجی‌کالا این دسته را نداشت)
+- PRODUCT_BOX_SLUGS → ai-video-income, ai-image-generators-comparison (گیمینگ‌ها)، make-money-with-ai (طیف بودجه)، learn-ai-from-zero (اقتصادی/سبک)
+- وریفای بیلد: باکس در ۴ مقالهٔ هدف رندر شد؛ مقالهٔ خارج از نقشه صفر باکس

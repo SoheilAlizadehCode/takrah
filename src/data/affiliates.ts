@@ -89,19 +89,83 @@ export type AffiliateProduct = {
 };
 
 export const AFFILIATE_PRODUCTS: AffiliateProduct[] = [
-  // لینک‌ها از پنل افیلیو ساخته می‌شوند و اینجا اضافه می‌شوند.
-  // نمونهٔ ساختار:
-  // {
-  //   id: "laptop-lenovo-loq-15-rtx4060",
-  //   store: "digikala",
-  //   title: "لپ‌تاپ لنوو LOQ 15 — RTX 4060",
-  //   spec: "Core i5-12450HX | 16GB | SSD 512GB | 144Hz",
-  //   url: "https://aflo.ir/xxxx",
-  // },
+  // ── لپ‌تاپ‌های اسنپ‌شاپ (لینک‌های کوتاه افیلیو؛ تست‌شده ۱۴۰۵/۸/۱۲) ──
+  // همهٔ محصولات فعلی از اسنپ‌شاپ هستند (دیجی‌کالا این دسته را در پنل نداشت).
+  {
+    id: "laptop-lenovo-loq-15",
+    store: "snappshop",
+    title: "لپ‌تاپ لنوو LOQ 15",
+    spec: "سری گیمینگ اقتصادی لنوو — انتخاب اول برای تدوین ویدیو و کارهای سنگین",
+    url: "https://aflo.ir/QIWK4yV9m9",
+  },
+  {
+    id: "laptop-asus-tuf-gaming",
+    store: "snappshop",
+    title: "لپ‌تاپ ایسوس TUF Gaming",
+    spec: "بدنهٔ مقاوم و خنک‌کاری قوی — مناسب رندر و اجرای مدل‌های محلی AI",
+    url: "https://aflo.ir/QFuWJO95Zr",
+  },
+  {
+    id: "laptop-hp-victus-15",
+    store: "snappshop",
+    title: "لپ‌تاپ اچ‌پی Victus 15",
+    spec: "گیمینگ اقتصادی اچ‌پی با گرافیک قدرتمند برای کار خلاقانه",
+    url: "https://aflo.ir/QFWDdh5Z3z",
+  },
+  {
+    id: "laptop-lenovo-ideapad-slim-5",
+    store: "snappshop",
+    title: "لپ‌تاپ لنوو IdeaPad Slim 5",
+    spec: "سبک و کم‌مصرف — مناسب شروع یادگیری AI و کارهای روزمره",
+    url: "https://aflo.ir/TDZdhGaMRl",
+  },
+  {
+    id: "laptop-asus-vivobook-16",
+    store: "snappshop",
+    title: "لپ‌تاپ ایسوس VivoBook 16",
+    spec: "نمایشگر بزرگ ۱۶ اینچی برای محتوا، چندکار همزمان و راحتی چشم",
+    url: "https://aflo.ir/Yfvc6nkcNN",
+  },
+  {
+    id: "laptop-apple-macbook-air",
+    store: "snappshop",
+    title: "لپ‌تاپ اپل MacBook Air",
+    spec: "سبک با باتری طولانی — محبوب فریلنسرها و تولیدکنندگان محتوا",
+    url: "https://aflo.ir/Gdx8La3ikM",
+  },
 ];
 
 /**
  * نقشهٔ مقاله → ترتیب نمایش محصول‌ها (با id محصول).
  * کلید = slug مقاله فارسی؛ باکس فقط برای این مقاله‌ها رندر می‌شود.
+ *
+ * منطق انتخاب:
+ *  - ai-video-income / ai-image-generators-comparison → کار سنگین GPU → گیمینگ‌ها
+ *  - make-money-with-ai → طیف بودجه کامل (گیمینگ + اقتصادی + مک)
+ *  - learn-ai-from-zero → شروع‌کننده‌ها → اقتصادی و سبک
  */
-export const PRODUCT_BOX_SLUGS: Record<string, string[]> = {};
+export const PRODUCT_BOX_SLUGS: Record<string, string[]> = {
+  "ai-video-income": [
+    "laptop-lenovo-loq-15",
+    "laptop-asus-tuf-gaming",
+    "laptop-hp-victus-15",
+    "laptop-apple-macbook-air",
+  ],
+  "ai-image-generators-comparison": [
+    "laptop-lenovo-loq-15",
+    "laptop-asus-tuf-gaming",
+    "laptop-hp-victus-15",
+    "laptop-lenovo-ideapad-slim-5",
+  ],
+  "make-money-with-ai": [
+    "laptop-lenovo-loq-15",
+    "laptop-asus-vivobook-16",
+    "laptop-lenovo-ideapad-slim-5",
+    "laptop-apple-macbook-air",
+  ],
+  "learn-ai-from-zero": [
+    "laptop-lenovo-ideapad-slim-5",
+    "laptop-asus-vivobook-16",
+    "laptop-apple-macbook-air",
+  ],
+};
