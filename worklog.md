@@ -881,3 +881,8 @@ Stage Summary:
 - AFFILIATE_PRODUCTS: LOQ 15 / TUF Gaming / Victus 15 / IdeaPad Slim 5 / VivoBook 16 / MacBook Air (همه snappshop — دیجی‌کالا این دسته را نداشت)
 - PRODUCT_BOX_SLUGS → ai-video-income, ai-image-generators-comparison (گیمینگ‌ها)، make-money-with-ai (طیف بودجه)، learn-ai-from-zero (اقتصادی/سبک)
 - وریفای بیلد: باکس در ۴ مقالهٔ هدف رندر شد؛ مقالهٔ خارج از نقشه صفر باکس
+
+## 2026-11-03 — جادگانهٔ نیتیو یکتانت (native-49155)
+- کد جادگانهٔ هوشمند (superscript-v2/q5hLRjbH/yn_pub.js) سراسری در layout.tsx بعد از رویدادنگار نصب شد
+- نوع جانمایی در پنل کاربر تعیین می‌شود (توصیه: ثابت پایین + میان مطلب تصویری تکرارشونده)؛ اسکریپت خودش جای رندر را پیدا می‌کند
+- واحد دوم در صورت ساخت، زیر همین در layout اضافه می‌شود

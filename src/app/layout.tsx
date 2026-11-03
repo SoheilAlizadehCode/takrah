@@ -153,6 +153,35 @@ export default function RootLayout({
             `,
           }}
         />
+        {/* ─── یکتانت (جادگانهٔ نیتیو) — واحد native-49155 / q5hLRjbH ───
+            جانمایی «جادگانه هوشمند» است: نوعش (ثابت پایین / میان مطلب تکرارشونده)
+            در پنل یکتانت تعیین شده و همین اسکریپت سراسری خودش جای رندر را پیدا می‌کند.
+            واحد دوم اگر ساخته شد، اسکریپت جداگانه‌ای دارد و زیر همین اضافه می‌شود. */}
+        <script
+          id="yektanet-native-49155"
+          dangerouslySetInnerHTML={{
+            __html: `
+              !function(e,t,n){
+                  e.yektanetAnalyticsObject=n,
+                  e[n]=e[n]||function(){e[n].q.push(arguments)},
+                  e[n].q=e[n].q||[];
+                  var a=t.getElementsByTagName("head")[0],
+                      r=new Date,
+                      c="https://cdn.yektanet.com/superscript-v2/q5hLRjbH/native-49155/yn_pub.js?v="
+                          +r.getFullYear().toString()+"0"+r.getMonth()+"0"+r.getDate()+"0"+r.getHours(),
+                      s=t.createElement("link");
+                  s.rel="preload",
+                  s.as="script",
+                  s.href=c,
+                  a.appendChild(s);
+                  var l=t.createElement("script");
+                  l.async=!0,
+                  l.src=c,
+                  a.appendChild(l);
+              }(window,document,"yektanet");
+            `,
+          }}
+        />
         {/* ─── گوگل آنالیتیکس ۴ (فقط وقتی NEXT_PUBLIC_GA_ID تنظیم شده باشد) ─── */}
         {gaId ? (
           <>
