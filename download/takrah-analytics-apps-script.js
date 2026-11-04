@@ -21,7 +21,9 @@
  *      • بخش اول: گزارش فارسی خوانا برای خودت
  *      • بخش بین دو خط ===COPY_JSON=== را کپی کن و در چت برای من بفرست
  *
- *  محتوای منیفست (appsscript.json):
+ *  محتوای منیفست (appsscript.json) — این نسخه هر دو سرویس پیشرفته را خودش
+ *  اضافه می‌کند؛ «Search Console API» تو کاتالوگ بعضی اکانت‌ها نیست،
+ *  این راه مستقیم است:
  *  {
  *    "timeZone": "Asia/Tehran",
  *    "exceptionLogging": "STACKDRIVER",
@@ -30,7 +32,13 @@
  *      "https://www.googleapis.com/auth/analytics.readonly",
  *      "https://www.googleapis.com/auth/webmasters.readonly",
  *      "https://www.googleapis.com/auth/script.external_request"
- *    ]
+ *    ],
+ *    "dependencies": {
+ *      "enabledAdvancedServices": [
+ *        { "userSymbol": "AnalyticsData", "serviceId": "analyticsdata", "version": "v1beta" },
+ *        { "userSymbol": "SearchConsole", "serviceId": "searchconsole", "version": "v1" }
+ *      ]
+ *    }
  *  }
  */
 
@@ -84,6 +92,15 @@ function ga4Rows_(res) {
     return o;
   });
 }
+function pickRange_(rows, name) {
+  // ⚠️ با چند dateRange، ترتیب سطرها بین فراخوانی‌ها ثابت نیست —
+  // همیشه برچسب dateRange را بخوان، نه ایندکس سطر را
+  // (باگ گزارش ۱۴۰۵/۸/۱۴: دوره‌ها جابجا خوانده می‌شدند)
+  for (var i = 0; i < rows.length; i++) {
+    if (!rows[i].dateRange || rows[i].dateRange === name) return rows[i];
+  }
+  return {};
+}
 
 /* ── بخش GA4 ─────────────────────────────────────────────────── */
 
@@ -127,17 +144,18 @@ function ga4Block_() {
   }));
 
   var metrics = ["activeUsers", "newUsers", "sessions", "screenPageViews", "engagementRate", "averageSessionDuration", "keyEvents"];
+  var ovC = pickRange_(ov, "current"), ovP = pickRange_(ov, "previous");
   var overview = { current: {}, previous: {} };
   metrics.forEach(function (m) {
-    overview.current[m] = ov.length ? ov[0][m] : 0;
-    overview.previous[m] = ov.length > 1 ? ov[1][m] : 0;
+    overview.current[m] = ovC[m] || 0;
+    overview.previous[m] = ovP[m] || 0;
   });
 
   return {
     overview: overview,
     views: {
-      fa: { current: fa.length ? fa[0] : {}, previous: fa.length > 1 ? fa[1] : {} },
-      en: { current: en.length ? en[0] : {}, previous: en.length > 1 ? en[1] : {} }
+      fa: { current: pickRange_(fa, "current"), previous: pickRange_(fa, "previous") },
+      en: { current: pickRange_(en, "current"), previous: pickRange_(en, "previous") }
     },
     top_pages: pages.map(function (p) { return { path: p.pagePath, views: p.screenPageViews, users: p.activeUsers }; }),
     events: events.map(function (e) { return { name: e.eventName, count: e.eventCount }; })
