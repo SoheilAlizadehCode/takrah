@@ -13,6 +13,7 @@ import {
   Download,
   FileText,
   GraduationCap,
+  Laptop,
   Loader2,
   Lock,
   Megaphone,
@@ -22,6 +23,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { TrackedLink } from "@/components/blog/tracked-link";
+import { AFFILIATE_PRODUCTS, AFFILIATE_STORES, type AffiliateProduct } from "@/data/affiliates";
 import { siteConfig } from "@/lib/site";
 
 /* ─── ثابت‌ها و تایپ‌ها ─────────────────────────────────────────── */
@@ -71,6 +74,42 @@ const PROMOS = [
     href: `mailto:${siteConfig.email}?subject=تبلیغ در بخش دانلود تک‌راه`,
   },
 ];
+
+/**
+ * اسلایدهای باکس «تبلیغ کوتاه» مرحلهٔ ۳ — ترکیب معرفی داخلی + تبلیغ واقعی.
+ *
+ * تا وقتی گوگل ادسنس فعال نشده (adsenseClientId خالی است) و جانمایی‌های
+ * یکتانت پُر نشده‌اند، این ۱۵ ثانیه با اسلایدهای محصول افیلیو (اسنپ‌شاپ)
+ * پر می‌شود؛ یعنی همان جایی که کاربر مجبور به تماست، پول‌ساز است.
+ * هر کلیک با affiliate_click ثبت می‌شود: partner=snappshop، item=محصول،
+ * article="student-download-gate"، location="gate-step3".
+ *
+ * ترتیب اسلایدها مهم است: در ۱۵ ثانیه فقط ۳ اسلایدِ اول دیده می‌شود
+ * (هر اسلاید ۵ ثانیه)؛ پس بعد از معرفی ربات، دو محصول پول‌ساز آمده‌اند.
+ */
+type GateAdSlide =
+  | { kind: "promo"; icon: typeof Bot; title: string; text: string; cta: string; href: string }
+  | { kind: "product"; product: AffiliateProduct };
+
+const GATE_PRODUCT_IDS = [
+  "laptop-lenovo-loq-15", // گیمینگ/تدوین — پرفروش‌ترین دسته
+  "laptop-lenovo-ideapad-slim-5", // اقتصادی — مناسب دانش‌آموز/شروع
+  "laptop-apple-macbook-air", // فریلنسر/تولید محتوا
+] as const;
+
+const GATE_AD_SLIDES: GateAdSlide[] = [
+  ...PROMOS.map((p) => ({ kind: "promo" as const, icon: p.icon, title: p.title, text: p.text, cta: p.cta, href: p.href })),
+  ...GATE_PRODUCT_IDS.map(
+    (id) => AFFILIATE_PRODUCTS.find((p) => p.id === id),
+  ).filter((p): p is AffiliateProduct => Boolean(p))
+    .map((product) => ({ kind: "product" as const, product })),
+  // باقی PROMOS بعد از محصول‌ها — کانال و «محل تبلیغ شما» در دور بعدی چرخه
+  ...PROMOS.slice(1).map((p) => ({ kind: "promo" as const, icon: p.icon, title: p.title, text: p.text, cta: p.cta, href: p.href })),
+];
+
+function slideKey(s: GateAdSlide, i: number): string {
+  return s.kind === "promo" ? `promo-${s.title}-${i}` : `product-${s.product.id}`;
+}
 
 /* ─── نشانگر مراحل ──────────────────────────────────────────────── */
 
@@ -548,31 +587,63 @@ export function DownloadGate({ googleClientId, initialStep, initialUser }: GateP
               </div>
             ) : (
               <div className="min-h-[180px] p-5">
-                {PROMOS.map((p, i) => (
-                  <div key={p.title} className={i === promoIdx ? "block" : "hidden"} aria-hidden={i !== promoIdx}>
-                    <div className="flex items-start gap-4">
-                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                        <p.icon className="h-5 w-5" aria-hidden="true" />
-                      </span>
-                      <div className="min-w-0">
-                        <h3 className="text-base font-extrabold">{p.title}</h3>
-                        <p className="mt-1 text-sm leading-7 text-muted-foreground">{p.text}</p>
-                        <a
-                          href={p.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="mt-2 inline-flex items-center gap-1 text-sm font-bold text-primary hover:underline"
-                        >
-                          {p.cta}
-                          <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-                        </a>
+                {GATE_AD_SLIDES.map((slide, i) => (
+                  <div key={slideKey(slide, i)} className={i === promoIdx ? "block" : "hidden"} aria-hidden={i !== promoIdx}>
+                    {slide.kind === "promo" ? (
+                      <div className="flex items-start gap-4">
+                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                          <slide.icon className="h-5 w-5" aria-hidden="true" />
+                        </span>
+                        <div className="min-w-0">
+                          <h3 className="text-base font-extrabold">{slide.title}</h3>
+                          <p className="mt-1 text-sm leading-7 text-muted-foreground">{slide.text}</p>
+                          <a
+                            href={slide.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-2 inline-flex items-center gap-1 text-sm font-bold text-primary hover:underline"
+                          >
+                            {slide.cta}
+                            <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+                          </a>
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="flex items-start gap-4">
+                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                          <Laptop className="h-5 w-5" aria-hidden="true" />
+                        </span>
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h3 className="text-base font-extrabold">{slide.product.title}</h3>
+                            <span className="shrink-0 rounded-md bg-primary/10 px-2 py-0.5 text-[0.68rem] font-bold text-primary">
+                              {AFFILIATE_STORES[slide.product.store].name}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-sm leading-7 text-muted-foreground">{slide.product.spec}</p>
+                          <TrackedLink
+                            href={slide.product.url}
+                            event="affiliate_click"
+                            params={{
+                              partner: slide.product.store,
+                              item: slide.product.id,
+                              article: "student-download-gate",
+                              location: "gate-step3",
+                            }}
+                            rel="sponsored nofollow noopener"
+                            className="mt-2 inline-flex items-center gap-1 text-sm font-bold text-primary hover:underline"
+                          >
+                            {AFFILIATE_STORES[slide.product.store].cta}
+                            <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+                          </TrackedLink>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
                 <div className="mt-4 flex justify-center gap-1.5" aria-hidden="true">
-                  {PROMOS.map((p, i) => (
-                    <span key={p.title} className={`h-1.5 w-6 rounded-full transition-colors ${i === promoIdx ? "bg-primary" : "bg-border"}`} />
+                  {GATE_AD_SLIDES.map((slide, i) => (
+                    <span key={slideKey(slide, i)} className={`h-1.5 w-6 rounded-full transition-colors ${i === promoIdx ? "bg-primary" : "bg-border"}`} />
                   ))}
                 </div>
               </div>
