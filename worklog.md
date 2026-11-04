@@ -894,3 +894,7 @@ Stage Summary:
 - کامیت f5a60e2 پوش شد (وریفای: tsc کلین برای src، بیلد ۱۲۱ صفحه، gate-step3 در chunk بیلد)
 - آماده‌سازی گزارش‌گیری گوگل: scripts/google_auth.py (JWT سرویس‌اکانت) + scripts/ga4-report.py (نمای کلی/تفکیک fa-en/صفحات/رویدادها) + scripts/gsc-report.py (کلیک-نمایش-رتبه fa در برابر en + کوئری‌ها) — هر دو مسیر پیش‌نیاز را فارسی راهنمایی می‌کنند؛ در انتظار: فایل کلید + Property ID از کاربر
 - بررسی موقت سئو (وب‌سرچ ۵ نوامبر): سکشن /en ایندکس شده (۴۶ مقاله + ۶ دسته)؛ برای کوئری انگلیسی "make money with AI" صفحه‌های EN در نتایج‌اند؛ FA هم نسبت به ۱۳ اکتبر (۸/۲۶ ایندکس) رشد جدی دارد (battery-life-tips/programming-roadmap/ai-income-iran/ai-marketing-business که مفقود بودند الان ایندکس‌اند)
+- مسیر Apps Script: Property ID 556099118 از کاربر → download/takrah-analytics-apps-script.js (UrlFetchApp + getOAuthToken، منیفست با oauthScopes و سرویس‌های پیشرفتهٔ AnalyticsData+SearchConsole)
+- خطای کاربر «service not found» موقع پیست منیفست → ریشه: سرویس پیشرفتهٔ Search Console برای اکانتش در کاتالوگ Services نیست؛ اسکریپت اصلاً از نماد سرویس‌ها استفاده نمی‌کند (همه‌چیز UrlFetchApp است) → نسخهٔ ۲: منیفست فقط با AnalyticsData + راهنمای پاک‌کردن بلوک dependencies در صورت تکرار خطا
+- اصلاحات نسخهٔ ۲: بعد dimension «dateRange» به runReport اضافه شد (برچسب دورهٔ اخیر/قبلی هرگز از ایندکس خوانده نمی‌شود)، «فارسی» حالا notExpressionِ /en است (قبلاً کل سایت بود)، activeUsers به درخواست صفحات برتر اضافه شد، راهنمای فارسی خطاها در لاگ
+- در انتظار: JSON بین ===COPY_JSON=== از کاربر → گزارش فارسی تأثیر بخش /en بر ترافیک/سیو

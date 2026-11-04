@@ -1,29 +1,35 @@
 /**
  * ─────────────────────────────────────────────────────────────────
- *  تک‌راه — گزارش آنالیتیکس + سرچ‌کنسول (بدون نیاز به Cloud Console)
+ *  تک‌راه — گزارش آنالیتیکس + سرچ‌کنسول (نسخهٔ ۲ — بدون خطای service not found)
  * ─────────────────────────────────────────────────────────────────
- *  این اسکریپت در Google Apps Script اجرا می‌شود و از اکانت گوگل خودت
- *  (که به GA4 و Search Console دسترسی دارد) توکن می‌گیرد؛ یعنی هیچ
- *  پروژهٔ Cloud و هیچ کلید سرویس‌اکانتی لازم نیست.
+ *  تغییر نسخهٔ ۲ نسبت به قبل:
+ *   • سرویس پیشرفتهٔ Search Console از منیفست حذف شد — برای اکانت تو در
+ *     کاتالوگ نیست و همان باعث خطای «service not found» موقع پیست می‌شد.
+ *     اسکریپت از اول هم درخواست‌ها را مستقیم با UrlFetchApp می‌زد و به آن
+ *     سرویس نیازی نداشت. فقط AnalyticsData مانده که GA4 را تضمین می‌کند.
+ *   • تفکیک فارسی/انگلیسی دقیق شد: «فارسی» = همهٔ صفحه‌ها به‌جز /en
+ *   • برچسب dateRange به درخواست‌ها اضافه شد تا دورهٔ «اخیر/قبلی» هرگز
+ *     جابجا خوانده نشود (باگ گزارش قبلی)
+ *   • اگر سرچ‌کنسول خطا داد، متن خطا + راهنما در لاگ چاپ می‌شود
  *
  *  نحوهٔ استفاده (۵ دقیقه):
- *   ۱) برو به script.google.com  (با همان اکانتی که analytics.google.com
- *      را باز می‌کنی) → «New project»
+ *   ۱) برو به script.google.com (با همان اکانتی که analytics.google.com را
+ *      باز می‌کنی) → همان پروژهٔ قبلی
  *   ۲) کل این فایل را در Code.gs پیست کن و Save بزن (💾)
  *   ۳) چرخ‌دندهٔ Project Settings → تیک «Show "appsscript.json" manifest
- *      file in editor» را بزن → برگرد به ادیتور → فایل appsscript.json را
- *      باز کن و کلش را با محتوای منیفست پایین همین فایل جایگزین کن → Save
- *   ۴) بالای صفحه تابع «takrahReport» را انتخاب کن → Run
- *      • بار اول ازت اجازه می‌خواهد: Review permissions → اکانتت →
- *        «Google hasn't verified this app» → Advanced → «Go to … (unsafe)»
- *        → Allow   (این هشدار برای اسکریپت شخصی طبیعی است)
- *   ۵) پایین صفحه «Execution log» باز می‌شود:
- *      • بخش اول: گزارش فارسی خوانا برای خودت
- *      • بخش بین دو خط ===COPY_JSON=== را کپی کن و در چت برای من بفرست
+ *      file in editor» → برگرد به ادیتور → فایل appsscript.json را باز کن
+ *      و «کل» محتوایش را با منیفست پایین همین فایل جایگزین کن → Save
+ *      ⚠️ اگر باز هم خطای service not found داد: داخل appsscript.json کل
+ *      بلوک "dependencies" (از خط dependencies تا } آخرش) را پاک کن و Save
+ *      بزن — اسکریپت بدونش هم کار می‌کند.
+ *   ۴) بالای ادیتور تابع takrahReport را انتخاب کن → Run
+ *      • بار اول: Review permissions → اکانتت → Advanced → «Go to … (unsafe)»
+ *        → Allow
+ *   ۵) Execution log پایین صفحه:
+ *      • بخش اول: گزارش فارسی خوانا
+ *      • JSON بین دو خط ===COPY_JSON=== را کپی کن و در چت بفرست
  *
- *  محتوای منیفست (appsscript.json) — این نسخه هر دو سرویس پیشرفته را خودش
- *  اضافه می‌کند؛ «Search Console API» تو کاتالوگ بعضی اکانت‌ها نیست،
- *  این راه مستقیم است:
+ *  محتوای منیفست (appsscript.json) — این را عیناً پیست کن:
  *  {
  *    "timeZone": "Asia/Tehran",
  *    "exceptionLogging": "STACKDRIVER",
@@ -35,8 +41,7 @@
  *    ],
  *    "dependencies": {
  *      "enabledAdvancedServices": [
- *        { "userSymbol": "AnalyticsData", "serviceId": "analyticsdata", "version": "v1beta" },
- *        { "userSymbol": "SearchConsole", "serviceId": "searchconsole", "version": "v1" }
+ *        { "userSymbol": "AnalyticsData", "serviceId": "analyticsdata", "version": "v1beta" }
  *      ]
  *    }
  *  }
@@ -82,7 +87,6 @@ function post_(url, body, token) {
   return JSON.parse(text);
 }
 function ga4Rows_(res) {
-  // خروجی runReport → آرایه‌ای از {dim:..., met:[...]}
   var dims = (res.dimensionHeaders || []).map(function (h) { return h.name; });
   var mets = (res.metricHeaders || []).map(function (h) { return h.name; });
   return (res.rows || []).map(function (r) {
@@ -93,11 +97,9 @@ function ga4Rows_(res) {
   });
 }
 function pickRange_(rows, name) {
-  // ⚠️ با چند dateRange، ترتیب سطرها بین فراخوانی‌ها ثابت نیست —
-  // همیشه برچسب dateRange را بخوان، نه ایندکس سطر را
-  // (باگ گزارش ۱۴۰۵/۸/۱۴: دوره‌ها جابجا خوانده می‌شدند)
+  // برچسب dateRange هر سطر خوانده می‌شود، نه ایندکس — ترتیب سطرها تضمین‌شده نیست
   for (var i = 0; i < rows.length; i++) {
-    if (!rows[i].dateRange || rows[i].dateRange === name) return rows[i];
+    if (rows[i].dateRange === name) return rows[i];
   }
   return {};
 }
@@ -111,8 +113,10 @@ function ga4Block_() {
   function call(body) { return post_(url, body, token); }
 
   // ۱) نمای کلی — ۲۸ روز اخیر vs ۲۸ روز قبل
+  //    بعد dimension «dateRange» برچسب هر سطر را مشخص می‌کند
   var ov = ga4Rows_(call({
     dateRanges: R,
+    dimensions: [{ name: "dateRange" }],
     metrics: [
       { name: "activeUsers" }, { name: "newUsers" }, { name: "sessions" },
       { name: "screenPageViews" }, { name: "engagementRate" },
@@ -121,15 +125,26 @@ function ga4Block_() {
   }));
 
   // ۲) تفکیک فارسی/انگلیسی بر اساس پیشوند مسیر
-  var enFilter = { filter: { fieldName: "pagePath", stringFilter: { matchType: "BEGINS_WITH", value: "/en" } } };
-  var fa = ga4Rows_(call({ dateRanges: R, metrics: [{ name: "screenPageViews" }, { name: "activeUsers" }] }));
-  var en = ga4Rows_(call({ dateRanges: R, metrics: [{ name: "screenPageViews" }, { name: "activeUsers" }], dimensionFilter: enFilter }));
+  //    en = صفحه‌هایی که با /en شروع می‌شوند، fa = بقیه (غیر-/en)
+  var enExpr = { filter: { fieldName: "pagePath", stringFilter: { matchType: "BEGINS_WITH", value: "/en" } } };
+  var fa = ga4Rows_(call({
+    dateRanges: R,
+    dimensions: [{ name: "dateRange" }],
+    metrics: [{ name: "screenPageViews" }, { name: "activeUsers" }],
+    dimensionFilter: { notExpression: enExpr }
+  }));
+  var en = ga4Rows_(call({
+    dateRanges: R,
+    dimensions: [{ name: "dateRange" }],
+    metrics: [{ name: "screenPageViews" }, { name: "activeUsers" }],
+    dimensionFilter: enExpr
+  }));
 
   // ۳) پربازدیدترین صفحه‌ها
   var pages = ga4Rows_(call({
     dateRanges: [R[0]],
     dimensions: [{ name: "pagePath" }],
-    metrics: [{ name: "screenPageViews" }],
+    metrics: [{ name: "screenPageViews" }, { name: "activeUsers" }],
     orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }],
     limit: 15
   }));
@@ -215,14 +230,15 @@ function readable_(o) {
     L.push("بازدید صفحه: " + c.screenPageViews + " (قبلی " + p.screenPageViews + ")");
     L.push("جلسه: " + c.sessions + " (قبلی " + p.sessions + ")");
     var vf = o.ga4.views.fa, ve = o.ga4.views.en;
-    L.push("بازدید فارسی: " + (vf.current.screenPageViews || 0) + " (قبلی " + (vf.previous.screenPageViews || 0) + ")");
-    L.push("بازدید انگلیسی: " + (ve.current.screenPageViews || 0) + " (قبلی " + (ve.previous.screenPageViews || 0) + ")");
+    L.push("بازدید فارسی (غیر /en): " + (vf.current.screenPageViews || 0) + " (قبلی " + (vf.previous.screenPageViews || 0) + ")");
+    L.push("بازدید انگلیسی (/en): " + (ve.current.screenPageViews || 0) + " (قبلی " + (ve.previous.screenPageViews || 0) + ")");
     L.push("پربازدیدترین‌ها:");
     o.ga4.top_pages.slice(0, 8).forEach(function (x) { L.push("  " + x.views + " — " + x.path); });
     L.push("رویدادها:");
     o.ga4.events.slice(0, 10).forEach(function (x) { L.push("  " + x.count + "× " + x.name); });
   } else {
     L.push("⚠️ GA4 خطا داد: " + o.ga4_error);
+    L.push("   راه حل: منوی Services (+) → جستجو کن Google Analytics Data API → Add → Run دوباره");
   }
   if (o.gsc) {
     L.push("── Search Console (۲۸ روز اخیر) ──");
@@ -234,6 +250,7 @@ function readable_(o) {
     o.gsc.top_queries.slice(0, 8).forEach(function (q) { L.push("  " + q.clicks + " کلیک، رتبه " + q.position + " — «" + q.query + "»"); });
   } else {
     L.push("⚠️ Search Console خطا داد: " + o.gsc_error);
+    L.push("   مهم نیست — مانع گزارش اصلی نمی‌شود. فقط همین متن خطا را برای من بفرست تا راه دوم (بدون سرویس) را بدهم.");
   }
   L.push("⬇️ حالا JSON بین دو خط ===COPY_JSON=== را کپی کن و در چت بفرست.");
   return L.join("\n");
