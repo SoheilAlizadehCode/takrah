@@ -897,4 +897,7 @@ Stage Summary:
 - مسیر Apps Script: Property ID 556099118 از کاربر → download/takrah-analytics-apps-script.js (UrlFetchApp + getOAuthToken، منیفست با oauthScopes و سرویس‌های پیشرفتهٔ AnalyticsData+SearchConsole)
 - خطای کاربر «service not found» موقع پیست منیفست → ریشه: سرویس پیشرفتهٔ Search Console برای اکانتش در کاتالوگ Services نیست؛ اسکریپت اصلاً از نماد سرویس‌ها استفاده نمی‌کند (همه‌چیز UrlFetchApp است) → نسخهٔ ۲: منیفست فقط با AnalyticsData + راهنمای پاک‌کردن بلوک dependencies در صورت تکرار خطا
 - اصلاحات نسخهٔ ۲: بعد dimension «dateRange» به runReport اضافه شد (برچسب دورهٔ اخیر/قبلی هرگز از ایندکس خوانده نمی‌شود)، «فارسی» حالا notExpressionِ /en است (قبلاً کل سایت بود)، activeUsers به درخواست صفحات برتر اضافه شد، راهنمای فارسی خطاها در لاگ
-- در انتظار: JSON بین ===COPY_JSON=== از کاربر → گزارش فارسی تأثیر بخش /en بر ترافیک/سیو
+- اجرای کاربر (۲۳:۳۸): GA4 خطای ۴۰۰ «Field dateRange is not a dimension» — باگ من بود؛ GA4 برچسب dateRange را خودش به سطرها می‌چسباند و نباید در dimensions لیست شود → نسخهٔ ۳ فایل اصلاح شد (حذف dateRange از سه درخواست + فال‌بک pickRange_). علامت مثبت: analyticsdata روی پروژهٔ اسکریپت فعال و زنده است
+- GSC خطای ۴۰۳ قطعی: «Search Console API has not been used in project 648374195222» — فعال‌سازی نیازمند کنسول است که برای کاربر باز نیست؛ مسیر Apps Script برای GSC بسته ماند
+- راه‌حل GSC (+GA4 با هم): scripts/google-fetch.py ساخته شد — با توکن دسترسی یک‌ساعتهٔ OAuth Playground (اسکوپ‌های readonly وبمسترانز + analytics) از سندباکس همه‌چیز کشیده می‌شود؛ تست با توکن الکی → ۴۰۱ تمیز (شبکه و اندپوینت سالم)
+- در انتظار: Access token از کاربر → اجرای google-fetch.py → گزارش کامل فارسی تأثیر /en بر ترافیک/سیو

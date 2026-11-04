@@ -1,16 +1,18 @@
 /**
  * ─────────────────────────────────────────────────────────────────
- *  تک‌راه — گزارش آنالیتیکس + سرچ‌کنسول (نسخهٔ ۲ — بدون خطای service not found)
+ *  تک‌راه — گزارش آنالیتیکس + سرچ‌کنسول (نسخهٔ ۳ — رفع خطای ۴۰۰)
  * ─────────────────────────────────────────────────────────────────
- *  تغییر نسخهٔ ۲ نسبت به قبل:
- *   • سرویس پیشرفتهٔ Search Console از منیفست حذف شد — برای اکانت تو در
- *     کاتالوگ نیست و همان باعث خطای «service not found» موقع پیست می‌شد.
- *     اسکریپت از اول هم درخواست‌ها را مستقیم با UrlFetchApp می‌زد و به آن
- *     سرویس نیازی نداشت. فقط AnalyticsData مانده که GA4 را تضمین می‌کند.
- *   • تفکیک فارسی/انگلیسی دقیق شد: «فارسی» = همهٔ صفحه‌ها به‌جز /en
- *   • برچسب dateRange به درخواست‌ها اضافه شد تا دورهٔ «اخیر/قبلی» هرگز
- *     جابجا خوانده نشود (باگ گزارش قبلی)
- *   • اگر سرچ‌کنسول خطا داد، متن خطا + راهنما در لاگ چاپ می‌شود
+ *  تغییر نسخهٔ ۳ نسبت به قبل:
+ *   • بعد «dateRange» از فهرست dimensions حذف شد — GA4 خودش برچسب دوره را
+ *     به هر سطر می‌چسباند و اگر در dimensions لیستش کنی خطای ۴۰۰
+ *     (Field dateRange is not a dimension) می‌دهد. پیام خطای اجرای قبلی
+ *     دقیقاً همین را گفت؛ فقط کافی بود از درخواست برداشته شود.
+ *   • (نسخهٔ ۲) تفکیک دقیق: «فارسی» = همهٔ صفحه‌ها به‌جز /en؛ سرویس
+ *     پیشرفتهٔ Search Console از منیفست حذف شد (در کاتالوگ اکانت تو نیست
+ *     و باعث خطای service not found می‌شد)
+ *   • نکتهٔ سرچ‌کنسول: API اش روی پروژهٔ پیش‌فرض اسکریپت فعال نیست (خطای
+ *     ۴۰۳ می‌دهد). برای این بخش از روش OAuth Playground طبق پیام چت
+ *     استفاده می‌کنیم؛ این خطا مانع گزارش GA4 نیست.
  *
  *  نحوهٔ استفاده (۵ دقیقه):
  *   ۱) برو به script.google.com (با همان اکانتی که analytics.google.com را
@@ -97,11 +99,13 @@ function ga4Rows_(res) {
   });
 }
 function pickRange_(rows, name) {
-  // برچسب dateRange هر سطر خوانده می‌شود، نه ایندکس — ترتیب سطرها تضمین‌شده نیست
+  // GA4 برچسب dateRange هر سطر را خودش می‌گذارد (بدون درخواست ما) —
+  // همیشه برچسب را بخوان، نه ایندکس؛ ترتیب سطرها تضمین‌شده نیست
   for (var i = 0; i < rows.length; i++) {
     if (rows[i].dateRange === name) return rows[i];
   }
-  return {};
+  // اگر به هر دلیلی برچسب نبود: سطر اول = دورهٔ اخیر (ترتیب درخواست)
+  return rows[0] || {};
 }
 
 /* ── بخش GA4 ─────────────────────────────────────────────────── */
@@ -113,10 +117,10 @@ function ga4Block_() {
   function call(body) { return post_(url, body, token); }
 
   // ۱) نمای کلی — ۲۸ روز اخیر vs ۲۸ روز قبل
-  //    بعد dimension «dateRange» برچسب هر سطر را مشخص می‌کند
+  //    ⚠️ بعد dateRange را در dimensions ننویس! GA4 خودش برچسبش را به سطرها
+  //    اضافه می‌کند؛ لیست‌کردنش خطای ۴۰۰ می‌دهد (اجرای ۱۴۰۵/۸/۱۴)
   var ov = ga4Rows_(call({
     dateRanges: R,
-    dimensions: [{ name: "dateRange" }],
     metrics: [
       { name: "activeUsers" }, { name: "newUsers" }, { name: "sessions" },
       { name: "screenPageViews" }, { name: "engagementRate" },
@@ -129,13 +133,11 @@ function ga4Block_() {
   var enExpr = { filter: { fieldName: "pagePath", stringFilter: { matchType: "BEGINS_WITH", value: "/en" } } };
   var fa = ga4Rows_(call({
     dateRanges: R,
-    dimensions: [{ name: "dateRange" }],
     metrics: [{ name: "screenPageViews" }, { name: "activeUsers" }],
     dimensionFilter: { notExpression: enExpr }
   }));
   var en = ga4Rows_(call({
     dateRanges: R,
-    dimensions: [{ name: "dateRange" }],
     metrics: [{ name: "screenPageViews" }, { name: "activeUsers" }],
     dimensionFilter: enExpr
   }));
@@ -250,7 +252,7 @@ function readable_(o) {
     o.gsc.top_queries.slice(0, 8).forEach(function (q) { L.push("  " + q.clicks + " کلیک، رتبه " + q.position + " — «" + q.query + "»"); });
   } else {
     L.push("⚠️ Search Console خطا داد: " + o.gsc_error);
-    L.push("   مهم نیست — مانع گزارش اصلی نمی‌شود. فقط همین متن خطا را برای من بفرست تا راه دوم (بدون سرویس) را بدهم.");
+    L.push("   مهم نیست — طبق پیام چت، توکن OAuth Playground را برای من بفرست تا این بخش را خودم بگیرم.");
   }
   L.push("⬇️ حالا JSON بین دو خط ===COPY_JSON=== را کپی کن و در چت بفرست.");
   return L.join("\n");

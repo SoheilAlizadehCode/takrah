@@ -1,0 +1,10 @@
+{
+ "generated": "2026-11-05",
+ "property_id": "556099118",
+ "ga4": {
+  "error": "401: {\"error\": {\"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google."
+ },
+ "gsc": {
+  "error": "sites 401: {\"error\": {\"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google."
+ }
+}
