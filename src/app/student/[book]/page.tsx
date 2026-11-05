@@ -21,7 +21,8 @@ export async function generateMetadata({ params }: BookPageProps): Promise<Metad
   if (!data) return {};
 
   return {
-    title: `${data.title} (${data.grade}) | کتابخانه دانش‌آموزی تک‌راه`,
+    // سئو: عبارت واقعی جستجوی کاربران («گام به گام …») اولِ عنوان — گزارش ۵ نوامبر ۱۴۰۵
+    title: `${data.seoTitle ?? data.title} (${data.grade}) | تک‌راه`,
     description: data.description,
     alternates: {
       canonical: hrefs.studentBook(data.slug),
