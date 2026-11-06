@@ -40,6 +40,9 @@ export const hrefs = {
   // بخش ویژه دانش‌آموزان: کتابخانه کتاب‌های درسی
   studentHome: "/student",
   studentBook: (slug: string) => `/student/${slug}`,
+  // دایرهٔ ابزارهای هوش مصنوعی — خندق استراتژیک طرح ۹۰روزه
+  toolsHome: "/tools",
+  aiTool: (slug: string) => `/tools/${slug}`,
 };
 
 export interface Category {

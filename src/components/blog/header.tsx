@@ -12,6 +12,7 @@ import {
   Moon,
   Home,
   Sparkles,
+  Wrench,
   ChevronDown,
   Library,
   BookOpen,
@@ -81,6 +82,13 @@ export function Header({ onOpenSearch }: HeaderProps) {
             </span>
             <Sparkles className="h-[18px] w-[18px]" aria-hidden="true" />
             پکیج‌ها
+          </Link>
+          {/* دایرهٔ ابزارها — خندق استراتژیک تک‌راه */}
+          <Link href="/tools" className={navLink}>
+            <span className="flex items-center gap-1.5">
+              <Wrench className="h-[18px] w-[18px] text-primary" aria-hidden="true" />
+              دایرهٔ ابزار
+            </span>
           </Link>
           {categories.map((c) =>
             c.id === "student" ? (
@@ -223,6 +231,16 @@ export function Header({ onOpenSearch }: HeaderProps) {
               >
                 <Sparkles className="h-5 w-5" aria-hidden="true" />
                 پکیج‌ها و دموهای زنده
+              </Link>
+            </li>
+            <li className="col-span-2">
+              <Link
+                href="/tools"
+                className={`flex items-center gap-2 rounded-lg bg-primary/5 px-3 py-2.5 text-sm font-bold text-primary ${navLink}`}
+                onClick={() => setMenuOpen(false)}
+              >
+                <Wrench className="h-5 w-5 text-primary" aria-hidden="true" />
+                دایرهٔ ابزارهای هوش مصنوعی — قیمت، دسترسی در ایران و جایگزین‌ها
               </Link>
             </li>
             {categories.map((c) =>

@@ -3,6 +3,7 @@ import { articles } from "@/data";
 import { englishArticles, EN_NAV_CATEGORY_IDS } from "@/data/en";
 import { categories, hrefs, staticPages, siteConfig } from "@/lib/site";
 import { studentBooks } from "@/lib/student";
+import { aiTools } from "@/lib/tools-directory";
 
 /**
  * سایت‌مپ پویا — با اضافه شدن هر مقاله جدید در src/data،
@@ -47,6 +48,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     ...studentBooks.map((b) => ({
       url: `${siteConfig.url}${hrefs.studentBook(b.slug)}`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+    })),
+    // دایرهٔ ابزارها: صفحهٔ اصلی + پروفایل هر ابزار
+    {
+      url: `${siteConfig.url}${hrefs.toolsHome}`,
+      lastModified: now,
+      changeFrequency: "daily" as const,
+      priority: 0.9,
+    },
+    ...aiTools.map((t) => ({
+      url: `${siteConfig.url}${hrefs.aiTool(t.slug)}`,
       lastModified: now,
       changeFrequency: "weekly" as const,
       priority: 0.8,

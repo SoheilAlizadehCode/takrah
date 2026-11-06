@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { TrackedLink } from "@/components/blog/tracked-link";
-import { Route, Mail, Send, Bot, Sparkles } from "lucide-react";
+import { Route, Mail, Send, Bot, Sparkles, Wrench } from "lucide-react";
 import { categories, hrefs, siteConfig, staticPages } from "@/lib/site";
 
 export function Footer() {
@@ -50,6 +50,15 @@ export function Footer() {
                   >
                     <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
                     پکیج‌ها و دموهای زنده
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/tools"
+                    className="flex items-center gap-1.5 text-sm font-bold text-primary transition-colors hover:text-primary/80"
+                  >
+                    <Wrench className="h-3.5 w-3.5" aria-hidden="true" />
+                    دایرهٔ ابزارهای هوش مصنوعی
                   </Link>
                 </li>
                 {staticPages.map((p) => (
