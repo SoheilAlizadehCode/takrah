@@ -1,10 +1,10 @@
-// Shared logic for the @TakrahTop_support_bot — search + growth engine for takrah.top
+// Shared logic for the @TakrahTop_bot — search + growth engine for takrah.top
 import { articles } from "@/data";
 import type { Article } from "@/lib/blog-types";
 
 const SITE = "https://takrah.top";
 export const CHANNEL_URL = "https://t.me/takrahTop";
-export const BOT_USERNAME = "TakrahTop_support_bot";
+export const BOT_USERNAME = "TakrahTop_bot";
 
 /* ─── نرمال‌سازی فارسی ─────────────────────────────────────────── */
 
@@ -113,9 +113,6 @@ export function mainKeyboard(): InlineKeyboard {
         { text: "🌐 سایت تک‌راه", url: SITE },
         { text: "📢 عضویت در کانال", url: CHANNEL_URL },
       ],
-      [{ text: "🎁 پک ۵۰ پرامپت پول‌ساز (هدیه)", callback_data: "pack50" }],
-      [{ text: "🏆 مسابقهٔ دعوت دوستان — جایزه ببر", callback_data: "comp" }],
-      [{ text: "📥 دانلود فایل‌های آموزشی", url: `${SITE}/student/download` }],
       [
         { text: "🏆 محبوب‌ترین مقاله‌ها", callback_data: "top" },
         { text: "🆕 جدیدترین مقاله‌ها", callback_data: "new" },
@@ -177,9 +174,6 @@ export function welcomeText(isMember: boolean | null): string {
     "سلام! 👋 من ربات تک‌راه هستم.",
     "",
     "هر موضوعی درباره‌ی هوش مصنوعی، برنامه‌نویسی و درآمد اینترنتی داشته باشی، برات مقاله‌ش رو پیدا می‌کنم. کافیه کلمه‌ش رو بنویسی: «پایتون»، «درآمد»، «صرافی»، «امنیت» و...",
-    "🎁 پک ۵۰ پرامپت پول‌ساز هم با دکمه‌ی زیر مال توست — فقط عضو کانال باش.",
-    "🏆 مسابقهٔ دعوت ماهانه هم فعال است — /invite را بزن، لینک اختصاصی بگیر و جایزه ببر!",
-    "📥 فایل‌های آموزشی کتاب‌های درسی هم تو سایت قابل دانلوده: takrah.top/student/download",
     memberLine,
     "",
     "🌐 takrah.top | 📢 @takrahTop",

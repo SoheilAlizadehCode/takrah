@@ -1,6 +1,0 @@
-{
- "property_id": "556099118",
- "site": "https://takrah.top/",
- "measurement_id": "G-D24JYMP9ME",
- "_note": "Property ID از کاربر (۱۴۰۵/۸/۱۴). فایل کلید سرویس‌اکانت که در scripts/google-creds.json قرار بگیرد، این اسکریپت‌ها کار می‌کنند: ga4-report.py / gsc-report.py — اما اگر Cloud Console در دسترس نبود، مسیر جایگزین: download/takrah-analytics-apps-script.js در script.google.com"
-}

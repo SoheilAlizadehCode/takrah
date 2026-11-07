@@ -16,7 +16,6 @@ import { articles14 } from "./articles-14";
 import { articles15 } from "./articles-15";
 import { articles16 } from "./articles-16";
 import { articles17 } from "./articles-17";
-import { articles18 } from "./articles-18";
 
 export const articles: Article[] = [
   ...articles1,
@@ -36,7 +35,6 @@ export const articles: Article[] = [
   ...articles15,
   ...articles16,
   ...articles17,
-  ...articles18,
 ];
 
 export const getArticle = (slug: string): Article | undefined =>

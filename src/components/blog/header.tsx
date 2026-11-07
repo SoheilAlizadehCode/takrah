@@ -12,7 +12,6 @@ import {
   Moon,
   Home,
   Sparkles,
-  Wrench,
   ChevronDown,
   Library,
   BookOpen,
@@ -20,8 +19,7 @@ import {
 } from "lucide-react";
 import { categories, hrefs } from "@/lib/site";
 import { studentBooks } from "@/lib/student";
-import { CategoryIcon, CATEGORY_ICON_COLORS } from "./category-icon";
-import { LanguageSwitch } from "./language-switch";
+import { CategoryIcon } from "./category-icon";
 
 interface HeaderProps {
   onOpenSearch: () => void;
@@ -36,7 +34,7 @@ export function Header({ onOpenSearch }: HeaderProps) {
   };
 
   const navLink =
-    "rounded-lg px-2.5 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground";
+    "rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground";
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-md supports-[backdrop-filter]:bg-background/70">
@@ -60,14 +58,10 @@ export function Header({ onOpenSearch }: HeaderProps) {
         </Link>
 
         {/* ناوبری دسکتاپ */}
-        <nav className="mx-auto hidden items-center gap-0.5 lg:flex" aria-label="ناوبری اصلی">
-          {/* تغییر زبان — همیشه اولین آیتم نوار ناوبری */}
-          <span className="me-1 flex items-center">
-            <LanguageSwitch from="fa" />
-          </span>
+        <nav className="mx-auto hidden items-center gap-1 lg:flex" aria-label="ناوبری اصلی">
           <Link href="/" className={navLink}>
             <span className="flex items-center gap-1.5">
-              <Home className="h-[18px] w-[18px] text-primary" aria-hidden="true" />
+              <Home className="h-3.5 w-3.5" aria-hidden="true" />
               خانه
             </span>
           </Link>
@@ -80,15 +74,8 @@ export function Header({ onOpenSearch }: HeaderProps) {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" aria-hidden="true" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
             </span>
-            <Sparkles className="h-[18px] w-[18px]" aria-hidden="true" />
+            <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
             پکیج‌ها
-          </Link>
-          {/* دایرهٔ ابزارها — خندق استراتژیک تک‌راه */}
-          <Link href="/tools" className={navLink}>
-            <span className="flex items-center gap-1.5">
-              <Wrench className="h-[18px] w-[18px] text-primary" aria-hidden="true" />
-              دایرهٔ ابزار
-            </span>
           </Link>
           {categories.map((c) =>
             c.id === "student" ? (
@@ -100,7 +87,7 @@ export function Header({ onOpenSearch }: HeaderProps) {
                   aria-haspopup="true"
                 >
                   <span className="flex items-center gap-1.5">
-                    <CategoryIcon id={c.id} className={`h-[18px] w-[18px] ${CATEGORY_ICON_COLORS[c.id] ?? ""}`} />
+                    <CategoryIcon id={c.id} className="h-3.5 w-3.5" />
                     {c.name}
                   </span>
                   <ChevronDown
@@ -154,7 +141,7 @@ export function Header({ onOpenSearch }: HeaderProps) {
             ) : (
               <Link key={c.id} href={hrefs.category(c.id)} className={navLink}>
                 <span className="flex items-center gap-1.5">
-                  <CategoryIcon id={c.id} className={`h-[18px] w-[18px] ${CATEGORY_ICON_COLORS[c.id] ?? ""}`} />
+                  <CategoryIcon id={c.id} className="h-3.5 w-3.5" />
                   {c.name}
                 </span>
               </Link>
@@ -163,10 +150,6 @@ export function Header({ onOpenSearch }: HeaderProps) {
         </nav>
 
         <div className="ms-auto flex items-center gap-1 lg:ms-0">
-          {/* تغییر زبان — در موبایل و تبلت همیشه روی خود نوار دیده شود */}
-          <span className="lg:hidden">
-            <LanguageSwitch from="fa" />
-          </span>
           {/* جستجو */}
           <button
             type="button"
@@ -216,10 +199,10 @@ export function Header({ onOpenSearch }: HeaderProps) {
             <li>
               <Link
                 href="/"
-                className={`flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold text-muted-foreground hover:bg-muted hover:text-foreground ${navLink}`}
+                className={`flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground ${navLink}`}
                 onClick={() => setMenuOpen(false)}
               >
-                <Home className="h-5 w-5 text-primary" aria-hidden="true" />
+                <Home className="h-4 w-4" aria-hidden="true" />
                 خانه
               </Link>
             </li>
@@ -229,18 +212,8 @@ export function Header({ onOpenSearch }: HeaderProps) {
                 className="flex items-center gap-2 rounded-lg border border-emerald-600/30 bg-emerald-600/10 px-3 py-2.5 text-sm font-bold text-emerald-800 hover:bg-emerald-600/20 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-300"
                 onClick={() => setMenuOpen(false)}
               >
-                <Sparkles className="h-5 w-5" aria-hidden="true" />
+                <Sparkles className="h-4 w-4" aria-hidden="true" />
                 پکیج‌ها و دموهای زنده
-              </Link>
-            </li>
-            <li className="col-span-2">
-              <Link
-                href="/tools"
-                className={`flex items-center gap-2 rounded-lg bg-primary/5 px-3 py-2.5 text-sm font-bold text-primary ${navLink}`}
-                onClick={() => setMenuOpen(false)}
-              >
-                <Wrench className="h-5 w-5 text-primary" aria-hidden="true" />
-                دایرهٔ ابزارهای هوش مصنوعی — قیمت، دسترسی در ایران و جایگزین‌ها
               </Link>
             </li>
             {categories.map((c) =>
@@ -252,7 +225,7 @@ export function Header({ onOpenSearch }: HeaderProps) {
                     className={`flex items-center gap-2 rounded-lg bg-primary/5 px-3 py-2.5 text-sm font-bold text-primary ${navLink}`}
                     onClick={() => setMenuOpen(false)}
                   >
-                    <CategoryIcon id={c.id} className={`h-5 w-5 ${CATEGORY_ICON_COLORS[c.id] ?? ""}`} />
+                    <CategoryIcon id={c.id} className="h-4 w-4" />
                     {c.name} — کتابخانه کتاب‌های درسی
                   </Link>
                   <ul className="mt-1 space-y-1 ps-3">
@@ -290,7 +263,7 @@ export function Header({ onOpenSearch }: HeaderProps) {
                     className={`flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground ${navLink}`}
                     onClick={() => setMenuOpen(false)}
                   >
-                    <CategoryIcon id={c.id} className={`h-5 w-5 ${CATEGORY_ICON_COLORS[c.id] ?? ""}`} />
+                    <CategoryIcon id={c.id} className="h-4 w-4" />
                     {c.name}
                   </Link>
                 </li>

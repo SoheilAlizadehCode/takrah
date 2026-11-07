@@ -50,11 +50,6 @@ export async function GET(req: NextRequest) {
       voice: TTS_VOICE,
     });
   }
-  if (req.nextUrl.searchParams.get("ig")) {
-    // تست اتصال آوای اینستاگرام — بررسی توکن و شناخت پیج (بدون ارسال)
-    const { igProbe } = await import("@/lib/instagram-bot");
-    return Response.json({ ok: true, ig: await igProbe() });
-  }
   if (req.nextUrl.searchParams.get("kavenegar")) {
     // تست اتصال کاوه‌نگار — فقط اعتبارسنجی کلید (بدون تماس واقعی و بدون هزینه)
     const key = process.env.KAVENEGAR_API_KEY ?? "";

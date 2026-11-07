@@ -7,10 +7,6 @@
     {
       "path": "/api/telegram/daily-report",
       "schedule": "45 19 * * *"
-    },
-    {
-      "path": "/api/telegram/weekly-report",
-      "schedule": "30 5 * * 1"
     }
   ]
 }

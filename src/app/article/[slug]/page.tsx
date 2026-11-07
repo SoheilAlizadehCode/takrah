@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ArticleView } from "@/components/blog/article-view";
 import { articles, getArticle } from "@/data";
-import { hasEnglishVersion } from "@/data/en";
 import { getCategory, hrefs, siteConfig } from "@/lib/site";
 
 interface ArticlePageProps {
@@ -22,20 +21,11 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
   if (!article) return {};
 
   return {
-    title: article.seoTitle ?? article.title,
+    title: article.title,
     description: article.excerpt,
     keywords: article.tags,
     alternates: {
       canonical: hrefs.article(article.slug),
-      // hreflang برای مقاله‌هایی که نسخهٔ انگلیسی دارند
-      ...(hasEnglishVersion(article.slug)
-        ? {
-            languages: {
-              "fa-IR": `${siteConfig.url}${hrefs.article(article.slug)}`,
-              en: `${siteConfig.url}/en/article/${article.slug}`,
-            },
-          }
-        : {}),
     },
     openGraph: {
       type: "article",

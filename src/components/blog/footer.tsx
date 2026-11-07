@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { TrackedLink } from "@/components/blog/tracked-link";
-import { Route, Mail, Send, Bot, Sparkles, Wrench } from "lucide-react";
+import { Route, Mail, Send, Bot, Sparkles } from "lucide-react";
 import { categories, hrefs, siteConfig, staticPages } from "@/lib/site";
 
 export function Footer() {
@@ -52,15 +51,6 @@ export function Footer() {
                     پکیج‌ها و دموهای زنده
                   </Link>
                 </li>
-                <li>
-                  <Link
-                    href="/tools"
-                    className="flex items-center gap-1.5 text-sm font-bold text-primary transition-colors hover:text-primary/80"
-                  >
-                    <Wrench className="h-3.5 w-3.5" aria-hidden="true" />
-                    دایرهٔ ابزارهای هوش مصنوعی
-                  </Link>
-                </li>
                 {staticPages.map((p) => (
                   <li key={p.id}>
                     <Link
@@ -81,26 +71,26 @@ export function Footer() {
               {siteConfig.email}
             </a>
             {siteConfig.telegramChannel ? (
-              <TrackedLink
+              <a
                 href={siteConfig.telegramChannel}
-                event="telegram_click"
-                params={{ location: "footer", target: "channel" }}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-primary"
               >
                 <Send className="h-4 w-4" aria-hidden="true" />
                 کانال تلگرام تک‌راه
-              </TrackedLink>
+              </a>
             ) : null}
             {siteConfig.telegramBot ? (
-              <TrackedLink
+              <a
                 href={siteConfig.telegramBot}
-                event="telegram_click"
-                params={{ location: "footer", target: "bot" }}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-primary"
               >
                 <Bot className="h-4 w-4" aria-hidden="true" />
                 ربات جستجوی مقاله‌ها
-              </TrackedLink>
+              </a>
             ) : null}
           </div>
         </div>

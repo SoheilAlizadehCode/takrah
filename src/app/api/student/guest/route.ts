@@ -2,7 +2,6 @@
 // در Vercel تنظیم شود، این مسیر ۴۰۳ می‌دهد و رابط کاربری هم دکمه مهمان را نشان نمی‌دهد).
 import { NextRequest, NextResponse } from "next/server";
 import {
-  GOOGLE_CLIENT_ID,
   STUDENT_COOKIE,
   cookieOptions,
   parseSession,
@@ -13,7 +12,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
-  const clientId = GOOGLE_CLIENT_ID;
+  const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "";
   if (clientId) {
     return NextResponse.json({ ok: false, reason: "login_required" }, { status: 403 });
   }

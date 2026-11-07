@@ -10,8 +10,6 @@ export type Block =
 export interface Article {
   slug: string;
   title: string;
-  /** تایتل سئو برای متای صفحه؛ H1 با title می‌ماند */
-  seoTitle?: string;
   excerpt: string;
   category: string; // id from site.ts categories
   tags: string[];
