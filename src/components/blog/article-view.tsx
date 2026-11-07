@@ -18,11 +18,28 @@ import { ArticleCard } from "./cards";
 import { ReadingProgress } from "./reading-progress";
 
 // ─── نمایش یک بلوک محتوایی ───
+/** لینک‌های درون‌متنی به شکل [متن](مسیر) را به لینک واقعی تبدیل می‌کند */
+function withInlineLinks(text: string) {
+  return text.split(/(\[[^\]]+\]\([^)]+\))/g).map((part, i) => {
+    const m = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+    if (!m) return part;
+    return (
+      <Link
+        key={i}
+        href={m[2]}
+        className="font-medium text-primary underline decoration-primary/40 underline-offset-4 transition-colors hover:text-primary/80"
+      >
+        {m[1]}
+      </Link>
+    );
+  });
+}
+
 function BlockView({ block, id }: { block: Article["blocks"][number]; id?: string }) {
   switch (block.type) {
     case "p":
       return (
-        <p className="text-[1.05rem] leading-[2.2] text-foreground/90">{block.text}</p>
+        <p className="text-[1.05rem] leading-[2.2] text-foreground/90">{withInlineLinks(block.text)}</p>
       );
     case "h2":
       return (
@@ -46,7 +63,7 @@ function BlockView({ block, id }: { block: Article["blocks"][number]; id?: strin
               <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
                 {toFaDigits(i + 1)}
               </span>
-              <span>{item}</span>
+              <span>{withInlineLinks(item)}</span>
             </li>
           ))}
         </ol>
@@ -55,7 +72,7 @@ function BlockView({ block, id }: { block: Article["blocks"][number]; id?: strin
           {block.items.map((item, i) => (
             <li key={i} className="flex gap-3 text-[1.02rem] leading-[2.1] text-foreground/90">
               <span className="mt-[0.85rem] h-2 w-2 shrink-0 rounded-full bg-primary/70" aria-hidden="true" />
-              <span>{item}</span>
+              <span>{withInlineLinks(item)}</span>
             </li>
           ))}
         </ul>

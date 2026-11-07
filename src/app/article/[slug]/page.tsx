@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
   if (!article) return {};
 
   return {
-    title: article.title,
+    title: article.seoTitle ?? article.title,
     description: article.excerpt,
     keywords: article.tags,
     alternates: {

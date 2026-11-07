@@ -170,7 +170,7 @@ export const aiTools: AiTool[] = [
     verdict:
       "هنوز استاندارد طلایی بازار است. اگر فقط یک اشتراک AI می‌خری و بودجه داری، Plus با همان ۲۰ دلار منطقی‌ترین انتخاب کلی است؛ وگرنه نسخهٔ رایگانش برای یادگیری و شروع درآمد کافی است.",
     score: 9.5,
-    relatedArticle: "chatgpt-pro-tips",
+    relatedArticle: "chatgpt-income-zero-cost",
     lastChecked: "۱۶ آبان ۱۴۰۵",
   },
   {
