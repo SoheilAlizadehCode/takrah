@@ -64,8 +64,8 @@ scripts/telegram-token.txt
 scripts/video-pipeline/cookies.txt
 scripts/video-pipeline/out/
 
-# runtime state of the referral bot (روی سرور ساخته می‌شود)
-data/
+# runtime state of the referral bot (روی سرور ساخته می‌شود) — فقط data/ ریشه، نه src/data
+/data/
 
 # secrets — هرگز کامیت نمی‌شوند (توکن بات قبلی همین‌طور لو رفت)
 .env
