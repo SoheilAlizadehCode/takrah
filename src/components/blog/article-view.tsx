@@ -8,7 +8,6 @@ import { getStudentBook } from "@/lib/student";
 import { getRelated } from "@/data";
 import { toFaDigits } from "@/lib/format";
 import { CategoryIcon } from "./category-icon";
-import { AdSlot } from "./ad-slot";
 import { AffiliateBox } from "./affiliate-box";
 import { ProductAffiliateBox } from "./product-affiliate-box";
 import { ChannelJoinBox } from "./channel-join-box";
@@ -265,10 +264,13 @@ export function ArticleView({ article }: { article: Article }) {
                     <>
                       {/* نوار عضویت کانال — بعد از پاراگراف اول همهٔ مقاله‌ها */}
                       <ChannelJoinBox variant="inline" articleSlug={article.slug} />
-                      <AdSlot slotKey={`${article.slug}-top`} format="horizontal" />
+                      {/* یکتانت میان‌مطلب تصویری تکرارشونده (جانمایی ۱۳۷۹۴۷) */}
+                      <div id="pos-article-display-card-123947" className="my-4" />
                     </>
                   )}
-                  {i === midIndex && <AdSlot slotKey={`${article.slug}-mid`} format="inline" />}
+                  {i === midIndex && (
+                    <div id="pos-article-display-card-123947" className="my-4" />
+                  )}
                 </div>
               ))}
             </div>
@@ -289,8 +291,8 @@ export function ArticleView({ article }: { article: Article }) {
             {/* باکس عضویت کانال تلگرام — انتهای همهٔ مقاله‌ها */}
             <ChannelJoinBox variant="full" articleSlug={article.slug} />
 
-            {/* تبلیغ پایین مقاله */}
-            <AdSlot slotKey={`${article.slug}-bottom`} format="horizontal" />
+            {/* تبلیغ پایین مقاله — یکتانت میان‌مطلب */}
+            <div id="pos-article-display-card-123947" className="my-4" />
 
             {/* برچسب‌ها */}
             <div className="mt-8 flex flex-wrap items-center gap-2">
