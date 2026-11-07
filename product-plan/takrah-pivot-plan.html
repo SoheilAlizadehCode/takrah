@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>تکره ۲.۰ — سکوی مولتی‌تننت + دستیار دکتر</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  @page { size: 210mm 297mm; margin: 0; }
+  html, body { margin: 0; padding: 0; background: #16130c; }
+  * { box-sizing: border-box; }
+  body { font-family: 'Vazirmatn', 'Tahoma', sans-serif; color: #241f14; }
+
+  .page {
+    width: 210mm; height: 297mm; position: relative;
+    background: #faf8f3; break-after: page; overflow: visible;
+    padding: 14mm 15mm 16mm;
+  }
+  .page:last-child { break-after: auto; }
+  .cover { background: #16130c; color: #f3ead8; padding: 22mm 16mm; display: flex; flex-direction: column; }
+
+  @media screen {
+    html { background: #16130c; }
+    .page { margin: 12px auto; box-shadow: 0 4px 24px rgba(0,0,0,.35); }
+  }
+
+  /* ── عناصر مشترک ── */
+  .kicker { font-size: 10px; letter-spacing: 5px; color: #c9a227; font-weight: 600; }
+  h2 { font-size: 21px; font-weight: 900; color: #1d1812; margin: 2px 0 4px; }
+  h2 .num { color: #c9a227; }
+  .rule { height: 2px; background: linear-gradient(to left, #c9a227, rgba(201,162,39,.15)); margin: 6px 0 14px; border-radius: 2px; }
+  p { font-size: 12px; line-height: 2.05; margin: 0 0 9px; text-align: justify; }
+  strong { font-weight: 700; }
+  .gold { color: #a3821c; font-weight: 700; }
+
+  .foot {
+    position: absolute; bottom: 8mm; right: 15mm; left: 15mm;
+    display: flex; justify-content: space-between; font-size: 9px; color: #9a8f78;
+    border-top: 1px solid #e5dcc8; padding-top: 5px;
+  }
+
+  /* کارت‌ها و جعبه‌ها */
+  .box { background: #fff; border: 1px solid #e7dec9; border-radius: 10px; padding: 12px 14px; margin: 0 0 10px; }
+  .box .t { font-weight: 800; font-size: 12.5px; margin-bottom: 4px; color: #1d1812; }
+  .insight { background: #f4ecda; border-right: 3px solid #c9a227; border-radius: 8px; padding: 11px 14px; margin: 10px 0; }
+  .insight .t { font-weight: 800; font-size: 12.5px; color: #7a611a; margin-bottom: 3px; }
+  .insight p { margin-bottom: 0; font-size: 11.5px; }
+  .quote { border-right: 3px solid #c9a227; background: #fffdf6; padding: 9px 13px; border-radius: 8px; font-size: 11.5px; line-height: 1.95; color: #4d4330; margin: 0 0 8px; font-style: italic; }
+  .quote b { font-style: normal; color: #8a6d1d; font-size: 10px; }
+
+  ul.tick { list-style: none; margin: 0 0 10px; padding: 0; }
+  ul.tick li { font-size: 11.8px; line-height: 1.9; padding-right: 18px; position: relative; margin-bottom: 5px; text-align: justify; }
+  ul.tick li::before { content: ""; position: absolute; right: 0; top: 9px; width: 8px; height: 8px; border-radius: 2px; background: #c9a227; }
+
+  /* جدول‌ها */
+  table { width: 100%; border-collapse: collapse; margin: 4px 0 12px; font-size: 11px; }
+  th { background: #c9a227; color: #fff; font-weight: 700; padding: 7px 9px; text-align: right; font-size: 11px; }
+  td { padding: 7px 9px; border-bottom: 1px solid #eee3cd; vertical-align: top; line-height: 1.8; }
+  tr:nth-child(even) td { background: #fbf7ec; }
+  td.c, th.c { text-align: center; }
+  .yes { color: #2e7d43; font-weight: 800; }
+  .no { color: #b3403a; font-weight: 800; }
+
+  /* کد */
+  pre { direction: ltr; text-align: left; background: #1d1812; color: #e8dcbf; border-radius: 10px; padding: 12px 16px; font-family: ui-monospace, 'Courier New', monospace; font-size: 10.5px; line-height: 1.85; margin: 4px 0 12px; white-space: pre; }
+  pre .k { color: #c9a227; }
+
+  /* فلوی دستیار دکتر */
+  .flow { display: flex; align-items: stretch; gap: 6px; margin: 10px 0 12px; }
+  .fnode { flex: 1; background: #f4ecda; border: 1.5px solid #d8c489; border-radius: 10px; padding: 9px 8px; text-align: center; }
+  .fnode .n { font-size: 9.5px; color: #a3821c; font-weight: 800; letter-spacing: 1px; }
+  .fnode .t { font-size: 11px; font-weight: 800; margin-top: 2px; line-height: 1.55; }
+  .fnode .d { font-size: 9.5px; color: #7c7156; margin-top: 3px; line-height: 1.6; }
+  .farrow { align-self: center; color: #c9a227; font-size: 16px; font-weight: 900; }
+
+  .two { display: flex; gap: 12px; }
+  .two > div { flex: 1; }
+
+  .pill { display: inline-block; background: #c9a227; color: #fff; border-radius: 20px; font-size: 9.5px; font-weight: 700; padding: 1px 10px; margin-right: 4px; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ جلد ═══════════ -->
+<div class="page cover">
+  <div style="flex:1"></div>
+  <div class="kicker">T A K R A H &nbsp;·&nbsp; P R O D U C T &nbsp; P I V O T &nbsp;·&nbsp; v 2 . 0</div>
+  <div style="height:2px;background:linear-gradient(to left,#c9a227,rgba(201,162,39,.1));margin:32px 0 50px;"></div>
+  <div style="font-size:38px;font-weight:900;line-height:1.5;">تکره ۲.۰ — سکوی مولتی‌تننت<br>و دستیار هوشمند دکتر</div>
+  <div style="font-size:14px;color:#c9b98f;line-height:2.2;margin-top:18px;">پاسخ فنی و تجاری به بازخورد بازار: از «ربات سفارشیِ دست‌ساز»<br>تا «اشتراک خودکار با ثبت‌نام ۱۰ دقیقه‌ای و تریال ۱۴ روزه»</div>
+  <div style="margin-top:34px;font-size:11.5px;color:#9a8f78;line-height:2.1;">
+    سوهیل علی‌زاده · JSDevelop · رشت<br>
+    takrah.top &nbsp;·&nbsp; آبان ۱۴۰۵ (نوامبر ۲۰۲۶)
+  </div>
+  <div style="flex:1.4"></div>
+  <div style="border-top:1px solid #3a321a;padding-top:46px;display:flex;justify-content:space-between;font-size:9px;color:#9a8f78;">
+    <span>TAKRAH PRODUCT PLAN</span><span>takrah.top</span>
+  </div>
+</div>
+
+<!-- ═══════════ صفحه ۲ — خلاصه تصمیم‌گیری ═══════════ -->
+<div class="page">
+  <div class="kicker">خلاصه برای تصمیم‌گیری</div>
+  <h2><span class="num">۰۱ —</span> چه شنیدیم، چه می‌سازیم</h2>
+  <div class="rule"></div>
+
+  <div class="quote">«باید مولتی‌تننت باشه سایت تا دکترها بیان یه پلن بخرن. اینجوری با روش فعلی کسی نمی‌خره.» <b>— بازخورد بازاریاب‌ها</b></div>
+  <div class="quote">«باید منشی + دستیار دکتر باشه؛ مثلاً یه پرسشنامه از بیمار پر کنه، خلاصه‌ش رو وویس بده به دکتر.» <b>— بازخورد دکترها</b></div>
+
+  <p>هر دو بازخورد درست است و شواهد فنی‌اش داخل همین ریپو دیده می‌شود: پیکربندی کلینیک فعلی (<span class="gold">کلینیک سلامت</span>) به‌صورت ثابت در سورس‌کد نوشته شده است. یعنی افزودن هر کلینیک جدید امروز به معنای تغییر کد، تست و دیپلوی جداگانه است — هزینه‌ای که نه شما می‌توانید تکرار کنید و نه هیچ بازاریابی می‌تواند در چرخه فروش جا بدهد. پاسخ ما دو تغییر هم‌زمان است:</p>
+
+  <div class="box"><div class="t">پاسخ ۱ — سکوی مولتی‌تننت (Multi-Tenant)</div>
+    <p style="margin-bottom:0;font-size:11.5px;">هر کلینیک یک «تننت» مستقل با پیکربندی، پزشکان، نوبت‌ها و داده‌های جدا می‌شود. ثبت‌نام خودکار با لینک، صفحه نوبت‌دهی اختصاصی <span dir="ltr">takrah.top/c/&lt;کلینیک&gt;</span> به‌صورت خودکار، تریال ۱۴ روزه بدون کارت و وضعیت اشتراک خودمدیریت. راه‌اندازی هر کلینیک جدید از «۳ روز کدنویسی» به «۱۰ دقیقه ثبت‌نام» می‌رسد.</p>
+  </div>
+  <div class="box"><div class="t">پاسخ ۲ — ماژول «دستیار دکتر»</div>
+    <p style="margin-bottom:0;font-size:11.5px;">پرسشنامه پیش از مراجعه: بیمار با لینک/QR کلینیک فرم موبایلی را پر می‌کند (شکایت، سابقه، دارو، حساسیت)، هوش مصنوعی همان را به خلاصه ساخت‌یافته تبدیل می‌کند و یک وویس ۶۰ ثانیه‌ای برای دکتر به تلگرام می‌رود — قبل از اینکه بیمار روی صندلی بنشیند.</p>
+  </div>
+
+  <div class="two">
+    <div class="box"><div class="t">چه چیزی می‌ماند (دارایی امروز)</div>
+      <ul class="tick" style="margin-bottom:0;">
+        <li>زنجیره هوش مصنوعی: Whisper ← GLM ← صدای «دلارا»</li>
+        <li>ربات‌های تلگرام + گزارش شبانه مدیر</li>
+        <li>زیرساخت: Vercel + آپ‌استش (بدون سرور)</li>
+        <li>برند تکره و دموی زنده plan2</li>
+      </ul>
+    </div>
+    <div class="box"><div class="t">چه چیزی عوض می‌شود</div>
+      <ul class="tick" style="margin-bottom:0;">
+        <li>کانفیگ هاردکد ← رجیستری تننت‌ها</li>
+        <li>قیمت پروژه‌ای ← اشتراک ماهانه + تریال</li>
+        <li>فروش دستی ← لینک ثبت‌نام + کد معرف بازاریاب</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="insight"><div class="t">نکته استراتژیک این سند</div>
+    <p>دو بازخورد یک مشکل مشترک را حل می‌کنند: «دستیار دکتر» دقیقاً همان چیزی است که دیوار منشی را پایین می‌آورد — پرسشنامه جای منشی را نمی‌گیرد، کارش را سبک می‌کند؛ پس منشی از سد فروش به هم‌پیمان شما تبدیل می‌شود. و مولتی‌تننت باعث می‌شود هر فروش بعدی هزینه تحویل نزدیک صفر داشته باشد.</p>
+  </div>
+
+  <div class="foot"><span>تکره ۲.۰ — سند پیوت محصول</span><span>takrah.top</span></div>
+</div>
+
+<!-- ═══════════ صفحه ۳ — تشخیص صادقانه ═══════════ -->
+<div class="page">
+  <div class="kicker">تشخیص صادقانه</div>
+  <h2><span class="num">۰۲ —</span> چرا تا امروز فروش نشد</h2>
+  <div class="rule"></div>
+
+  <p>«هیچ‌کس از من نخرید» یک داده است، نه شکست. سه دلیل مشخص دارد و هر سه قابل رفع‌اند — دو تای اول با همین سند، سومی با جعبه‌ابزار فروشی که از قبل ساخته شده:</p>
+
+  <div class="box"><div class="t">۱ — هزینه راه‌اندازی هر کلینیک، خودِ شما هستید</div>
+    <p style="margin-bottom:0;">پیکربندی کلینیک فعلی ثابت داخل سورس است (<span dir="ltr" class="gold">src/lib/clinic-bot.ts</span> — نام، آدرس، پزشکان، ساعت‌ها). افزودن کلینیک دوم یعنی فورک و دیپلوی جدید. با این مدل، حتی اگر بازاریابی ۵۰ دکتر را متقاعد کند، ظرفیت تحویل شما ۲ کلینیک در ماه است و قیمت فروش هیچ‌وقت جواب کار شما را نمی‌دهد. این دقیقاً همان چیزی است که بازاریاب‌ها حس کردند و گفتند «مولتی‌تننت لازم است».</p>
+  </div>
+
+  <div class="box"><div class="t">۲ — محصول با دردِ اصلی دکتر هم‌راستا نبود</div>
+    <p style="margin-bottom:0;">پیام «منشی هوشمند» دو حساسیت ایجاد می‌کند: منشی تهدید می‌شود و مانع می‌شود؛ و دکتر یک ابزار «جواب‌گویی» می‌بیند نه یک ارزش قابل‌لمس. اما درد واقعی دکتر <strong>وقتِ</strong> اوست: ۱۰ تا ۱۵ دقیقه از هر ویزیت صرف پرسیدن سوالات تکراری می‌شود. ماژول پرسشنامه مستقیماً همین درد را هدف می‌گیرد و دمو شدنش هم ۶۰ ثانیه طول می‌کشد.</p>
+  </div>
+
+  <div class="box"><div class="t">۳ — مسیر اعتماد نبود</div>
+    <p style="margin-bottom:0;">دکتر ایرانی با توضیح نمی‌خرد؛ با دموی زنده و تریال بدون ریسک می‌خرد. مدل فعلی اول قیمت می‌خواهد (پروژه ۱۸ تا ۵۵ میلیونی) بعد تحویل. مدل جدید برعکس است: ثبت‌نام رایگان، تریال ۱۴ روزه فعال، ارزش قبل از فاکتور. قیمت بعد از اینکه نوبت‌های شبانه به سیستم وابسته شد، فقط یک فرم پرداخت است.</p>
+  </div>
+
+  <table>
+    <tr><th style="width:22%;">محور</th><th style="width:39%;">وضعیت فعلی</th><th style="width:39%;">هدف تکره ۲.۰</th></tr>
+    <tr><td><strong>افزودن کلینیک</strong></td><td>تغییر کد + دیپلوی (چند روز، دستِ سوهیل)</td><td>ثبت‌نام خودکار ۱۰ دقیقه‌ای، بدون دخالت انسان</td></tr>
+    <tr><td><strong>درآمد</strong></td><td>یک‌بار فروش پروژه‌ای ۱۸ تا ۵۵ میلیون</td><td>اشتراک ماهانه تکرارشونده + حفظ پکیج برای کلینیک‌های بزرگ</td></tr>
+    <tr><td><strong>نقش بازاریاب</strong></td><td>تعریف‌کردن محصولی که تحویلش با شماست</td><td>پخش لینک ثبت‌نام با کد معرف و کمیسیون خودکار</td></tr>
+    <tr><td><strong>مقاومت منشی</strong></td><td>«منشی هوشمند» = تهدید ← دیوار</td><td>دستیاری که کار منشی را کم می‌کند ← هم‌پیمان</td></tr>
+  </table>
+
+  <div class="insight"><div class="t">چیزی که ثابت می‌ماند</div>
+    <p>استراتژی فروش قبلی سر جایش است: دمو به‌جای توضیح، اولین کلینیک پایلوت با ۲ هفته رایگان، و جمله مرجع «۴۰ نوبت شبانه ثبت کرده». مولتی‌تننت فقط این را تغییر می‌دهد که بعد از «بله»ی دکتر، تحویل ۳ روز طول نکشد — همان لحظه لینک ثبت‌نام را می‌دهید.</p>
+  </div>
+
+  <div class="foot"><span>تکره ۲.۰ — سند پیوت محصول</span><span>takrah.top</span></div>
+</div>
+
+<!-- ═══════════ صفحه ۴ — معماری مولتی‌تننت ═══════════ -->
+<div class="page">
+  <div class="kicker">معماری فنی</div>
+  <h2><span class="num">۰۳ —</span> مولتی‌تننت روی زیرساخت فعلی</h2>
+  <div class="rule"></div>
+
+  <p>اصول طراحی: <strong>هیچ زیرساخت جدیدی لازم نیست.</strong> آپ‌استش از قبل لایو است و تا حدود ۵۰ کلینیک فعال کفایت می‌کند (بند ریسک‌ها). همه داده‌ها با پیشوند تننت جداسازی می‌شوند و کد ربات‌ها از «کانفیگ ثابت» به «کانفیگِ خوانده‌شده از تننت» تبدیل می‌شود:</p>
+
+  <pre><span class="k">t:index</span>                    ← فهرست slug همه کلینیک‌ها
+<span class="k">t:&lt;slug&gt;:config</span>            ← نام، تخصص، آدرس، تلفن، ساعت‌ها، رنگ برند، پیام خوش‌آمد
+<span class="k">t:&lt;slug&gt;:doctors</span>           ← [{ id, name, spec, days }]
+<span class="k">t:&lt;slug&gt;:slots</span>             ← بازه‌های نوبت هر روز
+<span class="k">t:&lt;slug&gt;:bookings:&lt;date&gt;</span>   ← نوبت‌های ثبت‌شده روز
+<span class="k">t:&lt;slug&gt;:intake:&lt;formId&gt;</span>   ← پرسشنامه‌های تکمیل‌شده + خلاصه ویس
+<span class="k">t:&lt;slug&gt;:usage:&lt;YYYY-MM&gt;</span>   ← شمارنده مصرف AI/ویس (سقف پلن)
+<span class="k">t:&lt;slug&gt;:sub</span>               ← وضعیت اشتراک: trial | active | expired
+<span class="k">ref:&lt;code&gt;</span>                 ← کد معرف بازاریاب ← اتصال تننت جدید به معرف</pre>
+
+  <table>
+    <tr><th style="width:34%;">مسیر جدید</th><th>نقش</th></tr>
+    <tr><td dir="ltr" class="c">/start</td><td>جادوگر ثبت‌نام: نام کلینیک، تخصص، پزشکان و ساعت‌ها ← ساخت تننت + تریال ۱۴ روزه؛ ورودی از ربات سایت و لینک مستقیم</td></tr>
+    <tr><td dir="ltr" class="c">/c/[slug]</td><td>صفحه نوبت‌دهی اختصاصی هر کلینیک — همان دموی plan2 که به قالب با دیتای تننت تبدیل می‌شود</td></tr>
+    <tr><td dir="ltr" class="c">/c/[slug]/intake</td><td>فرم پرسشنامه بیمار (لینک/QR مخصوص هر پزشک)</td></tr>
+    <tr><td dir="ltr" class="c">/api/tenants/*</td><td>ساخت، خواندن و به‌روزرسانی تننت + وریفای مالکیت (کد تلگرام)</td></tr>
+    <tr><td dir="ltr" class="c">/api/billing/*</td><td>زرین‌پال request/verify + فعال‌سازی دستی برای مشتری اول</td></tr>
+  </table>
+
+  <div class="two">
+    <div class="box"><div class="t">چرخه وضعیت اشتراک</div>
+      <p style="font-size:11px;margin-bottom:0;line-height:2.1;">
+        <span class="pill">trial — ۱۴ روز</span> همه امکانات حرفه‌ای<br>
+        <span class="pill">active</span> بر اساس پلن پرداخت‌شده<br>
+        <span class="pill">expired</span> فقط خواندنی + نرمی ۳۰ روزه<br>
+        <span class="pill">archived</span> پاک‌سازی خودکار داده</p>
+    </div>
+    <div class="box"><div class="t">مهاجرت و امنیت</div>
+      <ul class="tick" style="margin-bottom:0;font-size:11px;">
+        <li>دموی «کلینیک سلامت» ← تننت شماره یک؛ دموی زنده فروش همان می‌ماند</li>
+        <li>هر تننت فقط دیتای پیشوند خودش را می‌بیند</li>
+        <li>لینک intake با توکن امضاشده؛ بدون آن فرم باز نمی‌شود</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="insight"><div class="t">تلگرام، تننت‌ها و اینستاگرام</div>
+    <p style="margin-bottom:0;">در فاز ۱ هر تننت با همان ربات‌های موجود کار می‌کند: چت‌آی‌دی دکتر/منشی داخل کانفیگ تننت ثبت می‌شود و گزارش‌ها به همان‌جا می‌رود. اینستاگرامِ اختصاصی هر تننت به فاز ۴ (باز شدن اکانت متا) موکول است — فعلاً ManyChat پل عمومی ماست و مانع هیچ فروشی نیست.</p>
+  </div>
+
+  <div class="foot"><span>تکره ۲.۰ — سند پیوت محصول</span><span>takrah.top</span></div>
+</div>
+
+<!-- ═══════════ صفحه ۵ — دستیار دکتر ═══════════ -->
+<div class="page">
+  <div class="kicker">ماژول کلیدی فروش</div>
+  <h2><span class="num">۰۴ —</span> دستیار دکتر: پرسشنامه ← خلاصه وویس</h2>
+  <div class="rule"></div>
+
+  <p>این ماژول همان چیزی است که دکتر در جلسه فروش باید «ببیند»، نه بشنود. کل چرخه زیر ۹۰ ثانیه طول می‌کشد و روی اجزای موجود ساخته می‌شود — نرم‌افزار جدیدی سمت دکتر لازم نیست، همه‌چیز در تلگرامی که از قبل باز است می‌رسد:</p>
+
+  <div class="flow">
+    <div class="fnode"><div class="n">گام ۱</div><div class="t">لینک / QR</div><div class="d">وقت‌گیر یا ربات، لینک اختصاصی پزشک را می‌دهد</div></div>
+    <div class="farrow">←</div>
+    <div class="fnode"><div class="n">گام ۲</div><div class="t">فرم موبایلی بیمار</div><div class="d">شکایت، سابقه، دارو، حساسیت — با امکان ضبط صوتی به‌جای تایپ</div></div>
+    <div class="farrow">←</div>
+    <div class="fnode"><div class="n">گام ۳</div><div class="t">GLM خلاصه می‌کند</div><div class="d">خلاصه ساخت‌یافته فارسی + نکات و هشدارها</div></div>
+    <div class="farrow">←</div>
+    <div class="fnode"><div class="n">گام ۴</div><div class="t">صدای «دلارا»</div><div class="d">ویس ~۶۰ ثانیه‌ای، آماده شنیدن بین دو ویزیت</div></div>
+    <div class="farrow">←</div>
+    <div class="fnode"><div class="n">گام ۵</div><div class="t">تلگرام دکتر</div><div class="d">ویس + متن کوتاه، ذخیره در تاریخچه تننت</div></div>
+  </div>
+
+  <div class="two">
+    <div class="box"><div class="t">سوالات پیش‌فرض فرم (قابل ویرایش توسط کلینیک)</div>
+      <ul class="tick" style="margin-bottom:0;font-size:11px;">
+        <li>شکایت اصلی امروز چیست؟ (متن آزاد یا ضبط صدا)</li>
+        <li>از کی شروع شده؟ تازه است یا تکرارشونده؟</li>
+        <li>داروهای فعلی و سابقه بیماری مهم؟</li>
+        <li>حساسیت دارویی یا غذایی؟</li>
+        <li>شدت درد از ۰ تا ۱۰؟ (اسلایدر)</li>
+        <li>عکس/فایل ضمیمه — اختیاری (مثلاً آزمایش قبلی)</li>
+      </ul>
+    </div>
+    <div class="box"><div class="t">نمونه خلاصه‌ای که دکتر می‌شنود</div>
+      <p style="font-size:11px;line-height:2;color:#4d4330;background:#fbf7ec;border-radius:8px;padding:9px 11px;">«بیمار ۳۴ ساله، درد دندان پایین چپ از پنج روز پیش، شب‌ها شدیدتر، حساس به سردی. سابقه فشار خون با داروی لیزینوپریل. حساسیت گزارش نشده. شدت درد ۷ از ۱۰. برای ارزیابی پالپ احتمالاً نیاز به رادیوگرافی امروز دارد؛ زمان مراجعه را اورژانسی پیشنهاد کنید.»</p>
+    </div>
+  </div>
+
+  <table>
+    <tr><th style="width:28%;">چرا این ماژول می‌فروشد</th><th>توضیح</th></tr>
+    <tr><td><strong>وقتِ دکتر</strong></td><td>۱۰ تا ۱۵ دقیقه صرفه‌جویی در هر ویزیتِ جدید؛ با ۲۰ بیمار روزانه یعنی بیش از ۴ ساعت در هفته</td></tr>
+    <tr><td><strong>دموی ۶۰ ثانیه‌ای</strong></td><td>در جلسه فروش: فرم را می‌پرد ← ویس برای دکترِ حاضر در جلسه پخش می‌شود — بدون هیچ توضیحی</td></tr>
+    <tr><td><strong>حس «دستیار»</strong></td><td>دکتر ابزار نوبت‌دهی نمی‌بیند؛ یک کمک‌کار بالینی می‌بیند که قبل از ویزیت کار را آماده کرده</td></tr>
+    <tr><td><strong>منشی بی‌ادعا</strong></td><td>پرسشنامه پیش از مراجعه جای منشی را نمی‌گیرد؛ تماس‌های «سوال پریدن» را کم می‌کند — پس با آن نمی‌جنگد</td></tr>
+  </table>
+
+  <div class="insight"><div class="t">حریم خصوصی</div>
+    <p style="margin-bottom:0;">داده پرسشنامه فقط در محدوده همان تننت ذخیره می‌شود، در گزارش‌های عمومی نمی‌آید و پس از ۹۰ روز به‌صورت خودکار پاک می‌شود (سیاست قابل تنظیم برای هر کلینیک). پاسخ‌های صوتی بیمار با همان مسیر امن وویس فعلی (لینک امضاشده یک‌ساعته) منتقل می‌شود.</p>
+  </div>
+
+  <div class="foot"><span>تکره ۲.۰ — سند پیوت محصول</span><span>takrah.top</span></div>
+</div>
+
+<!-- ═══════════ صفحه ۶ — قیمت‌گذاری ═══════════ -->
+<div class="page">
+  <div class="kicker">مدل درآمد</div>
+  <h2><span class="num">۰۵ —</span> پلن‌ها، تریال و بازاریاب</h2>
+  <div class="rule"></div>
+
+  <p>قیمت‌گذاری از «یک‌بار فروش پروژه‌ای» به «اشتراک ماهانه با تریال رایگان» تغییر می‌کند — با یک تفاوت مهم برای جریان نقدی شما: پکیج‌های پروژه‌ای برای کلینیک‌های بزرگ همان‌طور که هستند باقی می‌مانند. اشتراک برای ورودِ سریعِ کلینیک‌های کوچک است، نه جایگزین فروش بزرگ:</p>
+
+  <table>
+    <tr><th style="width:36%;">امکانات</th><th class="c">پایه — «نوبت‌دهی آنلاین»<br>۹۹۰ هزار تومان/ماه</th><th class="c">حرفه‌ای — «دستیار دکتر»<br>۱٬۹۹۰ هزار تومان/ماه</th></tr>
+    <tr><td>صفحه نوبت‌دهی اختصاصی + دامنه takrah.top/c/…</td><td class="c yes">دارد</td><td class="c yes">دارد</td></tr>
+    <tr><td>پاسخگوی شبانه (ربات تلگرام + AI)</td><td class="c yes">۲۰۰ پیام AI/ماه</td><td class="c yes">۱٬۰۰۰ پیام AI/ماه</td></tr>
+    <tr><td>گزارش عملکرد شبانه برای مدیر</td><td class="c yes">دارد</td><td class="c yes">دارد</td></tr>
+    <tr><td>یادآوری خودکار نوبت به بیمار</td><td class="c yes">دارد</td><td class="c yes">دارد</td></tr>
+    <tr><td>پرسشنامه بیمار + خلاصه وویس برای دکتر</td><td class="c no">ندارد</td><td class="c yes">۶۰ پرسشنامه/ماه</td></tr>
+    <tr><td>ثبت بازخورد ویزیت + تاریخچه بیمار در تننت</td><td class="c no">ندارد</td><td class="c yes">دارد</td></tr>
+    <tr><td>پرداخت سالانه (۲ ماه رایگان)</td><td class="c">۱۰ میلیون</td><td class="c">۲۰ میلیون</td></tr>
+  </table>
+
+  <div class="two">
+    <div class="box"><div class="t">تریال و پرداخت</div>
+      <ul class="tick" style="margin-bottom:0;font-size:11px;">
+        <li>۱۴ روز تریال حرفه‌ای، بدون کارت و بدون تماس</li>
+        <li>پرداخت آنلاین با زرین‌پال (فاز ۳)</li>
+        <li>مشتری اول: کارت‌به‌کارت + فعال‌سازی دستی توسط شما — اعتماد قبل از اتوماسیون</li>
+        <li>راه‌اندازی: رایگان — دیگر حرفی از «هزینه نصب» وسط مذاکره نمی‌آید</li>
+      </ul>
+    </div>
+    <div class="box"><div class="t">بازاریاب‌ها: از گلوگاه به موتور</div>
+      <ul class="tick" style="margin-bottom:0;font-size:11px;">
+        <li>هر بازاریاب یک لینک ثبت‌نام اختصاصی می‌گیرد (کد معرف)</li>
+        <li>تننتِ ساخته‌شده با کد او، برای همیشه به او وصل است</li>
+        <li>کمیسیون پیشنهادی: ۲۰٪ درآمد شش ماه اول — بدون ریسک برای او</li>
+        <li>او دیگر محصولی که تحویلش با شماست نمی‌فروشد؛ لینک پخش می‌کند</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="insight"><div class="t">اعداد ساده برای تصمیم</div>
+    <p style="margin-bottom:0;">۱۵ کلینیک حرفه‌ای ≈ ۳۰ میلیون تومان درآمد سالانه تکرارشونده — با هزینه تحویل نزدیک صفر بعد از فاز ۱. همان درآمد با مدل قبلی یعنی ۱۵ پروژه سفارشی که عملاً یک‌نفره غیرممکن بود. پلن حرفه‌ای در ۹ ماه معادل فروش ۱۸ میلیونی قدیم را برمی‌گرداند و بعد از آن، سود خالصِ تکرارشونده است.</p>
+  </div>
+
+  <div class="foot"><span>تکره ۲.۰ — سند پیوت محصول</span><span>takrah.top</span></div>
+</div>
+
+<!-- ═══════════ صفحه ۷ — نقشه راه ═══════════ -->
+<div class="page">
+  <div class="kicker">اجرا</div>
+  <h2><span class="num">۰۶ —</span> نقشه راه: چهار فاز، هر فاز یک جلسه کار</h2>
+  <div class="rule"></div>
+
+  <p>هر فاز در یک جلسه کاری کامل ساخته، وریفای و بلافاصله پوش می‌شود (طبق پروتکل نگهبان داده: پایان هر تسک = کامیت + پوش). هیچ فازی زیرساخت خریدنی ندارد — همه‌چیز روی Vercel و آپ‌استش فعلی می‌ماند:</p>
+
+  <table>
+    <tr><th style="width:15%;">فاز</th><th style="width:55%;">تحویل‌ها</th><th>معیار «تمام شد»</th></tr>
+    <tr>
+      <td><strong>۰</strong><br>پایدارسازی</td>
+      <td>جداسازی WIP سشن‌های دیگر از main، قفل‌کردن نسخه پایدار قابل دیپلوی، تعیین برنچ پایدار</td>
+      <td>دیپلوی سبز؛ ریسک خراب‌شدن takrah.top در میانه پیوت صفر</td>
+    </tr>
+    <tr>
+      <td><strong>۱</strong><br>مولتی‌تننت</td>
+      <td><span dir="ltr">tenants.ts</span> + جادوگر ثبت‌نام /start + قالب صفحه <span dir="ltr">/c/[slug]</span> + مهاجرت کلینیک سلامت به تننت اول + جداسازی داده‌ها با پیشوند تننت</td>
+      <td>با لینک، کلینیک دومِ آزمایشی ساخته می‌شود و صفحه نوبت‌دهی مستقلش لایو است</td>
+    </tr>
+    <tr>
+      <td><strong>۲</strong><br>دستیار دکتر</td>
+      <td>فرم پرسشنامه <span dir="ltr">/c/[slug]/intake</span> + خلاصه‌سازی GLM + صدای دلارا + تحویل به تلگرام دکتر + ورودی صوتی بیمار با Whisper</td>
+      <td>دموی ۶۰ ثانیه‌ای: پرکردن فرم از موبایل و شنیدن ویس در تلگرام دکتر</td>
+    </tr>
+    <tr>
+      <td><strong>۳</strong><br>اشتراک و رشد</td>
+      <td>زرین‌پال + چرخه وضعیت اشتراک + پنل ساده ادمین (لیست تننت‌ها، مصرف، فعال‌سازی دستی) + کد معرف بازاریاب</td>
+      <td>یک تریال از ثبت‌نام تا تمدید پولی بدون دخالت کد</td>
+    </tr>
+    <tr>
+      <td><strong>۴</strong><br>اینستاگرام</td>
+      <td>به محض باز شدن اکانت متا: جایگزینی ManyChat با ربات اینستاگرام خودمان (کد از قبل آماده است)</td>
+      <td>کامنت/دایرکت اینستا روی مغز GLM و ویس، برای تننت‌ها</td>
+    </tr>
+  </table>
+
+  <table>
+    <tr><th style="width:26%;">ریسک</th><th>پاسخ از روز اول</th></tr>
+    <tr><td><strong>سقف آپ‌استش در مقیاس</strong></td><td>تا ~۵۰ کلینیک فعال مشکلی نیست؛ بعد از آن مهاجرت به Postgres فقط لایه kv.ts را عوض می‌کند (یک فایل) — بقیه کد دست‌نخورده</td></tr>
+    <tr><td><strong>هزینه GLM/ویس</strong></td><td>سقف مصرف در هر پلن + شمارنده usage در هر تننت؛ اتمام سقف = پیام شفاف برای ارتقا، نه قطع بی‌خبر</td></tr>
+    <tr><td><strong>پشتیبانی تک‌نفره</strong></td><td>گزارش شبانه خودکار به هر کلینیک + خودشناسی خطا (همان الگوی ai-diag فعلی) + SLA ساده ساعات اداری</td></tr>
+    <tr><td><strong>داده پزشکی</strong></td><td>جداسازی تننت + پاک‌سازی خودکار ۹۰ روزه + هیچ داده بالینی در لاگ‌های عمومی</td></tr>
+  </table>
+
+  <div class="foot"><span>تکره ۲.۰ — سند پیوت محصول</span><span>takrah.top</span></div>
+</div>
+
+<!-- ═══════════ صفحه ۸ — تصمیم‌های باز ═══════════ -->
+<div class="page">
+  <div class="kicker">قبل از کلید ساخت</div>
+  <h2><span class="num">۰۷ —</span> سه تصمیمِ باز و پیشنهاد من</h2>
+  <div class="rule"></div>
+
+  <div class="box"><div class="t">۱ — درگاه پرداخت: زرین‌پال (پیش‌فرض من)</div>
+    <p style="margin-bottom:0;">ساده‌ترین راه‌اندازی برای کلینیک‌های کوچک، با حالت سندباکس برای تست. اگر حساب پذیرندگی خاصی دارید یا درگاه دیگری ترجیح می‌دهید (زیبال، آیدی‌پی)، قبل از کدنویسی فاز ۳ بگویید. تا آن موقع، مشتری اول با کارت‌به‌کارت و فعال‌سازی دستی جلو می‌رود.</p>
+  </div>
+
+  <div class="box"><div class="t">۲ — ورودی ثبت‌نام: ربات سایت + لینک /start (پیش‌فرض من)</div>
+    <p style="margin-bottom:0;">جریان ثبت‌نام از دو راه باز می‌شود: دستور <span dir="ltr">/start</span> در ربات سایت <span dir="ltr">@TakrahTop_bot</span> و لینک مستقیمی که در دایرکت/واتساپ برای دکتر می‌فرستید. اپلیکیشن جدا و پنل پیچیده فعلاً نه — اول باید ۱۰ کلینیک پول‌ده داشته باشیم، بعد پنل می‌سازیم که ارزشش را داشته باشد.</p>
+  </div>
+
+  <div class="box"><div class="t">۳ — ترتیب ساخت: فاز ۱ کامل، بعد دمو، بعد فاز ۲ (پیش‌فرض من)</div>
+    <p style="margin-bottom:0;">اول مولتی‌تننت کامل می‌شود چون بدون آن، دستیار دکتر هم برای هر کلینیک دستی وصل می‌شود و باز همان گلوگاه برمی‌گردد. بعد از فاز ۱، یک جلسه دمو با همان کلینیک پایلوتی که انتخاب کرده‌اید می‌گذاریم و بازخوردش را قبل از فاز ۲ می‌بینید.</p>
+  </div>
+
+  <div class="insight"><div class="t">حق وتو</div>
+    <p style="margin-bottom:0;">قیمت‌های پلن‌ها و اسم‌های تجاری («پایه/حرفه‌ای») فقط پیشنهادند و با یک جمله قابل تغییرند. چیزی که پیشنهاد نمی‌کنم عوض شود: تریال ۱۴ روزه و حذف هزینه راه‌اندازی — این دو همان چیزی است که دیوار اعتماد را در اولین تماس پایین می‌آورد.</p>
+  </div>
+
+  <div class="two">
+    <div class="box"><div class="t">بعد از تأیید شما</div>
+      <ul class="tick" style="margin-bottom:0;font-size:11px;">
+        <li>فاز ۰ و ۱ از همین ریپو شروع می‌شود</li>
+        <li>هر فاز با کامیت و پوش فوری تمام می‌شود</li>
+        <li>دموی زنده هر فاز قبل از رفتن به فاز بعد، لایو چک می‌شود</li>
+      </ul>
+    </div>
+    <div class="box"><div class="t">همزمان، کار شما (بدون کدنویسی)</div>
+      <ul class="tick" style="margin-bottom:0;font-size:11px;">
+        <li>انتخاب همان کلینیک پایلوتی که با آن راحتید</li>
+        <li>ویدیوی ۴۰ ثانیه‌ای طبق فصل ۲ کیت فروش — بعد از فاز ۲ صحنه‌اش آماده می‌شود</li>
+        <li>اسم و شماره بازاریاب‌هایی که قبلاً پرسیدید — برای کد معرف فاز ۳</li>
+      </ul>
+    </div>
+  </div>
+
+  <p style="margin-top:14px;">این سند در ریپو ذخیره شده (<span dir="ltr">product-plan/</span>) تا جزئیات فنی‌اش برای هر جلسه ساخت در دسترس باشد. هر وقت گفتید «برو»، فاز ۰ از همان لحظه شروع می‌شود.</p>
+
+  <div class="foot"><span>تکره ۲.۰ — سند پیوت محصول · سوهیل علی‌زاده · JSDevelop</span><span>takrah.top</span></div>
+</div>
+
+</body>
+</html>
