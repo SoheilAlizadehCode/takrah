@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { captureInternalFlag, isInternalTraffic } from "@/lib/ga";
 
 /**
  * ثبت بازدید صفحات در Google Analytics 4
@@ -16,7 +17,10 @@ export function GAPageView({ gaId }: { gaId: string }) {
   const pathname = usePathname();
 
   useEffect(() => {
+    // ثبت فلگ ترافیک داخلی (اگر آدرس با ?tk_internal=1 باز شده باشد) قبل از هر ارسالی
+    captureInternalFlag();
     if (!gaId || typeof window === "undefined") return;
+    if (isInternalTraffic()) return;
     const w = window as unknown as {
       gtag?: (...args: unknown[]) => void;
     };

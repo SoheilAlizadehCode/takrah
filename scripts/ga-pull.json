@@ -1,0 +1,236 @@
+{
+ "generated": "2026-11-05",
+ "property_id": "556099118",
+ "ga4": {
+  "overview": {
+   "current": {
+    "activeUsers": 93.0,
+    "newUsers": 87.0,
+    "sessions": 133.0,
+    "screenPageViews": 448.0,
+    "engagementRate": 0.8345864661654135,
+    "averageSessionDuration": 115.57026627819549,
+    "keyEvents": 5.0
+   },
+   "previous": {
+    "activeUsers": 141.0,
+    "newUsers": 142.0,
+    "sessions": 153.0,
+    "screenPageViews": 367.0,
+    "engagementRate": 0.8104575163398693,
+    "averageSessionDuration": 50.38122077777778,
+    "keyEvents": 0.0
+   }
+  },
+  "views": {
+   "fa": {
+    "current": {
+     "dateRange": "current",
+     "screenPageViews": 446.0,
+     "activeUsers": 93.0
+    },
+    "previous": {
+     "dateRange": "previous",
+     "screenPageViews": 367.0,
+     "activeUsers": 141.0
+    }
+   },
+   "en": {
+    "current": {
+     "dateRange": "current",
+     "screenPageViews": 2.0,
+     "activeUsers": 1.0
+    },
+    "previous": {
+     "dateRange": "current",
+     "screenPageViews": 2.0,
+     "activeUsers": 1.0
+    }
+   }
+  },
+  "top_pages": [
+   {
+    "path": "/",
+    "views": 147.0,
+    "users": 49.0
+   },
+   {
+    "path": "/packages",
+    "views": 55.0,
+    "users": 9.0
+   },
+   {
+    "path": "/student/download",
+    "views": 54.0,
+    "users": 3.0
+   },
+   {
+    "path": "/student/ecommerce-security-12",
+    "views": 20.0,
+    "users": 8.0
+   },
+   {
+    "path": "/student/network-hardware-12",
+    "views": 16.0,
+    "users": 4.0
+   },
+   {
+    "path": "/article/what-is-ai-beginners-guide",
+    "views": 14.0,
+    "users": 3.0
+   },
+   {
+    "path": "/student",
+    "views": 12.0,
+    "users": 2.0
+   },
+   {
+    "path": "/article/ai-service-business",
+    "views": 8.0,
+    "users": 3.0
+   },
+   {
+    "path": "/article/programming-roadmap",
+    "views": 8.0,
+    "users": 4.0
+   },
+   {
+    "path": "/article/learn-python-from-zero",
+    "views": 6.0,
+    "users": 3.0
+   },
+   {
+    "path": "/article/network-equipment-installation-12",
+    "views": 6.0,
+    "users": 2.0
+   },
+   {
+    "path": "/category/programming",
+    "views": 6.0,
+    "users": 1.0
+   },
+   {
+    "path": "/contact",
+    "views": 6.0,
+    "users": 3.0
+   },
+   {
+    "path": "/about",
+    "views": 5.0,
+    "users": 3.0
+   },
+   {
+    "path": "/article/deepfake-guide",
+    "views": 5.0,
+    "users": 3.0
+   }
+  ],
+  "events": [
+   {
+    "name": "page_view",
+    "count": 448.0
+   },
+   {
+    "name": "session_start",
+    "count": 133.0
+   },
+   {
+    "name": "first_visit",
+    "count": 87.0
+   },
+   {
+    "name": "user_engagement",
+    "count": 50.0
+   },
+   {
+    "name": "scroll",
+    "count": 32.0
+   },
+   {
+    "name": "click",
+    "count": 14.0
+   },
+   {
+    "name": "language_switch",
+    "count": 2.0
+   },
+   {
+    "name": "package_contact_click",
+    "count": 2.0
+   },
+   {
+    "name": "telegram_click",
+    "count": 1.0
+   }
+  ]
+ },
+ "gsc": {
+  "property": "https://takrah.top/",
+  "current": {
+   "all": {
+    "clicks": 4,
+    "impressions": 205,
+    "position": 6.2
+   },
+   "fa": {
+    "clicks": 4,
+    "impressions": 205,
+    "position": 6.2
+   },
+   "en": {
+    "clicks": 0,
+    "impressions": 0,
+    "position": null
+   }
+  },
+  "previous": {
+   "all": {
+    "clicks": 1,
+    "impressions": 4,
+    "position": 1.0
+   },
+   "fa": {
+    "clicks": 1,
+    "impressions": 4,
+    "position": 1.0
+   },
+   "en": {
+    "clicks": 0,
+    "impressions": 0,
+    "position": null
+   }
+  },
+  "top_queries": [
+   {
+    "query": "آموزش هوش مصنوعی از صفر",
+    "clicks": 0,
+    "impressions": 1,
+    "position": 56
+   },
+   {
+    "query": "بهترین ایجنت های هوش مصنوعی",
+    "clicks": 0,
+    "impressions": 1,
+    "position": 74
+   },
+   {
+    "query": "هوش مصنوعی در فروشگاه اینترنتی",
+    "clicks": 0,
+    "impressions": 3,
+    "position": 84.7
+   },
+   {
+    "query": "گام به گام تجارت الکترونیک دوازدهم",
+    "clicks": 0,
+    "impressions": 1,
+    "position": 15
+   },
+   {
+    "query": "گام به گام تجارت الکترونیک و امنیت شبکه",
+    "clicks": 0,
+    "impressions": 2,
+    "position": 9.5
+   }
+  ]
+ }
+}

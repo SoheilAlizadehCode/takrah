@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Script from "next/script";
+import { gaEvent } from "@/lib/ga";
 import {
   ArrowLeft,
   BadgeCheck,
@@ -12,6 +13,7 @@ import {
   Download,
   FileText,
   GraduationCap,
+  Laptop,
   Loader2,
   Lock,
   Megaphone,
@@ -21,12 +23,14 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { TrackedLink } from "@/components/blog/tracked-link";
+import { AFFILIATE_PRODUCTS, AFFILIATE_STORES, type AffiliateProduct } from "@/data/affiliates";
 import { siteConfig } from "@/lib/site";
 
 /* ─── ثابت‌ها و تایپ‌ها ─────────────────────────────────────────── */
 
 const AD_SECONDS = 15;
-const BOT_USERNAME = "TakrahTop_bot";
+const BOT_USERNAME = "TakrahTop_support_bot";
 const CHANNEL_URL = siteConfig.telegramChannel;
 
 interface GateProps {
@@ -70,6 +74,42 @@ const PROMOS = [
     href: `mailto:${siteConfig.email}?subject=تبلیغ در بخش دانلود تک‌راه`,
   },
 ];
+
+/**
+ * اسلایدهای باکس «تبلیغ کوتاه» مرحلهٔ ۳ — ترکیب معرفی داخلی + تبلیغ واقعی.
+ *
+ * تا وقتی گوگل ادسنس فعال نشده (adsenseClientId خالی است) و جانمایی‌های
+ * یکتانت پُر نشده‌اند، این ۱۵ ثانیه با اسلایدهای محصول افیلیو (اسنپ‌شاپ)
+ * پر می‌شود؛ یعنی همان جایی که کاربر مجبور به تماست، پول‌ساز است.
+ * هر کلیک با affiliate_click ثبت می‌شود: partner=snappshop، item=محصول،
+ * article="student-download-gate"، location="gate-step3".
+ *
+ * ترتیب اسلایدها مهم است: در ۱۵ ثانیه فقط ۳ اسلایدِ اول دیده می‌شود
+ * (هر اسلاید ۵ ثانیه)؛ پس بعد از معرفی ربات، دو محصول پول‌ساز آمده‌اند.
+ */
+type GateAdSlide =
+  | { kind: "promo"; icon: typeof Bot; title: string; text: string; cta: string; href: string }
+  | { kind: "product"; product: AffiliateProduct };
+
+const GATE_PRODUCT_IDS = [
+  "laptop-lenovo-loq-15", // گیمینگ/تدوین — پرفروش‌ترین دسته
+  "laptop-lenovo-ideapad-slim-5", // اقتصادی — مناسب دانش‌آموز/شروع
+  "laptop-apple-macbook-air", // فریلنسر/تولید محتوا
+] as const;
+
+const GATE_AD_SLIDES: GateAdSlide[] = [
+  ...PROMOS.map((p) => ({ kind: "promo" as const, icon: p.icon, title: p.title, text: p.text, cta: p.cta, href: p.href })),
+  ...GATE_PRODUCT_IDS.map(
+    (id) => AFFILIATE_PRODUCTS.find((p) => p.id === id),
+  ).filter((p): p is AffiliateProduct => Boolean(p))
+    .map((product) => ({ kind: "product" as const, product })),
+  // باقی PROMOS بعد از محصول‌ها — کانال و «محل تبلیغ شما» در دور بعدی چرخه
+  ...PROMOS.slice(1).map((p) => ({ kind: "promo" as const, icon: p.icon, title: p.title, text: p.text, cta: p.cta, href: p.href })),
+];
+
+function slideKey(s: GateAdSlide, i: number): string {
+  return s.kind === "promo" ? `promo-${s.title}-${i}` : `product-${s.product.id}`;
+}
 
 /* ─── نشانگر مراحل ──────────────────────────────────────────────── */
 
@@ -148,20 +188,27 @@ export function DownloadGate({ googleClientId, initialStep, initialUser }: GateP
   const [countdown, setCountdown] = useState(AD_SECONDS);
   const [files, setFiles] = useState<FileItem[] | null>(null);
   const [promoIdx, setPromoIdx] = useState(0);
+  const [gisFailed, setGisFailed] = useState(false);
   const t0Ref = useRef(Date.now());
   const gisDoneRef = useRef(false);
   const unlockBusyRef = useRef(false);
   const btnRef = useRef<HTMLDivElement | null>(null);
 
-  // nonce برای دیپ‌لینک ربات — ثابت در طول عمر تب
+  // nonce برای دیپ‌لینک ربات — در localStorage ماندگار است (نه فقط عمر تب):
+  // کدهای قبلی ربات بعد از بستن تب/ری‌استارت مرورگر هم معتبر می‌مانند و باگ
+  // «کد درست نیست» بعد از برگشت به صفحه رخ نمی‌دهد. تب‌های مختلف هم
+  // nonce مشترک دارند (sessionStorage قدیمی مهاجرت می‌شود).
   useEffect(() => {
-    let n = sessionStorage.getItem("tk_dlv_nonce");
-    if (!n || !/^[a-f0-9]{8,32}$/.test(n)) {
+    const ok = (v: string | null): v is string => !!v && /^[a-f0-9]{8,32}$/.test(v);
+    let n = localStorage.getItem("tk_dlv_nonce");
+    if (!ok(n)) n = sessionStorage.getItem("tk_dlv_nonce"); // مهاجرت از نسخهٔ قبل
+    if (!ok(n)) {
       const bytes = new Uint8Array(8);
       crypto.getRandomValues(bytes);
       n = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
-      sessionStorage.setItem("tk_dlv_nonce", n);
     }
+    localStorage.setItem("tk_dlv_nonce", n);
+    sessionStorage.removeItem("tk_dlv_nonce");
     setNonce(n);
   }, []);
 
@@ -184,6 +231,8 @@ export function DownloadGate({ googleClientId, initialStep, initialUser }: GateP
         });
         const j = (await res.json().catch(() => ({}))) as { ok?: boolean; name?: string; email?: string; picture?: string };
         if (res.ok && j.ok) {
+          // ⚠️ پیشوند google_ در GA4 رزرو است — اسم رویداد نباید با google_ شروع شود
+          gaEvent("signup_google_success");
           setUser({ name: j.name || "", email: j.email || "", picture: j.picture || "", guest: false });
           goStep(2);
         } else {
@@ -205,6 +254,7 @@ export function DownloadGate({ googleClientId, initialStep, initialUser }: GateP
       const res = await fetch("/api/student/guest", { method: "POST" });
       const j = (await res.json().catch(() => ({}))) as { ok?: boolean };
       if (res.ok && j.ok) {
+        gaEvent("guest_signup_success");
         setUser({ name: "", email: "", picture: "", guest: true });
         goStep(2);
       } else {
@@ -218,8 +268,9 @@ export function DownloadGate({ googleClientId, initialStep, initialUser }: GateP
   }, [goStep]);
 
   // آماده‌سازی دکمه Google Identity (فقط وقتی Client ID تنظیم شده)
+  // نکته: user.guest در شرط نیست — کوکی مهمان قدیمی هم باید دکمه گوگل را ببیند وگرنه مرحله ۱ خالی می‌ماند.
   useEffect(() => {
-    if (!googleClientId || user.name || user.guest || step !== 1) return;
+    if (!googleClientId || user.name || step !== 1) return;
     const iv = setInterval(() => {
       const g = (window as unknown as {
         google?: { accounts?: { id?: { initialize: (o: Record<string, unknown>) => void; renderButton: (el: HTMLElement, o: Record<string, unknown>) => void } } };
@@ -243,11 +294,24 @@ export function DownloadGate({ googleClientId, initialStep, initialUser }: GateP
       });
     }, 250);
     const stop = setTimeout(() => clearInterval(iv), 20000);
+    // اگر اسکریپت گوگل تا ۸ ثانیه نیامد (IP ایران معمولاً باز نمی‌کند) راه تلگرام را برجسته کن
+    const failT = setTimeout(() => {
+      if (!gisDoneRef.current) setGisFailed(true);
+    }, 8000);
     return () => {
       clearInterval(iv);
       clearTimeout(stop);
+      clearTimeout(failT);
     };
-  }, [step, googleClientId, user.name, user.guest, loginGoogle]);
+  }, [step, googleClientId, user.name, loginGoogle]);
+
+  /* مرحله ۱ (جایگزین) — ورود با تلگرام: مستقیم به تأیید عضویت؛ هویت از کد امضاشده ربات می‌آید
+     (کد = nonce.tgId.امضا → verify رکورد tgId را در سشن می‌نویسد؛ بدون نیاز به گوگل). */
+  const loginTelegram = useCallback(() => {
+    gaEvent("gate_telegram_start");
+    setError("");
+    goStep(2);
+  }, [goStep]);
 
   /* مرحله ۲ — تأیید کد عضویت */
   const verifyCode = useCallback(async () => {
@@ -265,6 +329,7 @@ export function DownloadGate({ googleClientId, initialStep, initialUser }: GateP
       });
       const j = (await res.json().catch(() => ({}))) as { ok?: boolean; message?: string; reason?: string };
       if (res.ok && j.ok) {
+        gaEvent("gate_verify_success");
         goStep(3);
       } else {
         setError(j.message || "تأیید نشد؛ دوباره تلاش کن.");
@@ -294,6 +359,7 @@ export function DownloadGate({ googleClientId, initialStep, initialUser }: GateP
         backToStep?: number;
       };
       if (res.ok && j.ok && j.files) {
+        gaEvent("gate_unlock_success");
         setFiles(j.files);
         goStep(4);
       } else if (j.reason === "not_member") {
@@ -380,7 +446,23 @@ export function DownloadGate({ googleClientId, initialStep, initialUser }: GateP
           </p>
           <div className="mt-5 flex flex-col items-center gap-4">
             {googleClientId ? (
-              <div ref={btnRef} className="flex min-h-[44px] items-center justify-center" aria-label="ورود با گوگل" />
+              <>
+                <div ref={btnRef} className="flex min-h-[44px] items-center justify-center" aria-label="ورود با گوگل" />
+                {gisFailed && (
+                  <p className="w-full rounded-lg bg-amber-500/10 px-3 py-2 text-center text-xs leading-6 text-amber-700 dark:text-amber-400">
+                    دکمه گوگل روی خیلی از IPهای ایران باز نمی‌شود؛ راه دوم برای تو آماده است 👇
+                  </p>
+                )}
+                <div className="flex w-full max-w-xs items-center gap-3 text-[11px] font-medium text-muted-foreground">
+                  <span className="h-px flex-1 bg-border" aria-hidden="true" />
+                  یا
+                  <span className="h-px flex-1 bg-border" aria-hidden="true" />
+                </div>
+                <Button variant="outline" onClick={loginTelegram} className="min-h-11 w-full max-w-xs gap-2">
+                  <Send className="h-4 w-4" aria-hidden="true" />
+                  ورود سریع با تلگرام (بدون گوگل)
+                </Button>
+              </>
             ) : (
               <div className="w-full rounded-xl border border-dashed border-border/80 bg-muted/40 p-4 text-center">
                 <p className="text-sm leading-7 text-muted-foreground">
@@ -443,10 +525,21 @@ export function DownloadGate({ googleClientId, initialStep, initialUser }: GateP
                 dir="ltr"
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
+                onPaste={(e) => {
+                  // اگر کل پیام ربات را کپی کرده‌اند، فقط خودِ کد را بردار
+                  const m = e.clipboardData.getData("text").match(/[a-f0-9]{8,32}\.[0-9]{1,12}\.[a-f0-9]{16}/);
+                  if (m) {
+                    e.preventDefault();
+                    setCode(m[0]);
+                  }
+                }}
                 placeholder="xxxx.yyyyyyy.xxxxxxxxxxxxxxxx"
                 className="text-center font-mono text-sm"
                 autoComplete="off"
               />
+              <p className="text-[11px] leading-5 text-muted-foreground">
+                کل پیام ربات را کپی کنی هم کافیه؛ کد را خودم از داخلش پیدا می‌کنم.
+              </p>
               <Button onClick={() => void verifyCode()} disabled={busy} className="min-h-11 gap-2">
                 {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <BadgeCheck className="h-4 w-4" aria-hidden="true" />}
                 تأیید و ادامه
@@ -494,31 +587,63 @@ export function DownloadGate({ googleClientId, initialStep, initialUser }: GateP
               </div>
             ) : (
               <div className="min-h-[180px] p-5">
-                {PROMOS.map((p, i) => (
-                  <div key={p.title} className={i === promoIdx ? "block" : "hidden"} aria-hidden={i !== promoIdx}>
-                    <div className="flex items-start gap-4">
-                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                        <p.icon className="h-5 w-5" aria-hidden="true" />
-                      </span>
-                      <div className="min-w-0">
-                        <h3 className="text-base font-extrabold">{p.title}</h3>
-                        <p className="mt-1 text-sm leading-7 text-muted-foreground">{p.text}</p>
-                        <a
-                          href={p.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="mt-2 inline-flex items-center gap-1 text-sm font-bold text-primary hover:underline"
-                        >
-                          {p.cta}
-                          <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-                        </a>
+                {GATE_AD_SLIDES.map((slide, i) => (
+                  <div key={slideKey(slide, i)} className={i === promoIdx ? "block" : "hidden"} aria-hidden={i !== promoIdx}>
+                    {slide.kind === "promo" ? (
+                      <div className="flex items-start gap-4">
+                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                          <slide.icon className="h-5 w-5" aria-hidden="true" />
+                        </span>
+                        <div className="min-w-0">
+                          <h3 className="text-base font-extrabold">{slide.title}</h3>
+                          <p className="mt-1 text-sm leading-7 text-muted-foreground">{slide.text}</p>
+                          <a
+                            href={slide.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-2 inline-flex items-center gap-1 text-sm font-bold text-primary hover:underline"
+                          >
+                            {slide.cta}
+                            <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+                          </a>
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="flex items-start gap-4">
+                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                          <Laptop className="h-5 w-5" aria-hidden="true" />
+                        </span>
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h3 className="text-base font-extrabold">{slide.product.title}</h3>
+                            <span className="shrink-0 rounded-md bg-primary/10 px-2 py-0.5 text-[0.68rem] font-bold text-primary">
+                              {AFFILIATE_STORES[slide.product.store].name}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-sm leading-7 text-muted-foreground">{slide.product.spec}</p>
+                          <TrackedLink
+                            href={slide.product.url}
+                            event="affiliate_click"
+                            params={{
+                              partner: slide.product.store,
+                              item: slide.product.id,
+                              article: "student-download-gate",
+                              location: "gate-step3",
+                            }}
+                            rel="sponsored nofollow noopener"
+                            className="mt-2 inline-flex items-center gap-1 text-sm font-bold text-primary hover:underline"
+                          >
+                            {AFFILIATE_STORES[slide.product.store].cta}
+                            <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+                          </TrackedLink>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
                 <div className="mt-4 flex justify-center gap-1.5" aria-hidden="true">
-                  {PROMOS.map((p, i) => (
-                    <span key={p.title} className={`h-1.5 w-6 rounded-full transition-colors ${i === promoIdx ? "bg-primary" : "bg-border"}`} />
+                  {GATE_AD_SLIDES.map((slide, i) => (
+                    <span key={slideKey(slide, i)} className={`h-1.5 w-6 rounded-full transition-colors ${i === promoIdx ? "bg-primary" : "bg-border"}`} />
                   ))}
                 </div>
               </div>

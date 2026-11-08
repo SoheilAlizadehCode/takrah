@@ -2,6 +2,7 @@
 // تنظیم: NEXT_PUBLIC_GOOGLE_CLIENT_ID در Vercel (فقط Client ID لازم است، نه Secret).
 import { NextRequest, NextResponse } from "next/server";
 import {
+  GOOGLE_CLIENT_ID,
   STUDENT_COOKIE,
   cookieOptions,
   parseSession,
@@ -12,7 +13,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
-  const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "";
+  const clientId = GOOGLE_CLIENT_ID;
   if (!clientId) {
     return NextResponse.json({ ok: false, reason: "not_configured" }, { status: 501 });
   }

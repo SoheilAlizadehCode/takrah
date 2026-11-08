@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { TrackedLink } from "@/components/blog/tracked-link";
 import Link from "next/link";
 import { Clock, User, Lightbulb, ChevronLeft, Home, ListTree, Bot, Send, BookOpen } from "lucide-react";
 import type { Article } from "@/lib/blog-types";
@@ -7,16 +8,38 @@ import { getStudentBook } from "@/lib/student";
 import { getRelated } from "@/data";
 import { toFaDigits } from "@/lib/format";
 import { CategoryIcon } from "./category-icon";
-import { AdSlot } from "./ad-slot";
+import { AffiliateBox } from "./affiliate-box";
+import { ProductAffiliateBox } from "./product-affiliate-box";
+import { ChannelJoinBox } from "./channel-join-box";
+import { AFFILIATE_BOX_SLUGS } from "@/data/affiliates";
+import { PackageCtaBox } from "./package-cta-box";
+import { PACKAGE_CTA_SLUGS } from "@/data/package-cta";
 import { ArticleCard } from "./cards";
 import { ReadingProgress } from "./reading-progress";
 
 // ─── نمایش یک بلوک محتوایی ───
+/** لینک‌های درون‌متنی به شکل [متن](مسیر) را به لینک واقعی تبدیل می‌کند */
+function withInlineLinks(text: string) {
+  return text.split(/(\[[^\]]+\]\([^)]+\))/g).map((part, i) => {
+    const m = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+    if (!m) return part;
+    return (
+      <Link
+        key={i}
+        href={m[2]}
+        className="font-medium text-primary underline decoration-primary/40 underline-offset-4 transition-colors hover:text-primary/80"
+      >
+        {m[1]}
+      </Link>
+    );
+  });
+}
+
 function BlockView({ block, id }: { block: Article["blocks"][number]; id?: string }) {
   switch (block.type) {
     case "p":
       return (
-        <p className="text-[1.05rem] leading-[2.2] text-foreground/90">{block.text}</p>
+        <p className="text-[1.05rem] leading-[2.2] text-foreground/90">{withInlineLinks(block.text)}</p>
       );
     case "h2":
       return (
@@ -40,7 +63,7 @@ function BlockView({ block, id }: { block: Article["blocks"][number]; id?: strin
               <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
                 {toFaDigits(i + 1)}
               </span>
-              <span>{item}</span>
+              <span>{withInlineLinks(item)}</span>
             </li>
           ))}
         </ol>
@@ -49,7 +72,7 @@ function BlockView({ block, id }: { block: Article["blocks"][number]; id?: strin
           {block.items.map((item, i) => (
             <li key={i} className="flex gap-3 text-[1.02rem] leading-[2.1] text-foreground/90">
               <span className="mt-[0.85rem] h-2 w-2 shrink-0 rounded-full bg-primary/70" aria-hidden="true" />
-              <span>{item}</span>
+              <span>{withInlineLinks(item)}</span>
             </li>
           ))}
         </ul>
@@ -254,14 +277,39 @@ export function ArticleView({ article }: { article: Article }) {
                 <div key={i}>
                   <BlockView block={block} id={block.type === "h2" ? `sec-${i}` : undefined} />
                   {/* تبلیغ بعد از پاراگراف اول و وسط مقاله */}
-                  {i === firstPIndex && <AdSlot slotKey={`${article.slug}-top`} format="horizontal" />}
-                  {i === midIndex && <AdSlot slotKey={`${article.slug}-mid`} format="inline" />}
+                  {i === firstPIndex && (
+                    <>
+                      {/* نوار عضویت کانال — بعد از پاراگراف اول همهٔ مقاله‌ها */}
+                      <ChannelJoinBox variant="inline" articleSlug={article.slug} />
+                      {/* یکتانت میان‌مطلب تصویری تکرارشونده (جانمایی ۱۳۷۹۴۷) */}
+                      <div id="pos-article-display-card-123947" className="my-4" />
+                    </>
+                  )}
+                  {i === midIndex && (
+                    <div id="pos-article-display-card-123947" className="my-4" />
+                  )}
                 </div>
               ))}
             </div>
 
-            {/* تبلیغ پایین مقاله */}
-            <AdSlot slotKey={`${article.slug}-bottom`} format="horizontal" />
+            {/* باکس CTA پکیج‌های JSDevelop — فقط مقاله‌های هدف (PACKAGE_CTA_SLUGS) */}
+            {PACKAGE_CTA_SLUGS.includes(article.slug) && (
+              <PackageCtaBox articleSlug={article.slug} />
+            )}
+
+            {/* باکس افیلیت صرافی‌ها — فقط مقاله‌های هدف (AFFILIATE_BOX_SLUGS) */}
+            {AFFILIATE_BOX_SLUGS.includes(article.slug) && (
+              <AffiliateBox articleSlug={article.slug} />
+            )}
+
+            {/* باکس محصول‌های افیلیو (دیجی‌کالا/اسنپ‌شاپ) — فقط مقاله‌های دارای محصول */}
+            <ProductAffiliateBox articleSlug={article.slug} />
+
+            {/* باکس عضویت کانال تلگرام — انتهای همهٔ مقاله‌ها */}
+            <ChannelJoinBox variant="full" articleSlug={article.slug} />
+
+            {/* تبلیغ پایین مقاله — یکتانت میان‌مطلب */}
+            <div id="pos-article-display-card-123947" className="my-4" />
 
             {/* برچسب‌ها */}
             <div className="mt-8 flex flex-wrap items-center gap-2">
@@ -282,24 +330,24 @@ export function ArticleView({ article }: { article: Article }) {
                   💬 این مقاله رو با کلمه‌ی کلیدی توی <b className="text-foreground">ربات تلگرام تک‌راه</b> هم می‌تونی پیدا کنی و برای دوستات بفرستی.
                 </p>
                 <div className="flex shrink-0 gap-2">
-                  <a
+                  <TrackedLink
                     href={siteConfig.telegramBot}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    event="telegram_click"
+                    params={{ location: "article", target: "bot" }}
                     className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
                   >
                     <Bot className="h-4 w-4" aria-hidden="true" />
                     ربات تک‌راه
-                  </a>
-                  <a
+                  </TrackedLink>
+                  <TrackedLink
                     href={siteConfig.telegramChannel}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    event="telegram_click"
+                    params={{ location: "article", target: "channel" }}
                     className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-4 py-2 text-sm font-bold transition-colors hover:bg-muted"
                   >
                     <Send className="h-4 w-4" aria-hidden="true" />
                     کانال
-                  </a>
+                  </TrackedLink>
                 </div>
               </div>
             ) : null}

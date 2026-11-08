@@ -12,10 +12,10 @@ export function storageMode(): "redis" | "memory" {
   return REDIS_URL && REDIS_TOKEN ? "redis" : "memory";
 }
 
-export async function kvSet(key: string, value: string): Promise<void> {
+export async function kvSet(key: string, value: string, ttlSec?: number): Promise<void> {
   if (REDIS_URL && REDIS_TOKEN) {
     try {
-      await fetch(`${REDIS_URL}/set/${encodeURIComponent(key)}`, {
+      await fetch(`${REDIS_URL}/set/${encodeURIComponent(key)}${ttlSec ? `?EX=${ttlSec}` : ""}`, {
         method: "POST",
         headers: {
           authorization: `Bearer ${REDIS_TOKEN}`,
@@ -89,7 +89,10 @@ export interface AnalyticsEvent {
     | "reminder" // یادآوری ارسال‌شده
     | "call" // تماس صوتی
     | "report" // گزارش روزانه ارسال‌شده
-    | "confirm"; // تأیید نوبت توسط بیمار
+    | "confirm" // تأیید نوبت توسط بیمار
+    | "ig_msg" // دایرکت اینستاگرام پاسخ‌داده‌شده
+    | "ig_voice" // ویس دریافتی از دایرکت اینستاگرام
+    | "ig_comment"; // کامنت→دایرکت اینستاگرام
   meta?: string; // توضیح کوتاه (تا ۸۰ کاراکتر)
 }
 

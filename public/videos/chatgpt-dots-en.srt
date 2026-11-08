@@ -1,0 +1,290 @@
+1
+00:00:00,160 --> 00:00:05,840
+OpenAI released chatb dots and I believe if used 
+correctly, these can be literally life-changing  
+
+2
+00:00:05,840 --> 00:00:12,160
+to so many people that have not bought Mac 
+minis and went down the whole AI rabbit hole  
+
+3
+00:00:12,160 --> 00:00:17,600
+of setting things up in a custom way. This is a 
+very userfriendly product that basically allows  
+
+4
+00:00:17,600 --> 00:00:23,600
+you to not pay much attention to anything else 
+in your chatb account except the conversation  
+
+5
+00:00:23,600 --> 00:00:27,680
+with your dot. And that's why today I want to 
+show you a use case which you could never do  
+
+6
+00:00:27,680 --> 00:00:31,920
+by yourself. you would need to hire a person for 
+this. And I believe that in just a few seconds I  
+
+7
+00:00:31,920 --> 00:00:35,840
+can show you exactly what this product does 
+because many people seem to be confused. So  
+
+8
+00:00:35,840 --> 00:00:40,320
+what is a do? It's a new feature inside of your 
+chat GBT account that lives here next to your  
+
+9
+00:00:40,320 --> 00:00:44,560
+chat. Now they just released this. So it's 
+only available on the most expensive plans,  
+
+10
+00:00:44,560 --> 00:00:48,480
+but over time this will come down. Every paid 
+plan will have these. And the way it works is  
+
+11
+00:00:48,480 --> 00:00:52,640
+that usually you have chats in your account. Let's 
+say this is a chat. This is another chat. This is  
+
+12
+00:00:52,640 --> 00:00:57,440
+another chat. And as you do tasks, these get 
+scattered. And also your work from one doesn't  
+
+13
+00:00:57,440 --> 00:01:02,960
+carry over into the next. Now what many people 
+who get a bit more fluent with AI start doing is  
+
+14
+00:01:02,960 --> 00:01:07,760
+creating these so-called projects. And a project 
+allows you to group multiple chats together so  
+
+15
+00:01:07,760 --> 00:01:11,840
+they can share the same context. So if you have 
+details on your business or your customers,  
+
+16
+00:01:11,840 --> 00:01:15,760
+you can put that in the project and then all 
+chats share it. Now this still gets messy as  
+
+17
+00:01:15,760 --> 00:01:20,640
+you do more and more with AI. What a dot 
+does is it sits above all the chats and  
+
+18
+00:01:20,640 --> 00:01:24,640
+all the projects in your account. So basically, 
+you're dealing with one thing, one conversation,  
+
+19
+00:01:24,640 --> 00:01:28,480
+and you can command all the other things in your 
+account. This is what it looks like. If I'm in  
+
+20
+00:01:28,480 --> 00:01:37,280
+my chat GPT account, I can interact with my dot 
+right here through typing or even start a call.
+
+21
+00:01:37,280 --> 00:01:42,320
+Hey, uh, name two things we've been working on 
+this week. The my CFO workshop sandbox and your  
+
+22
+00:01:42,320 --> 00:01:48,080
+Alfredo task board with the new look and the asana 
+tracking. So, new recording requests flow into  
+
+23
+00:01:48,080 --> 00:01:52,320
+secondary. Those two have been the main threads 
+this week. As you can see, this keeps it really  
+
+24
+00:01:52,320 --> 00:01:56,480
+simple as opposed to using the entire account. 
+And hey, if you wonder what other things you could  
+
+25
+00:01:56,480 --> 00:02:02,640
+do with this and which use cases become super 
+convenient with this new interface that exists  
+
+26
+00:02:02,640 --> 00:02:06,720
+now, I created a PDF with some of my favorites. 
+You can get it for free in the description below.  
+
+27
+00:02:06,720 --> 00:02:10,320
+There's a link at the top. Now, let's get back 
+to this tutorial. So, let me show you how to get  
+
+28
+00:02:10,320 --> 00:02:16,160
+things done in here so that you don't have to deal 
+with all of these separate items. And we're going  
+
+29
+00:02:16,160 --> 00:02:21,040
+to take this example that I think you can use for 
+so many things of setting up a scanner because  
+
+30
+00:02:21,040 --> 00:02:27,040
+this dot and that's a thing I haven't told you yet 
+also has a computer and it's on 24/7. So if I tell  
+
+31
+00:02:27,040 --> 00:02:32,640
+it something like all right I want you to scan the 
+housing market in Phoenix concretely Scottsdale.  
+
+32
+00:02:32,640 --> 00:02:41,040
+Look through various websites and find something 
+to rent between three and $6,000 a month. Minimum  
+
+33
+00:02:41,040 --> 00:02:48,000
+free bedrooms and two parking spots. I want you 
+to scan now, but then also go in every 30 minutes  
+
+34
+00:02:48,000 --> 00:02:53,760
+and look for brand new listings and notify me if 
+something new pops up on the market that fits my  
+
+35
+00:02:53,760 --> 00:02:59,440
+criteria. This pattern of giving it a task to 
+execute over and over again is literally like  
+
+36
+00:02:59,440 --> 00:03:04,880
+having an employee with a computer that does this. 
+And as you can see, it starts using its computer,  
+
+37
+00:03:04,880 --> 00:03:09,360
+which is available here on the right, to 
+research exactly what I need. And by the way,  
+
+38
+00:03:09,360 --> 00:03:13,920
+OpenAI computer use models are bestin-class. 
+So, it's really good at browsing. So,  
+
+39
+00:03:13,920 --> 00:03:17,920
+if you ever had experience with this before, 
+forget about that. It's a whole new world. Okay,  
+
+40
+00:03:17,920 --> 00:03:22,320
+here's the results. And you might know this, but 
+when you work with AI, it's all about keeping the  
+
+41
+00:03:22,320 --> 00:03:27,120
+conversation going and giving feedback. Okay, 
+so after a quick review, I would conclude. Hey,  
+
+42
+00:03:27,120 --> 00:03:31,440
+I definitely want there to be a pool in the 
+backyard. Update the scanner. And now I want  
+
+43
+00:03:31,440 --> 00:03:36,000
+you to see this. If you go to the schedule tasks 
+here on the site, see it added the Scottsdale  
+
+44
+00:03:36,000 --> 00:03:41,280
+rental alerts. And you could have this yourself. 
+It wrote the entire prompt here. And it runs every  
+
+45
+00:03:41,280 --> 00:03:45,280
+30 minutes. If I click that task here in there, I 
+could change the interval to be shorter. But the  
+
+46
+00:03:45,280 --> 00:03:50,800
+point is I can access all of CHP's functionalities 
+for one interface, which is this dot up here. It's  
+
+47
+00:03:50,800 --> 00:03:55,600
+not just limited to schedule tasks. You can even 
+give it tasks in codecs if that's what you use.  
+
+48
+00:03:55,600 --> 00:04:00,320
+And you don't have to worry about context or what 
+tool or what project, whatever. It just figures  
+
+49
+00:04:00,320 --> 00:04:05,120
+it out. If you haven't tried it, I would highly 
+recommend it. Go ahead and set up a task to scan  
+
+50
+00:04:05,120 --> 00:04:09,760
+something like either flights or accommodation 
+for an upcoming trip. That's a classic one. Or you  
+
+51
+00:04:09,760 --> 00:04:13,120
+could go on any marketplace ever. And if you're 
+looking for a product, you could set up a scanner  
+
+52
+00:04:13,120 --> 00:04:17,520
+to go ahead and look regularly. Or if you're 
+looking for a job, there's a LinkedIn connector  
+
+53
+00:04:17,520 --> 00:04:22,080
+that you could set up and it would just scan for 
+new job listings and then let you know and you  
+
+54
+00:04:22,080 --> 00:04:26,240
+could immediately say, "Okay, let's proceed. Let's 
+book, send an email, follow up with the email." It  
+
+55
+00:04:26,240 --> 00:04:30,800
+reduce the friction with AI. And that's a big deal 
+for a very, very large group of people. And this  
+
+56
+00:04:30,800 --> 00:04:35,600
+makes it accessible cuz honestly, I wake up, press 
+this little call button, and I just talk to it.  
+
+57
+00:04:35,600 --> 00:04:39,760
+It's all in one place now. And that's what dots 
+and this entire category of always on assistants  
+
+58
+00:04:39,760 --> 00:04:44,640
+like Muse or Grockbot is all about. All right, I 
+hope this was helpful and have a wonderful day.
+

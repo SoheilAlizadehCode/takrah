@@ -55,6 +55,24 @@ server.log
 # telegram bot secrets (هرگز کامیت نشود)
 scripts/telegram-token.txt
 telegram-token.txt
+tool-results/
 
-# user uploads never in git (cookies/credentials risk)
+# telegram bot secrets (never commit)
+scripts/telegram-token.txt
+
+# never commit cookies / pipeline outputs
+scripts/video-pipeline/cookies.txt
+scripts/video-pipeline/out/
+
+# runtime state of the referral bot (روی سرور ساخته می‌شود) — فقط data/ ریشه، نه src/data
+/data/
+
+# secrets — هرگز کامیت نمی‌شوند (توکن بات قبلی همین‌طور لو رفت)
+.env
+.env*.local
+upload/www.youtube.com_cookies.txt
+scripts/video-pipeline/cookies.txt
+
+# user uploads & secrets never in git
 upload/
+.env

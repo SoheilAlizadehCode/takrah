@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نقشهٔ ۹۰روزهٔ تک‌راه — از وبلاگ تا مرجع AI ایران</title>
+<style>
+@font-face{
+  font-family:'Vazirmatn';
+  src:url(data:font/woff2;base64,__VAZIR_B64__) format('woff2-variations');
+  font-weight:100 900;font-display:swap;
+}
+:root{
+  --bg:#0A0F1E;--surface:#111A2E;--surface2:#0F172A;--line:#1E2A44;
+  --text:#E7EEF9;--muted:#94A3B8;--green:#34D399;--amber:#F59E0B;
+  --cyan:#38BDF8;--rose:#FB7185;--violet:#A78BFA;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Vazirmatn',Tahoma,'Segoe UI',sans-serif;
+  font-size:15.5px;line-height:1.95;
+}
+.wrap{max-width:960px;margin:0 auto;padding:0 22px}
+/* ───── کاور ───── */
+.cover{padding:64px 0 40px;text-align:center;
+  background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(52,211,153,.14),transparent),
+             radial-gradient(ellipse 60% 40% at 80% 10%,rgba(56,189,248,.08),transparent);}
+.badge{display:inline-block;font-size:12.5px;color:var(--green);border:1px solid rgba(52,211,153,.35);
+  border-radius:999px;padding:5px 16px;margin-bottom:22px;background:rgba(52,211,153,.08)}
+h1.title{font-size:40px;font-weight:900;line-height:1.45;letter-spacing:-.5px}
+h1.title .grad{background:linear-gradient(90deg,var(--green),var(--cyan));
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.cover .sub{color:var(--muted);font-size:16px;margin-top:14px;max-width:640px;margin-inline:auto}
+.cover .meta{margin-top:26px;color:var(--muted);font-size:13px}
+.cover .meta b{color:var(--text)}
+/* ───── ناوبری ───── */
+nav.toc{position:sticky;top:0;z-index:9;background:rgba(10,15,30,.92);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);padding:10px 0;margin-top:10px}
+nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+nav.toc a{color:var(--muted);font-size:12.5px;text-decoration:none;padding:4px 11px;border-radius:999px;
+  border:1px solid transparent;transition:.2s}
+nav.toc a:hover{color:var(--text);border-color:var(--line);background:var(--surface)}
+/* ───── بخش‌ها ───── */
+section{padding:52px 0 8px}
+.kicker{color:var(--green);font-size:13px;font-weight:700;letter-spacing:.06em;margin-bottom:8px}
+h2{font-size:27px;font-weight:800;line-height:1.5;margin-bottom:6px}
+h3{font-size:19px;font-weight:800;margin:30px 0 12px;color:var(--cyan)}
+h4{font-size:16px;font-weight:800;margin:22px 0 8px}
+p.lead{color:var(--text);font-size:16.5px}
+p{color:var(--muted);margin-bottom:12px}
+p strong,h3 strong,li strong{color:var(--text)}
+.g{color:var(--green)}.a{color:var(--amber)}.c{color:var(--cyan)}.r{color:var(--rose)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px 24px;margin:16px 0}
+.card.hl{border-color:rgba(52,211,153,.45);background:linear-gradient(180deg,rgba(52,211,153,.07),var(--surface))}
+.card.warn{border-color:rgba(245,158,11,.4);background:linear-gradient(180deg,rgba(245,158,11,.06),var(--surface))}
+/* ───── آمار ───── */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:18px 0}
+.stat{background:var(--surface2);border:1px solid var(--line);border-radius:14px;padding:16px 14px;text-align:center}
+.stat .v{font-size:26px;font-weight:900;color:var(--green)}
+.stat .v.amber{color:var(--amber)}.stat .v.cyan{color:var(--cyan)}.stat .v.rose{color:var(--rose)}
+.stat .l{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.6}
+/* ───── جدول ───── */
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13.8px}
+th{background:var(--surface2);color:var(--text);font-weight:800;text-align:right;padding:10px 12px;border:1px solid var(--line)}
+td{padding:9px 12px;border:1px solid var(--line);color:var(--muted);vertical-align:top}
+td b,td strong{color:var(--text)}
+tr:nth-child(even) td{background:rgba(17,26,46,.5)}
+/* ───── چک‌لیست و لیست ───── */
+ul.cl{list-style:none;margin:12px 0}
+ul.cl li{padding:9px 34px 9px 12px;position:relative;color:var(--muted);border-bottom:1px dashed var(--line)}
+ul.cl li:last-child{border-bottom:none}
+ul.cl li::before{content:'✓';position:absolute;right:8px;top:8px;color:var(--green);font-weight:900}
+ul.dots{margin:12px 24px 12px 0}
+ul.dots li{color:var(--muted);margin-bottom:7px}
+ol.steps{margin:12px 24px 12px 0;counter-reset:s}
+ol.steps li{color:var(--muted);margin-bottom:9px;padding-right:6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.chip{font-size:13px;padding:6px 14px;border-radius:999px;border:1px solid var(--line);color:var(--text);background:var(--surface2)}
+.chip b{color:var(--green)}
+/* ───── فازها / تایم‌لاین ───── */
+.phase{border-right:3px solid var(--green);background:var(--surface);border-radius:12px;padding:18px 20px;margin:14px 0}
+.phase.p2{border-color:var(--cyan)}.phase.p3{border-color:var(--amber)}
+.phase .ph-h{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.phase .ph-t{font-weight:900;font-size:16.5px}
+.phase .ph-d{color:var(--muted);font-size:12.5px}
+.week-row td{font-size:13px}
+/* ───── نقل‌قول ───── */
+.big-idea{background:linear-gradient(135deg,rgba(52,211,153,.1),rgba(56,189,248,.06));
+  border:1px solid rgba(52,211,153,.4);border-radius:18px;padding:26px 28px;margin:20px 0;font-size:19px;
+  font-weight:800;line-height:2;text-align:center}
+.big-idea small{display:block;font-size:13.5px;font-weight:400;color:var(--muted);margin-top:10px;line-height:1.9}
+/* ───── فوتر ───── */
+footer{border-top:1px solid var(--line);margin-top:60px;padding:30px 0 50px}
+footer p{font-size:12.5px}
+.srcs{font-size:12px;color:var(--muted);direction:ltr;text-align:left;line-height:2}
+.srcs a{color:var(--cyan);text-decoration:none;word-break:break-all}
+.note{font-size:12.5px;color:var(--muted);border-right:2px solid var(--amber);padding-right:12px;margin:10px 0}
+/* ───── چاپ ───── */
+@page{size:A4;margin:12mm 10mm}
+@media print{
+  body{background:#0A0F1E!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:12.5px}
+  nav.toc{display:none}
+  section{padding:26px 0 4px}
+  .cover{padding:30px 0 10px}
+  h1.title{font-size:28px}
+  h2{font-size:20px}h3{font-size:16px}
+  h3,h4{break-after:avoid;page-break-after:avoid}
+  .card,.stat,.phase,.big-idea{break-inside:avoid;page-break-inside:avoid}
+  table{break-inside:auto;page-break-inside:auto}
+  tr{break-inside:avoid;page-break-inside:avoid}
+  thead{display:table-header-group}
+  .stats{break-inside:avoid}
+  a{color:inherit}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ کاور ═══════════ -->
+<header class="cover">
+  <div class="wrap">
+    <div class="badge">طرح استراتژیک — اسپرینت ۹۰ روزه • ۱۵ آبان تا ۱۴ بهمن ۱۴۰۵</div>
+    <h1 class="title">نقشهٔ ۹۰روزهٔ تک‌راه<br><span class="grad">از وبلاگ کوچک تا مرجع هوش مصنوعی ایران</span></h1>
+    <p class="sub">طرحی مبتنی بر دادهٔ واقعی آنالیتیکس، تحلیل رقبا و شکاف‌های بازار فارسی — با بودجهٔ صفر، ۵ موتور رشد و یک خندق رقابتی که کپی‌کردنش نیاز به تیم فنی دارد.</p>
+    <p class="meta">تهیه‌شده در <b>۱۴ آبان ۱۴۰۵</b> (۵ نوامبر ۲۰۲۶) • مبتنی بر گزارش GA4 + Search Console همان روز • اجرا: <b>طیب علیزاده</b> + دستیار فنی</p>
+  </div>
+</header>
+
+<!-- ═══════════ ناوبری ═══════════ -->
+<nav class="toc"><div class="wrap">
+  <a href="#s1">خلاصهٔ اجرایی</a><a href="#s2">وضعیت امروز</a><a href="#s3">بازار و شکاف</a><a href="#s4">استراتژی</a>
+  <a href="#s5">دایرهٔ ابزار</a><a href="#s6">سئو+GEO</a><a href="#s7">ویدیو</a><a href="#s8">تلگرام</a>
+  <a href="#s9">محصول</a><a href="#s10">نقشهٔ ۹۰روزه</a><a href="#s11">KPI</a><a href="#s12">تقسیم کار و ریسک</a><a href="#s13">هفتهٔ اول</a>
+</div></nav>
+
+<!-- ═══════════ ۱. خلاصهٔ اجرایی ═══════════ -->
+<section id="s1"><div class="wrap">
+  <div class="kicker">۱ — خلاصهٔ اجرایی</div>
+  <h2>قرار نیست «وبلاگ بهتر» بشویم؛ قرار است جای خالی‌ای را پر کنیم که فقط مال ماست.</h2>
+  <div class="big-idea">
+    تک‌راه = جایی که هر ایرانی هر ابزار هوش مصنوعی را «با اطلاعات ایران» پیدا می‌کند
+    <br>و یاد می‌گیرد از آن پول دربیاورد.
+    <small>دو کلمهٔ کلیدی این جمله، ترکیبی است که هیچ‌کدام از رقبا — نه پلتفرم‌های دوره‌فروش، نه پروکسی‌های چت‌بات، نه وبلاگ‌های خبری — ندارند: <b class="g">ابزار</b> و <b class="g">درآمد</b> در قالب یک مرجع دوزبانه و <b class="g">ایران‌محور</b>.</small>
+  </div>
+  <p class="lead">این طرح سه تصمیم استراتژیک دارد که همهٔ بخش‌ها از آن‌ها مشتق می‌شوند:</p>
+  <ol class="steps">
+    <li><strong>دارایی اصلی = دایرهٔ ابزارهای AI با «پروفایل ایران».</strong> برای هر ابزار: کارکرد، قیمت ریالی، وضعیت دسترسی و تحریم، جایگزین ایرانی/رایگان، آموزش مرتبط و لینک افیلیت. این دقیقاً همان مدلِ Futurepedia است که در ۳ سال به ۴۸۵ هزار بازدید ماهانه و ۵۸٪ ترافیک مستقیم رسید — با این تفاوت که نسخهٔ ایرانی آن <strong>هیچ‌وقت ساخته نشده</strong> و ساختنش مهارت فنی می‌خواهد که ما داریم.</li>
+    <li><strong>درآمد اصلی = محصول خودمان، نه تبلیغات.</strong> مرجع، اعتماد و مخاطب می‌سازد؛ پکیج «اولین درآمد با AI در ۳۰ روز» با زیرساخت گیت و رباتی که الان داریم، فروش می‌رود. تبلیغات (یکتانت/ادسنس/افیلیت) درآمد لایهٔ دوم است، نه هدف.</li>
+    <li><strong>هر محتوایی که «جواب کوتاه» می‌خواهد، مال ربات‌هاست؛ ما جایی می‌ایستیم که ربات‌ها نمی‌توانند:</strong> دادهٔ محلی، ابزار تعاملی، تجربهٔ واقعی و تازگی. (طبق داده‌های ۲۰۲۶، AI Overviews روی ~۴۸٪ جستجوها ظاهر شده و CTR کوئری‌های اطلاعاتی را ۳۰-۴۰٪ خورده — اما صفحات داده‌محور و ابزارها دقیقاً از این موج سهم می‌گیرند.)</li>
+  </ol>
+  <h3>هدف ۹۰ روزه — یک نگاه</h3>
+  <div class="stats">
+    <div class="stat"><div class="v">۹۳ ← ۷۰۰</div><div class="l">کاربر فعال ماهانه<br>(کف: ۳۵۰)</div></div>
+    <div class="stat"><div class="v amber">۲۰۵ ← ۶٬۰۰۰</div><div class="l">نمایش ماهانه در گوگل<br>(کف: ۲٬۵۰۰)</div></div>
+    <div class="stat"><div class="v cyan">۰ ← ۲۰۰</div><div class="l">صفحهٔ ابزار در دایره<br>(+ آینهٔ انگلیسی)</div></div>
+    <div class="stat"><div class="v">۰ ← ۵۰</div><div class="l">ویدیوی کوتاه منتشرشده</div></div>
+    <div class="stat"><div class="v cyan">۰ ← ۶۰۰</div><div class="l">عضو گروه بحث تلگرام</div></div>
+    <div class="stat"><div class="v amber">اولین فروش</div><div class="l">۱۰ تا ۲۵ نسخه از پکیج<br>در لانچ فاز ۳</div></div>
+  </div>
+  <p class="note">اعداد «هدف» پیش‌بینی است، نه تضمین؛ «کف» سناریوی بدِ قابل‌قبول است. معیار واقعی موفقیت: اینکه در روز ۹۰، تک‌راه تنها سایت فارسی باشد که برای «ابزار AI + قیمت ریالی + آموزش درآمد» به‌صورت سیستمی پاسخ می‌دهد — و این را با همین زیرساخت هم می‌شود به همه گفت.</p>
+  <h3>تقسیم کار در یک جمله</h3>
+  <p><strong>تو</strong> (~۱.۵ تا ۲ ساعت در روز): ریتم روزانهٔ تلگرام، حضور در گروه، ضبط/تأیید شورت‌ها، پنل یکتانت و تصمیم‌های محصول. <strong>من</strong> (هر روز): ساخت دایرهٔ ابزار و ابزارهای تعاملی، پیش‌نویس مقاله‌ها، پایپلاین ویدیو، اصلاحات سئو و گزارش‌های دوره‌ای. هیچ‌کدام از این‌ها بودجه نمی‌خواهد؛ فقط ریتم می‌خواهد.</p>
+</div></section>
+
+<!-- ═══════════ ۲. وضعیت امروز ═══════════ -->
+<section id="s2"><div class="wrap">
+  <div class="kicker">۲ — وضعیت امروز</div>
+  <h2>نقطهٔ شروع واقعی: کوچک، ولی با چهار دارایی که از بیرون دیده نمی‌شود</h2>
+  <p>این اعداد از گزارش GA4 + Search Console به‌روزرسانی ۱۴ آبان ۱۴۰۵ است (بازهٔ ۲۸ روزه در برابر دورهٔ قبل):</p>
+  <div class="stats">
+    <div class="stat"><div class="v rose">۹۳</div><div class="l">کاربر فعال (۳۴٪− نسبت به دورهٔ قبل)</div></div>
+    <div class="stat"><div class="v">۴۴۸</div><div class="l">بازدید صفحه (۲۲٪+)</div></div>
+    <div class="stat"><div class="v amber">۲۰۵</div><div class="l">نمایش در گوگل — ۵۱ برابر دورهٔ قبل</div></div>
+    <div class="stat"><div class="v cyan">۲۴</div><div class="l">صفحهٔ دیده‌شده در نتایج (قبل: ~۲)</div></div>
+    <div class="stat"><div class="v">×۲.۳</div><div class="l">مدت جلسه (۵۰ → ۱۹۲ ثانیه)</div></div>
+    <div class="stat"><div class="v amber">۵</div><div class="l">اولین رویدادهای کلیدی (لید) — از صفر</div></div>
+  </div>
+  <h3>خوانش استراتژیک این اعداد</h3>
+  <ul class="dots">
+    <li><strong>سئو تازه نفس کشیده:</strong> جهش ۵۱ برابری نمایش یعنی گوگل حالا تک‌راه را در چرخهٔ ایندکس و نمایش جدی گرفته؛ ولی ۴ کلیک یعنی فاز «نمایش» است نه «کلیک» — کارِ ۹۰ روز اول دقیقاً تبدیل نمایش به کلیک با تایتل/متا و محتوای عمیق‌تر است (شروعش را با صفحات دانش‌آموزی کردیم).</li>
+    <li><strong>ترافیک، ۹۴٪ اول‌بار است (۸۷ از ۹۳ کاربر جدید):</strong> هیچ مکانیزم بازگشتی نداریم. موتور «تلگرام + گروه + دایرهٔ ابزار» دقیقاً برای همین ساخته می‌شود — کاربری که ابزار لازم دارد، برمی‌گردد؛ کاربری که فقط مقاله خوانده، نه.</li>
+    <li><strong>بخش دانش‌آموزی، تنها مزرعهٔ ترافیک مالِ خودمان است:</strong> رتبهٔ ۷.۸ و ۳۵ نمایش برای «گام به گام تجارت الکترونیک دوازدهم» بدون هیچ ورودی خارجی. این نیچ را هیچ رقیب بزرگی کاری ندارد.</li>
+    <li><strong>مونتایزیشن صفر است:</strong> affiliate_click = صفر، جانمایی یکتانت هنوز خالی. درآمد هنوز روی کاغذ است؛ طرح زیر آن را از هفتهٔ اول فعال می‌کند.</li>
+  </ul>
+  <h3>SWOT صادقانه</h3>
+  <table>
+    <tr><th style="width:50%">قدرت‌ها</th><th>ضعف‌ها</th></tr>
+    <tr>
+      <td>تیم فنی رایگان و بی‌نظیر (من) — ساخت ابزار/دایره/ربات با سرعتی که رقبا باید فریلنسر بگیرند • پایپلاین ویدیوی آماده • زیرساخت گیت + ربات + سیستم ارجاع • محتوای دوزبانهٔ موجود • نیچ درسی بی‌رقایب</td>
+      <td>ترافیک پایه بسیار کوچک • بدون هیچ بک‌لینک و اعتبار دامنه • یک‌نفره بودن کل تیم محتوا • برند ناشناخته • درآمد فعلاً صفر</td>
+    </tr>
+    <tr><th>فرصت‌ها</th><th>تهدیدها</th></tr>
+    <tr>
+      <td>جای خالی مرجع «ابزار+درآمد+ایران» • موج تقاضای AI فارسی • شروع‌نو بودن سئو یعنی مسیر رشد سریع • AI Overviews به محتوای داده‌محور و تازه استناد می‌دهد</td>
+      <td>خوردن ترافیک اطلاعاتی توسط AI Overviews • وابستگی به یک‌نفره بودن خودت • تغییر قوانین پلتفرم‌ها (تلگرام/یکتانت) • دسترسی و پرداخت نامطمئن ایرانی</td>
+    </tr>
+  </table>
+</div></section>
+
+<!-- ═══════════ ۳. بازار و شکاف ═══════════ -->
+<section id="s3"><div class="wrap">
+  <div class="kicker">۳ — بازار و شکاف طلایی</div>
+  <h2>چه کسی الان در بازار فارسی AI ایستاده، و جای خالی دقیقاً کجاست؟</h2>
+  <h3>نقشهٔ بازیگران فارسی (بررسی ۱۴ آبان ۱۴۰۵)</h3>
+  <table>
+    <tr><th>بازیگر</th><th>مدل</th><th>چه چیزی <b>ندارند</b> که ما می‌سازیم</th></tr>
+    <tr><td><b>فرادرس، مکتب‌خونه، درسمن، رایااسکیلز</b></td><td>پلتفرم دوره‌فروش؛ محتوای وبلاگیشان قیف فروش دوره است</td><td>مرجع رایگانِ عمیق + ابزار تعاملی + پروفایل ایران ابزارها؛ آن‌ها برای «فروش دوره» محتوا می‌سازند، برای «مرجع‌شدن» نه</td></tr>
+    <tr><td><b>AIPA، AvalAi، زیگپ</b> و ده‌ها پروکسی چت</td><td>فروش دسترسی به GPT/Claude با پرداخت ریالی</td><td>محتوای آموزشی و مسیر درآمد؛ آن‌ها «تأمین ابزار»اند نه «مرجع یادگیری و کسب‌وکار» — حتی می‌توانیم شریک افیلیتشان باشیم</td></tr>
+    <tr><td><b>وبلاگ‌های عمومی</b> (هوشا، ساری‌سان، نوین‌وردپرس و…)</td><td>مقالات معرفی و نقشه‌راه عمومی AI</td><td>سیستم؛ محتوایشان تک‌مقاله‌ای است، نه خوشهٔ موضوعی + دایره + دادهٔ زنده + کامونیتی</td></tr>
+    <tr><td><b>رسانه‌های بزرگ</b> (دیجیاتو، زومیت، ایسنا)</td><td>پوشش خبری AI به‌عنوان بخشی از اخبار تکنولوژی</td><td>تخصص عمقی + مسیر درآمد + بخش دانش‌آموزی؛ AI برای آن‌ها «تست و اخبار» است، نه مرجع اقتصادی</td></tr>
+    <tr><td class="g"><b>تک‌راه</b></td><td class="g">مرجع دوزبانهٔ «ابزار + درآمد» با پروفایل ایران</td><td class="g">— جای خالی همین جدول —</td></tr>
+  </table>
+  <h3>الگوی جهانی که مسیر را اثبات کرده: Futurepedia</h3>
+  <div class="card hl">
+    <p><strong>Futurepedia</strong> نوامبر ۲۰۲۲ با <strong class="g">فقط ۱۵۰ ابزار</strong> شروع کرد. سه سال بعد (دادهٔ ژانویهٔ ۲۰۲۶): <strong>۵٬۰۰۰+ ابزار</strong>، <strong>۴۸۵ هزار بازدید ماهانه</strong>، <strong>۹٬۳۰۰ کلمه‌کلیدی رتبه‌گرفته</strong>، میانگین نشست ۸ دقیقه و ۴۸ ثانیه، و جالب‌تر از همه <strong>۵۸٪ ترافیک مستقیم</strong> — یعنی برند شده و دیگر به گوگل وابسته نیست.</p>
+    <p>درآمدش هم چهارلایه است: لیستینگ اسپانسری + تبلیغات + نیوزلترer + افیلیت. <strong>درس کلیدی: هر صفحهٔ ابزار = یک لندینگ‌پیج دائمی.</strong> ۵٬۰۰۰ ابزار یعنی ۵٬۰۰۰ لندینگ. ما با ۲۰۰ ابزار شروع می‌کنیم و همان ماشین را با «پروفایل ایران» — لایه‌ای که هیچ دایرهٔ جهانی ندارد — راه می‌اندازیم.</p>
+  </div>
+  <h3>موجی که باید شناگرش باشیم نه قربانی‌اش: AI Overviews</h3>
+  <ul class="dots">
+    <li>طبق داده‌های ۲۰۲۶، AI Overviews روی حدود <strong>۴۸-۵۰٪ جستجوهای گوگل</strong> ظاهر شده؛ در کوئری‌های اطلاعاتی و how-to بالای ۷۰٪.</li>
+    <li>CTR نتایج اورگانیک در صفحات دارای AI Overview به‌شدت افت کرده (مطالعهٔ Seer Interactive: سقوط ۶۵٪ طی ۱۴ ماه) — کوئری‌های اطلاعاتی ساده بیشترین ضربه را می‌خورند.</li>
+    <li><strong>اما:</strong> کاربری که از پشت جواب ربات کلیک می‌کند، ~۲۳ برابر نیت خرید دارد؛ و صفحه‌های استنادشده ویژگی مشترک دارند: پاسخ مستقیم در ابتدای بخش، آمار با ذکر منبع هر ۱۵۰-۲۰۰ کلمه، جدول مقایسه، محتوای عمیق (صفحات ۲۰هزار کاراکتری ~۱۰ برابر بیشتر استناد می‌شوند)، تازگی (نصف محتوای استنادشده کمتر از ۱۳ هفته عمر دارد) و هویت نویسنده.</li>
+    <li><strong>نتیجهٔ استراتژیک:</strong> الگوی محتوایی تک‌راه از امروز «مقالهٔ توضیحی» نیست؛ «داده + ابزار + تجربهٔ محلی» است — دقیقاً سه چیزی که AIهای زبانی از خودشان نمی‌توانند بسازند. صفحهٔ «حقوق AI در ایران» با دادهٔ نظرسنجی تلگرام خودمان، چیزی است که ChatGPT نمی‌تواند از هیچ‌جا کپی کند.</li>
+  </ul>
+  <p class="note">منابع کامل این بخش در انتهای سند آمده است. اعداد رقبا و ترندها مربوط به بررسی ۱۴ آبان ۱۴۰۵ است و در گزارش‌های دوره‌ای به‌روز می‌شود.</p>
+</div></section>
