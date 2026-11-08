@@ -980,3 +980,23 @@ Stage Summary:
 - درس: sandbox موازی با درخت کهنه + کامیت انبوه = بازگشت سایت به گذشته؛ هر عامل قبل از کامیت باید پدر کامیتش آخرین origin/main باشد
 
 - واچ‌داگ بازسازی شد با نسخهٔ امن: fetch و رد شدن در صورت جلو بودن ریموت؛ کامیت فقط دیف کوچک (<۲۰ فایل، بدون حذف انبوه src/)؛ ممنوعیت همیشگی .env و upload/ و tool-results؛ پوش فقط fast-forward (rebase در غیر این صورت، بدون force)
+
+---
+Task ID: multi-tenant-1
+Agent: main
+Task: پیاده‌سازی فاز ۱ پیوت — مولتی‌تننت واقعی + بخش اول دستیار دکتر
+
+Work Log:
+- کاربر تأیید عملی داد («الان چک کردم مولتی‌تننت نیست، لینک بده اگه درستش کردی») — فاز ۱ کامل پیاده و تست شد
+- src/lib/tenants.ts: مدل Tenant + کلیدهای Upstash با پیشوند t:<slug>:config|bookings:<date>|intake:<id>|usage:<YYYY-MM>|aud:<id> و ref:<code>؛ بذر خودکار salamat (کلینیک سلامت = نخستین مستأجر)؛ انقضای خودکار تریال ۱۴ روزه
+- APIها: POST /api/tenants/create (خبر تلگرامی ثبت کلینیک به ادمین)، GET /check-slug، GET+POST /[slug]/bookings (قفل ساعت تکراری)، POST /[slug]/intake (خلاصه‌ی ساختاریافته GLM + فوریت 🟢🟡🔴 → وویس دلارا → sendVoice به چت پزشک + لینک پشتیبان)، GET /audio?s&id&k (سرو mp3 با امضای sha256، TTL ۷ روز)، GET /qr (SVG برداری)
+- صفحات: /start ویزارد ۳ گامی (اطلاعات → پزشکان+slug → پلن) با کد بازاریاب ?ref=؛ /c/[slug] قالب همان دموی plan۲ با داده‌ی واقعی؛ /c/[slug]/intake پرسش‌نامه با اسلایدر درد ۰-۱۰
+- lang-chrome.tsx: useIsClinicPath → هدر/فوتر سایت اصلی در مسیرهای /c و /start رندر نمی‌شود (سایت مستقل کلینیک)
+- سهمیه‌ی ماهانه پرسش‌نامه: trial 15 / basic 60 / pro 200
+- تست کامل در sandbox: build بدون خطا؛ create→book→double-book(409)→intake(خلاصه+audioUrl)→audio(200 audio/mpeg ۶۸KB)→bad-sig(404)→qr(200)→/c/salamat(200)
+- باگ رفع‌شده: فراموشی import getUsage در intake route — build نتوانست بگیردش، تست ران‌تایم گرفتار کرد (درس: برای هر route جدید فقط build کافی نیست)
+
+Stage Summary:
+- لینک‌ها بعد از دیپلوی Vercel: takrah.top/start و takrah.top/c/salamat (+ هر کلینیک جدید takrah.top/c/<slug>)
+- باقی‌مانده فاز ۲: داشبورد صاحب کلینیک، لغو/جابجایی نوبت؛ فاز ۳: زرین‌پال + پنل بازاریاب
+- نسخه‌ی ۳.۰.۰ در CHANGELOG ثبت شد

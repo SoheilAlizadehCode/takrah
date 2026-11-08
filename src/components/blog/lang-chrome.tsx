@@ -13,18 +13,29 @@ export function useIsEnglish(): boolean {
   return pathname === "/en" || pathname.startsWith("/en/");
 }
 
+/** مسیرهای مستأجر — سایت مستقل کلینیک؛ بدون هدر/فوتر سایت اصلی */
+export function useIsClinicPath(): boolean {
+  const pathname = usePathname() ?? "";
+  return pathname === "/start" || pathname.startsWith("/c/") || /^\/api\//.test(pathname);
+}
+
 /**
  * هدر زبان‌آگاه — مسیرهای /en هدر انگلیسی و بقیه هدر فارسی می‌بینند.
+ * مسیرهای کلینیک (/c/… و /start) هیچ هدری نمی‌گیرند — سایت مستقل خودشان.
  * جایگزین مستقیم SiteChrome در layout ریشه.
  */
 export function LangChrome() {
   const isEn = useIsEnglish();
+  const isClinic = useIsClinicPath();
+  if (isClinic) return null;
   return isEn ? <EnHeader /> : <SiteChrome />;
 }
 
 /** فوتر زبان‌آگاه — به‌جای Footer مستقیم در layout ریشه */
 export function LangFooter() {
   const isEn = useIsEnglish();
+  const isClinic = useIsClinicPath();
+  if (isClinic) return null;
   return isEn ? <EnFooter /> : <Footer />;
 }
 
