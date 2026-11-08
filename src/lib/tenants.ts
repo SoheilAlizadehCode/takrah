@@ -39,6 +39,8 @@ export interface Tenant {
   trialEnds: number; // timestamp — برای status==="trial"
   ownerChatId: string; // چت‌آی‌دی پزشک/منشی برای اطلاع‌رسانی خودکار
   refCode: string;
+  type: "matb" | "clinic"; // مطب خصوصی (پیش‌فرض — بازار اصلی) یا کلینیک چندپزشکه
+  paidUntil: number; // timestamp انقضای اشتراک پرداختی — ۰ = نامحدود (دمو)
 }
 
 export interface TenantBooking {
@@ -79,7 +81,6 @@ export const PLAN_INTAKE_LIMIT: Record<TenantPlan, number> = {
   pro: 200,
 };
 export const TRIAL_DAYS = 14;
-
 const SLUG_RE = /^[a-z0-9][a-z0-9-]{1,31}$/;
 const cfgKey = (slug: string) => `t:${slug}:config`;
 
@@ -121,6 +122,8 @@ export async function ensureSeed(): Promise<void> {
       trialEnds: 0,
       ownerChatId: ADMIN_CHAT_ID,
       refCode: "",
+      type: "clinic",
+      paidUntil: 0,
     } satisfies Tenant),
   );
 }
@@ -148,6 +151,7 @@ export interface CreateTenantInput {
   plan?: TenantPlan;
   ownerChatId?: string;
   refCode?: string;
+  type?: "matb" | "clinic";
 }
 
 export type CreateResult =
@@ -156,7 +160,7 @@ export type CreateResult =
 
 export async function createTenant(input: CreateTenantInput): Promise<CreateResult> {
   const name = (input.name ?? "").trim();
-  if (name.length < 3) return { ok: false, err: "نام کلینیک باید حداقل ۳ حرف باشد" };
+  if (name.length < 3) return { ok: false, err: "نام مطب/کلینیک باید حداقل ۳ حرف باشد" };
   const phone = (input.phone ?? "").trim();
   if (!/^[\d+\-\s]{9,15}$/.test(phone)) return { ok: false, err: "شماره تلفن معتبر نیست" };
 
@@ -178,6 +182,7 @@ export async function createTenant(input: CreateTenantInput): Promise<CreateResu
 
   const plan: TenantPlan = input.plan === "basic" || input.plan === "pro" ? input.plan : "trial";
   const now = Date.now();
+  // پلن پرداختی هم با ۱۴ روز تریال شروع می‌شود؛ بعد از پرداخت زرین‌پال → active تا paidUntil
   const tenant: Tenant = {
     slug,
     name: name.slice(0, 80),
@@ -189,11 +194,13 @@ export async function createTenant(input: CreateTenantInput): Promise<CreateResu
     doctors,
     slots: (input.slots?.length ? input.slots : SLOTS).slice(0, 24),
     plan,
-    status: plan === "trial" ? "trial" : "active", // پلن پرداختی فعلاً فعال می‌شود (تسویه دستی تا راه‌اندازی زرین‌پال)
+    status: "trial",
     createdAt: now,
-    trialEnds: plan === "trial" ? now + TRIAL_DAYS * 86400_000 : 0,
+    trialEnds: now + TRIAL_DAYS * 86400_000,
     ownerChatId: (input.ownerChatId ?? "").replace(/\D/g, "").slice(0, 15),
     refCode: (input.refCode ?? "").trim().toLowerCase().slice(0, 24),
+    type: input.type === "clinic" ? "clinic" : "matb",
+    paidUntil: 0,
   };
   await kvSet(cfgKey(slug), JSON.stringify(tenant));
   await indexAdd(slug);
@@ -201,14 +208,20 @@ export async function createTenant(input: CreateTenantInput): Promise<CreateResu
   return { ok: true, tenant };
 }
 
-/** خواندن کلینیک + انقضای خودکار دوره‌ی آزمایشی */
+/** خواندن مطب/کلینیک + انقضای خودکار تریال و اشتراک پرداختی */
 export async function getTenant(slug: string): Promise<Tenant | null> {
   await ensureSeed();
   const raw = await kvGet(cfgKey(slug));
   if (!raw) return null;
   const t = safeParse<Tenant>(raw, null as unknown as Tenant);
   if (!t?.slug) return null;
-  if (t.status === "trial" && t.trialEnds && Date.now() > t.trialEnds) {
+  if (t.type === undefined) t.type = "clinic"; // سازگاری با مستأجرهای قدیمی
+  if (t.paidUntil === undefined) t.paidUntil = 0;
+  const now = Date.now();
+  if (t.status === "trial" && t.trialEnds && now > t.trialEnds) {
+    t.status = "expired";
+    await kvSet(cfgKey(slug), JSON.stringify(t));
+  } else if (t.status === "active" && t.paidUntil && now > t.paidUntil) {
     t.status = "expired";
     await kvSet(cfgKey(slug), JSON.stringify(t));
   }

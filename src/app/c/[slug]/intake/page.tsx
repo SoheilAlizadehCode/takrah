@@ -27,9 +27,9 @@ export default async function IntakePage({ params }: { params: Promise<{ slug: s
         <div className="card">
           <div style={{ fontSize: 40 }}>⏳</div>
           <h2>این بخش در حال حاضر فعال نیست</h2>
-          <p>اشتراک کلینیک منقضی شده یا کلینیک ثبت نشده است.</p>
-          <a className="c-cta" style={{ marginTop: 16 }} href="/start">
-            🚀 ساخت کلینیک در تکنار
+          <p>اشتراک این مطب/کلینیک منقضی شده یا ثبت نشده است.</p>
+          <a className="c-cta" style={{ marginTop: 16 }} href={t ? `/pay/${t.slug}` : "/start"}>
+            {t ? "💳 تمدید اشتراک" : "🚀 ساخت مطب در تکنار"}
           </a>
         </div>
       </div>

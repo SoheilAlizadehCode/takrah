@@ -29,6 +29,7 @@ export async function POST(req: Request): Promise<Response> {
         `📞 ${res.tenant.phone}\n` +
         `👨‍⚕️ پزشکان: ${res.tenant.doctors.map((d) => d.name).join("، ")}\n` +
         `💳 پلن: ${res.tenant.plan === "trial" ? "آزمایشی ۱۴ روزه" : res.tenant.plan}` +
+        `\n🏷 نوع: ${res.tenant.type === "clinic" ? "کلینیک چندپزشکه" : "مطب خصوصی"}` +
         (res.tenant.ownerChatId ? `\n📨 چت پزشک: ${res.tenant.ownerChatId}` : ""),
       parse_mode: "HTML",
       disable_web_page_preview: true,

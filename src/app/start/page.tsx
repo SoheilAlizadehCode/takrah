@@ -11,6 +11,7 @@ interface DocRow {
 }
 
 type Plan = "trial" | "basic" | "pro";
+type Kind = "matb" | "clinic";
 
 const PLANS: { id: Plan; name: string; price: string; desc: string; perks: string[] }[] = [
   {
@@ -24,15 +25,15 @@ const PLANS: { id: Plan; name: string; price: string; desc: string; perks: strin
     id: "basic",
     name: "نوبت‌دهی آنلاین",
     price: "۹۹۰ هزار تومان / ماه",
-    desc: "برای کلینیک‌هایی که فقط می‌خواهند نوبت بگیرند",
-    perks: ["وب‌سایت نوبت‌دهی + QR", "۶۰ پرسش‌نامه در ماه", "اعلان تلگرام + گزارش ماهانه", "بدون هزینه نصب"],
+    desc: "برای مطب‌هایی که فقط می‌خواهند نوبت بگیرند",
+    perks: ["وب‌سایت نوبت‌دهی + QR", "۶۰ پرسش‌نامه در ماه", "اعلان تلگرام + گزارش ماهانه", "پرداخت آنلاین ۱/۶/۱۲ ماهه"],
   },
   {
     id: "pro",
     name: "دستیار دکتر",
     price: "۱٬۹۹۰ هزار تومان / ماه",
     desc: "منشی + دستیار پزشک با خلاصه‌ی هوشمند",
-    perks: ["همه‌ی امکانات پلن استاندارد", "۲۰۰ پرسش‌نامه + خلاصه‌ی هوش مصنوعی", "وویس خلاصه‌ی بیمار در چت پزشک", "اولویت پشتیبانی"],
+    perks: ["همه‌ی امکانات پلن استاندارد", "۲۰۰ پرسش‌نامه + خلاصه‌ی هوش مصنوعی", "وویس خلاصه‌ی بیمار در چت پزشک", "پرداخت آنلاین ۱/۶/۱۲ ماهه"],
   },
 ];
 
@@ -58,6 +59,7 @@ export default function StartPage() {
   const [step, setStep] = useState(1);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [kind, setKind] = useState<Kind>("matb");
   const [address, setAddress] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [hours, setHours] = useState("شنبه تا پنجشنبه\nصبح ۹ تا ۱۳ — عصر ۱۶ تا ۲۰");
@@ -80,8 +82,8 @@ export default function StartPage() {
 
   function nextFrom1() {
     setErr("");
-    if (name.trim().length < 3) return setErr("نام کلینیک را کامل بنویسید");
-    if (!/^[\d+\-\s]{9,15}$/.test(phone.trim())) return setErr("شماره تلفن کلینیک معتبر نیست");
+    if (name.trim().length < 3) return setErr(kind === "matb" ? "نام مطب را کامل بنویسید (مثلاً مطب دکتر سارا محمدی)" : "نام کلینیک را کامل بنویسید");
+    if (!/^[\d+\-\s]{9,15}$/.test(phone.trim())) return setErr("شماره تلفن معتبر نیست");
     setStep(2);
   }
 
@@ -128,6 +130,7 @@ export default function StartPage() {
           doctors: docs.filter((d) => d.name.trim().length > 1),
           slug: slug.trim().toLowerCase() || undefined,
           plan, refCode: refCode.trim(),
+          type: kind,
         }),
       });
       const j = (await r.json()) as { ok?: boolean; err?: string; slug?: string };
@@ -149,20 +152,20 @@ export default function StartPage() {
           <div style={s.logo}>T</div>
           <div style={{ textAlign: "right" }}>
             <b style={{ fontSize: 15, color: "#5c4a10" }}>تکنار</b>
-            <div style={{ fontSize: 10.5, color: "#9a8a55" }}>منشی و دستیار هوشمند کلینیک شما</div>
+            <div style={{ fontSize: 10.5, color: "#9a8a55" }}>منشی و دستیار هوشمند مطب شما</div>
           </div>
         </div>
 
         <h1 style={s.h1}>
-          {doneSlug ? "🎉 کلینیک شما آماده است!" : "کلینیک خود را ۱۴ روز رایگان بسازید"}
+          {doneSlug ? "🎉 مطب شما آماده است!" : "مطب خود را ۱۴ روز رایگان بسازید"}
         </h1>
         <p style={s.sub}>
-          {doneSlug ? "لینک و کد QR اختصاصی‌تان همین حالا فعال است" : "بدون کارت بانکی · بدون نصب · در ۳ دقیقه"}
+          {doneSlug ? "لینک و کد QR اختصاصی‌تان همین حالا فعال است" : "منشی و دستیار هوشمند برای مطب خصوصی · بدون کارت بانکی · در ۳ دقیقه"}
         </p>
 
         {!doneSlug && (
           <div style={s.steps}>
-            <span style={step === 1 ? { ...s.step, background: "#c9a227", color: "#fff" } : s.step}>۱ · اطلاعات کلینیک</span>
+            <span style={step === 1 ? { ...s.step, background: "#c9a227", color: "#fff" } : s.step}>۱ · اطلاعات مطب</span>
             <span style={step === 2 ? { ...s.step, background: "#c9a227", color: "#fff" } : s.step}>۲ · پزشکان و آدرس صفحه</span>
             <span style={step === 3 ? { ...s.step, background: "#c9a227", color: "#fff" } : s.step}>۳ · انتخاب پلن</span>
           </div>
@@ -190,26 +193,58 @@ export default function StartPage() {
                 <a style={s.btnGhost} href={`/c/${doneSlug}/intake`}>
                   🩺 دیدن پرسش‌نامه‌ی بیمار
                 </a>
+                {plan !== "trial" && (
+                  <a style={{ ...s.btn, width: "100%", justifyContent: "center" }} href={`/pay/${doneSlug}?new=1`}>
+                    💳 پرداخت و فعال‌سازی اشتراک {plan === "pro" ? "دستیار دکتر" : "نوبت‌دهی"}
+                  </a>
+                )}
               </div>
               <p style={{ fontSize: 12, color: "#7a6a3d", marginTop: 18, lineHeight: 2 }}>
-                💡 همین لینک را در اینستاگرام و واتساپ کلینیک بگذارید تا بیمارها مستقیم نوبت بگیرند.
+                💡 همین لینک را در اینستاگرام و واتساپ مطب بگذارید تا بیمارها مستقیم نوبت بگیرند.
                 {ownerChatId ? " خلاصه‌ی بیمارها به تلگرام شما می‌آید." : " اگر چت‌آی‌دی تلگرام ندادید، برای دریافت خلاصه‌ی بیمارها با ما هماهنگ کنید."}
-                <br />
-                📞 برای فعال‌سازی پلن پرداختی و راه‌اندازی کامل با ما تماس بگیرید.
+                {plan !== "trial" ? (
+                  <>
+                    <br />
+                    💳 اشتراک اکنون در حالت آزمایشی است — با پرداختِ همان پلن، فعال‌سازی قطعی می‌شود.
+                  </>
+                ) : null}
               </p>
             </>
           ) : step === 1 ? (
             <>
-              <label style={s.label}>نام کلینیک *</label>
-              <input style={s.input} placeholder="مثلاً کلینیک دندانپزشکی لبخند گیل" value={name} onChange={(e) => setName(e.target.value)} />
+              <label style={s.label}>نوع مجموعه</label>
+              <div style={{ display: "flex", gap: 10 }}>
+                {(["matb", "clinic"] as Kind[]).map((k) => (
+                  <div
+                    key={k}
+                    onClick={() => setKind(k)}
+                    style={{
+                      flex: 1,
+                      border: kind === k ? "2px solid #c9a227" : "1.5px solid #e2d8bc",
+                      borderRadius: 16,
+                      padding: "13px 16px",
+                      cursor: "pointer",
+                      background: kind === k ? "#fffbea" : "#fff",
+                    }}
+                  >
+                    <b style={{ fontSize: 13.5 }}>{k === "matb" ? "🩺 مطب خصوصی" : "🏥 کلینیک چندپزشکه"}</b>
+                    <div style={{ fontSize: 11.5, color: "#7a6a3d", marginTop: 3 }}>
+                      {k === "matb" ? "یک پزشک — رایج‌ترین حالت (پیش‌فرض)" : "چند پزشک و تخصص"}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <label style={s.label}>{kind === "matb" ? "نام مطب *" : "نام کلینیک *"}</label>
+              <input style={s.input} placeholder={kind === "matb" ? "مثلاً مطب دکتر سارا محمدی — دندانپزشکی" : "مثلاً کلینیک دندانپزشکی لبخند گیل"} value={name} onChange={(e) => setName(e.target.value)} />
 
               <label style={s.label}>تلفن پذیرش *</label>
               <input style={s.input} placeholder="۰۱۳-۳۲۲۲۴۴۰۰" dir="ltr" value={phone} onChange={(e) => setPhone(e.target.value)} />
 
-              <label style={s.label}>آدرس</label>
+              <label style={s.label}>{kind === "matb" ? "آدرس مطب" : "آدرس کلینیک"}</label>
               <input style={s.input} placeholder="رشت، گلسار، بلوار نماز، مجتمع پزشکان سلامت" value={address} onChange={(e) => setAddress(e.target.value)} />
 
-              <label style={s.label}>واتساپ کلینیک (اختیاری)</label>
+              <label style={s.label}>واتساپ (اختیاری)</label>
               <input style={s.input} placeholder="۰۹۱۱۱۱۱۲۲۳۳" dir="ltr" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} />
 
               <label style={s.label}>ساعات کاری</label>
@@ -227,7 +262,7 @@ export default function StartPage() {
             </>
           ) : step === 2 ? (
             <>
-              <label style={s.label}>پزشکان کلینیک</label>
+              <label style={s.label}>پزشک‌ها {kind === "matb" ? "— برای مطب معمولاً همان یک پزشک کافی است" : "کلینیک"}</label>
               {docs.map((d, i) => (
                 <div key={i} style={{ display: "grid", gridTemplateColumns: "2fr 1.2fr 1.4fr auto", gap: 8, marginBottom: 8 }}>
                   <input style={s.input} placeholder="نام پزشک" value={d.name} onChange={(e) => setDocs((a) => a.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} />
@@ -248,7 +283,7 @@ export default function StartPage() {
                 </button>
               )}
 
-              <label style={s.label}>آدرس اختصاصی صفحه‌ی کلینیک شما</label>
+              <label style={s.label}>آدرس اختصاصی صفحه‌ی مطب شما</label>
               <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                 <span style={{ fontSize: 12.5, color: "#9a8a55", direction: "ltr", whiteSpace: "nowrap" }}>takrah.top/c/</span>
                 <input

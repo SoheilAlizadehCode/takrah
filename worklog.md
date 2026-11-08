@@ -1000,3 +1000,23 @@ Stage Summary:
 - لینک‌ها بعد از دیپلوی Vercel: takrah.top/start و takrah.top/c/salamat (+ هر کلینیک جدید takrah.top/c/<slug>)
 - باقی‌مانده فاز ۲: داشبورد صاحب کلینیک، لغو/جابجایی نوبت؛ فاز ۳: زرین‌پال + پنل بازاریاب
 - نسخه‌ی ۳.۰.۰ در CHANGELOG ثبت شد
+
+---
+Task ID: billing-1
+Agent: main
+Task: فروش خودکار زرین‌پال + محوریت مطب خصوصی (پاسخ به تغییر رویه‌ی کاربر)
+
+Work Log:
+- کاربر تعریف مولتی‌تننت را تصریح کرد: صفحه‌ی انتخاب پلن + دوره (مثل ۶ ماهه) + پرداخت آنلاین + فعال‌سازی خودکار — بدون پیگیری پول، بدون سرور جدا، بدون دادن سورس؛ و تمرکز بازار روی مطب خصوصی (نه کلینیک که کم است)
+- src/lib/billing.ts: قیمت ۱/۶/۱۲ ماهه (۶م=۱ماه رایگان، ۱۲م=۲ ماه رایگان)، zarinpalRequest/Verify v4 (ریال=تومان×۱۰)، pendingPay با TTL ۴۸h، activateSubscription (تمدید از انتها) — همه با فال‌بک امن
+- API: POST /api/billing/checkout (بدون مرچنت=حالت دستی+خبر تلگرام ادمین)، GET /api/billing/callback (verify→activate→ریدایرکت /c/<slug>?paid=1 یا /pay/<slug>?failed=1)
+- صفحه /pay/[slug] + فرم کلاینت: پلن×دوره، مبلغ ماهانه، دکمه زرین‌پال؛ بدون مرچنت=پیام «در حال راه‌اندازی»
+- مدل Tenant: +type(matb|clinic پیش‌فرض matb) و +paidUntil؛ انقضای خودکار اشتراک پرداختی در getTenant؛ CTA تمدید در صفحه‌ی منقضی
+- /start: سوییچ مطب خصوصی/کلینیک + متن مطب‌محور + دکمه «پرداخت و فعال‌سازی» بعد از ثبت پلن پرداختی
+- SETUP-PAYMENT-FA.md: راهنمای ۵ دقیقه‌ای فعال‌سازی (فقط ZARINPAL_MERCHANT_ID در Vercel) + حالت تست ZARINPAL_SANDBOX=1
+- نکته‌ی زیرساخت: sandbox بازخوانی شد و به snapshot قبل از مولتی‌تننت برگشت — با pull از گیت‌هاب کامل بازسازی شد (پروتکل push-at-end نجات‌دهنده بود)
+- تست: tsc پاک، build پاک، create مطب→/pay 200→checkout manual (مبلغ درست ۹٬۹۵۰٬۰۰۰)→callback فیک→redirect درست→/c?paid=1 200
+
+Stage Summary:
+- تنها گام باقی‌مانده برای فروش کاملاً خودکار: ساخت درگاه در zarinpal.com و ست‌کردن ZARINPAL_MERCHANT_ID در Vercel (راهنما در SETUP-PAYMENT-FA.md)
+- تا آن زمان دکمه پرداخت درخواست را دستی به تلگرام ادمین می‌فرستد

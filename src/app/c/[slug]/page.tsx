@@ -16,9 +16,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-export default async function TenantPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function TenantPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ paid?: string }>;
+}) {
   await ensureSeed();
   const { slug } = await params;
+  const sp = await searchParams;
   const t = await getTenant(slug);
 
   if (!t) {
@@ -44,9 +51,9 @@ export default async function TenantPage({ params }: { params: Promise<{ slug: s
         <div className="card">
           <div style={{ fontSize: 40 }}>⏳</div>
           <h2>اشتراک {t.name} منقضی شده است</h2>
-          <p>برای ادامه‌ی نوبت‌دهی آنلاین و دستیار پزشک، اشتراک را تمدید کنید.</p>
-          <a className="c-cta" style={{ marginTop: 16 }} href="/start">
-            🔄 تمدید اشتراک
+          <p>برای ادامه‌ی نوبت‌دهی آنلاین و دستیار پزشک، اشتراک را تمدید کنید — فعال‌سازی همان لحظه‌ی پرداخت انجام می‌شود.</p>
+          <a className="c-cta" style={{ marginTop: 16 }} href={`/pay/${t.slug}`}>
+            💳 تمدید اشتراک
           </a>
         </div>
       </div>
@@ -54,11 +61,31 @@ export default async function TenantPage({ params }: { params: Promise<{ slug: s
   }
 
   const initial = t.name.trim().charAt(0) || "🏥";
-  const planLabel = t.plan === "pro" ? "پلن حرفه‌ای" : t.plan === "basic" ? "پلن استاندارد" : "دوره‌ی آزمایشی";
+  const kindLabel = t.type === "clinic" ? "کلینیک" : "مطب";
 
   return (
     <div className="c-wrap">
       <ClinicStyles />
+
+      {/* بنر پرداخت موفق */}
+      {sp.paid && (
+        <div
+          style={{
+            position: "fixed",
+            insetInline: 0,
+            top: 0,
+            zIndex: 60,
+            background: "linear-gradient(120deg,#2e7d55,#35a06f)",
+            color: "#fff",
+            textAlign: "center",
+            padding: "12px 16px",
+            fontSize: 13,
+            fontWeight: 800,
+          }}
+        >
+          💳 پرداخت موفق — اشتراک فعال شد! متشکریم.
+        </div>
+      )}
 
       {/* nav */}
       <div className="c-nav-wrap">
@@ -84,12 +111,12 @@ export default async function TenantPage({ params }: { params: Promise<{ slug: s
         <div className="c-gridp" />
         <div className="container c-hero-grid">
           <div>
-            <span className="c-pill">✨ {planLabel} تکنار — منشی هوشمند و نوبت‌دهی آنلاین</span>
+            <span className="c-pill">✨ منشی و دستیار هوشمند {kindLabel} — نوبت‌دهی آنلاین</span>
             <h1>
               نوبت‌دهی آنلاین <span className="gold">{t.name}</span>
             </h1>
             <p className="lead">
-              بدون تماس تلفنی و معطلی؛ روز و ساعت دلخواه‌تان را همین‌جا انتخاب کنید. نوبت شما فوراً برای منشی کلینیک ثبت می‌شود.
+              بدون تماس تلفنی و معطلی؛ روز و ساعت دلخواه‌تان را همین‌جا انتخاب کنید. نوبت شما فوراً برای منشی ثبت می‌شود.
             </p>
             <div className="c-info-chips">
               <div className="c-chip">📍 {t.address}</div>
@@ -129,7 +156,7 @@ export default async function TenantPage({ params }: { params: Promise<{ slug: s
       {/* doctors */}
       <section className="c-sec">
         <div className="container">
-          <span className="c-kicker">👨‍⚕️ پزشکان ما</span>
+          <span className="c-kicker">👨‍⚕️ پزشکان {kindLabel}</span>
           <h2>تیم پزشکی {t.name}</h2>
           <p className="sub">پزشک خود را انتخاب کنید و در روز و ساعت مناسب مراجعه کنید.</p>
           <div className="c-doc-grid">
@@ -177,8 +204,8 @@ export default async function TenantPage({ params }: { params: Promise<{ slug: s
             پذیرش: <span dir="ltr">{t.phone}</span>
           </div>
           <div style={{ marginTop: 14, fontSize: 11.5 }}>
-            ساخته‌شده با <b>تکنار</b> — منشی هوشمند کلینیک شما ·{" "}
-            <a href="/start">کلینیک خودت را بساز</a>
+            ساخته‌شده با <b>تکنار</b> — منشی و دستیار هوشمند مطب شما ·{" "}
+            <a href="/start">مطب خودت را بساز</a>
           </div>
         </div>
       </footer>
