@@ -9,6 +9,7 @@ Usage:
 """
 import argparse
 import json
+import re
 import sys
 import time
 from datetime import datetime, timedelta, timezone
@@ -17,7 +18,10 @@ from pathlib import Path
 import requests
 
 SCRIPT_DIR = Path(__file__).parent
-TOKEN = (SCRIPT_DIR / "telegram-token.txt").read_text().strip()
+_raw = (SCRIPT_DIR / "telegram-token.txt").read_text().strip()
+_m = re.search(r"^BOT_TOKEN=(.+)$", _raw, re.M)
+# فایل هم می‌تواند فقط توکن خام باشد هم فرمت KEY=VALUE (سازگار با setup-telegram-webhook.sh)
+TOKEN = _m.group(1).strip() if _m else _raw.splitlines()[0].strip()
 CHAT_ID = "@takrahTop"
 TEHRAN_TZ = timezone(timedelta(hours=3, minutes=30))  # ایران از ۱۴۰۱ دی‌ساختی ندارد
 

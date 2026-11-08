@@ -9,7 +9,9 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TOKEN=$(cat "$SCRIPT_DIR/telegram-token.txt" | tr -d '[:space:]')
+# پشتیبانی از هر دو فرمت: توکن خام یا KEY=VALUE (BOT_TOKEN=...)
+TOKEN=$(grep -m1 '^BOT_TOKEN=' "$SCRIPT_DIR/telegram-token.txt" 2>/dev/null | cut -d= -f2- | tr -d '[:space:]')
+[[ -z "${TOKEN:-}" ]] && TOKEN=$(head -1 "$SCRIPT_DIR/telegram-token.txt" | tr -d '[:space:]')
 CHAT_ID="@takrahTop"
 API="https://api.telegram.org/bot${TOKEN}"
 
