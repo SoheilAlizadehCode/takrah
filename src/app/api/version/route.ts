@@ -1,7 +1,7 @@
 // ─── نسخه‌ی سامانه — اثبات اینکه همه‌چیز نسخه‌بندی و در گیت‌هاب ثبت است ───
 export const dynamic = "force-dynamic";
 
-const VERSION = "2.1.0";
+const VERSION = "3.0.0";
 
 export async function GET() {
   return Response.json({
@@ -13,6 +13,11 @@ export async function GET() {
       ? new Date(Number(process.env.VERCEL_DEPLOYMENT_CREATED_AT) * 1000).toISOString()
       : new Date().toISOString(),
     features: [
+      "multi-tenant",
+      "tenant-booking-web",
+      "doctor-intake-voice",
+      "tenant-qr",
+      "referral-code",
       "smart-ava-llm",
       "ava-memory",
       "voice-in",
