@@ -33,6 +33,16 @@ const AD_SECONDS = 15;
 const BOT_USERNAME = "TakrahTop_support_bot";
 const CHANNEL_URL = siteConfig.telegramChannel;
 
+/* یکتانت — جانمایی ۱۳۷۹۴۷ «میان‌مطلب تصویری تکرارشونده» (مثل مقاله‌ها).
+   رندرر رسمی: cdn.yektanet.com/js/takrah.top/native-49155.js — هنگام اجرا
+   پرچم window["yektanet_takrah.top_native-49155_is_loaded"] را ست می‌کند و
+   اگر پرچم از قبل باشد (if(o)return) دیگر اجرا نمی‌شود؛ چون کانتینر مرحلهٔ ۳
+   بعد از لود صفحه مونت می‌شود، در افکت رسیدن به مرحلهٔ ۳ پرچم را پاک و
+   رندرر را دوباره اجرا می‌کنیم — همان کاری که خود یکتانت در ناوبری SPA می‌کند. */
+const YEKTANET_CONTAINER_ID = "pos-article-display-card-123947";
+const YEKTANET_RENDERER_URL = "https://cdn.yektanet.com/js/takrah.top/native-49155.js";
+const YEKTANET_LOADED_FLAG = "yektanet_takrah.top_native-49155_is_loaded";
+
 interface GateProps {
   googleClientId: string;
   initialStep: 1 | 2 | 3 | 4;
@@ -76,16 +86,18 @@ const PROMOS = [
 ];
 
 /**
- * اسلایدهای باکس «تبلیغ کوتاه» مرحلهٔ ۳ — ترکیب معرفی داخلی + تبلیغ واقعی.
+ * اسلایدهای باکس «تبلیغ کوتاه» مرحلهٔ ۳ — پشتیبانِ تبلیغ واقعی یکتانت.
  *
- * تا وقتی گوگل ادسنس فعال نشده (adsenseClientId خالی است) و جانمایی‌های
- * یکتانت پُر نشده‌اند، این ۱۵ ثانیه با اسلایدهای محصول افیلیو (اسنپ‌شاپ)
+ * اولویت با تبلیغ یکتانت است (کانتینر + ری‌تریجر در افکت زیر)؛ تا وقتی
+ * کانتینر یکتانت پر نشده، این ۱۵ ثانیه با اسلایدهای محصول افیلیو (اسنپ‌شاپ)
  * پر می‌شود؛ یعنی همان جایی که کاربر مجبور به تماست، پول‌ساز است.
  * هر کلیک با affiliate_click ثبت می‌شود: partner=snappshop، item=محصول،
  * article="student-download-gate"، location="gate-step3".
  *
  * ترتیب اسلایدها مهم است: در ۱۵ ثانیه فقط ۳ اسلایدِ اول دیده می‌شود
  * (هر اسلاید ۵ ثانیه)؛ پس بعد از معرفی ربات، دو محصول پول‌ساز آمده‌اند.
+ * ⚠️ چرخش با GATE_AD_SLIDES.length است نه PROMOS.length — وگرنه محصولات
+ * هرگز به نوبت نمی‌رسند (باگ قبلی).
  */
 type GateAdSlide =
   | { kind: "promo"; icon: typeof Bot; title: string; text: string; cta: string; href: string }
@@ -98,12 +110,14 @@ const GATE_PRODUCT_IDS = [
 ] as const;
 
 const GATE_AD_SLIDES: GateAdSlide[] = [
-  ...PROMOS.map((p) => ({ kind: "promo" as const, icon: p.icon, title: p.title, text: p.text, cta: p.cta, href: p.href })),
+  // اسلاید اول: معرفی ربات (راهنمای مرحلهٔ بعدی کاربر تازه‌وارد)
+  { kind: "promo", icon: PROMOS[0].icon, title: PROMOS[0].title, text: PROMOS[0].text, cta: PROMOS[0].cta, href: PROMOS[0].href },
+  // اسلایدهای ۲ و ۳: محصول‌های پول‌ساز — دقیقاً داخل پنجرهٔ ۱۵ ثانیه
   ...GATE_PRODUCT_IDS.map(
     (id) => AFFILIATE_PRODUCTS.find((p) => p.id === id),
   ).filter((p): p is AffiliateProduct => Boolean(p))
     .map((product) => ({ kind: "product" as const, product })),
-  // باقی PROMOS بعد از محصول‌ها — کانال و «محل تبلیغ شما» در دور بعدی چرخه
+  // کانال و «محل تبلیغ شما» برای کاربر صبورتر (اسلایدهای ۴ به بعد)
   ...PROMOS.slice(1).map((p) => ({ kind: "promo" as const, icon: p.icon, title: p.title, text: p.text, cta: p.cta, href: p.href })),
 ];
 
@@ -188,6 +202,7 @@ export function DownloadGate({ googleClientId, initialStep, initialUser }: GateP
   const [countdown, setCountdown] = useState(AD_SECONDS);
   const [files, setFiles] = useState<FileItem[] | null>(null);
   const [promoIdx, setPromoIdx] = useState(0);
+  const [yektanetFilled, setYektanetFilled] = useState(false);
   const [gisFailed, setGisFailed] = useState(false);
   const t0Ref = useRef(Date.now());
   const gisDoneRef = useRef(false);
@@ -382,6 +397,49 @@ export function DownloadGate({ googleClientId, initialStep, initialUser }: GateP
     }
   }, [goStep]);
 
+  /* مرحلهٔ ۳ — تبلیغ واقعی یکتانت:
+     اسکریپت همسانی (layout) فقط یک‌بار موقع لود صفحه DOM را اسکن می‌کند؛
+     آن‌وقت کانتینر مرحلهٔ ۳ هنوز مونت نشده و تبلیغ هیچ‌وقت پر نمی‌شود.
+     پس با رسیدن به مرحلهٔ ۳، اگر رندرر یکتانت قبلاً لود شده باشد، دقیقاً
+     کاری که خود یکتانت هنگام ناوبری SPA می‌کند را تکرار می‌کنیم:
+     پاک‌کردن پرچم is_loaded + حذف تگ قبلی + اجرای دوبارهٔ رندرر.
+     اگر هنوز لود نشده باشد، بعد از لود خودش این کانتینر را می‌بیند و پر می‌کند. */
+  useEffect(() => {
+    if (step !== 3) return;
+    const w = window as unknown as Record<string, unknown>;
+    if (!w[YEKTANET_LOADED_FLAG]) return; // هنوز لود نشده؛ بعد از لود خودش اسکن می‌کند
+    delete w[YEKTANET_LOADED_FLAG];
+    document.getElementById("yn_ad_script")?.remove();
+    const s = document.createElement("script");
+    s.id = "yn_ad_script";
+    s.async = true;
+    s.src = YEKTANET_RENDERER_URL;
+    document.head.appendChild(s);
+  }, [step]);
+
+  /* اگر یکتانت کانتینر را پر کرد، اسلایدهای جایگزین مخفی می‌شوند */
+  useEffect(() => {
+    if (step !== 3) return;
+    const el = document.getElementById(YEKTANET_CONTAINER_ID);
+    if (!el) return;
+    if (el.childElementCount > 0) {
+      setYektanetFilled(true);
+      return;
+    }
+    const mo = new MutationObserver(() => {
+      if (el.childElementCount > 0) {
+        setYektanetFilled(true);
+        mo.disconnect();
+      }
+    });
+    mo.observe(el, { childList: true, subtree: true });
+    const stop = setTimeout(() => mo.disconnect(), 30000);
+    return () => {
+      mo.disconnect();
+      clearTimeout(stop);
+    };
+  }, [step]);
+
   useEffect(() => {
     if (step !== 3) return;
     setCountdown(AD_SECONDS);
@@ -396,7 +454,7 @@ export function DownloadGate({ googleClientId, initialStep, initialUser }: GateP
         return c - 1;
       });
     }, 1000);
-    const promo = setInterval(() => setPromoIdx((p) => (p + 1) % PROMOS.length), 5000);
+    const promo = setInterval(() => setPromoIdx((p) => (p + 1) % GATE_AD_SLIDES.length), 5000);
     return () => {
       clearInterval(tick);
       clearInterval(promo);
@@ -587,65 +645,71 @@ export function DownloadGate({ googleClientId, initialStep, initialUser }: GateP
               </div>
             ) : (
               <div className="min-h-[180px] p-5">
-                {GATE_AD_SLIDES.map((slide, i) => (
-                  <div key={slideKey(slide, i)} className={i === promoIdx ? "block" : "hidden"} aria-hidden={i !== promoIdx}>
-                    {slide.kind === "promo" ? (
-                      <div className="flex items-start gap-4">
-                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                          <slide.icon className="h-5 w-5" aria-hidden="true" />
-                        </span>
-                        <div className="min-w-0">
-                          <h3 className="text-base font-extrabold">{slide.title}</h3>
-                          <p className="mt-1 text-sm leading-7 text-muted-foreground">{slide.text}</p>
-                          <a
-                            href={slide.href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="mt-2 inline-flex items-center gap-1 text-sm font-bold text-primary hover:underline"
-                          >
-                            {slide.cta}
-                            <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-                          </a>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex items-start gap-4">
-                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                          <Laptop className="h-5 w-5" aria-hidden="true" />
-                        </span>
-                        <div className="min-w-0">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <h3 className="text-base font-extrabold">{slide.product.title}</h3>
-                            <span className="shrink-0 rounded-md bg-primary/10 px-2 py-0.5 text-[0.68rem] font-bold text-primary">
-                              {AFFILIATE_STORES[slide.product.store].name}
+                {/* اولویت: تبلیغ واقعی یکتانت — اگر پر شود اسلایدهای جایگزین مخفی می‌شوند */}
+                <div id={YEKTANET_CONTAINER_ID} />
+                {!yektanetFilled && (
+                  <>
+                    {GATE_AD_SLIDES.map((slide, i) => (
+                      <div key={slideKey(slide, i)} className={i === promoIdx ? "block" : "hidden"} aria-hidden={i !== promoIdx}>
+                        {slide.kind === "promo" ? (
+                          <div className="flex items-start gap-4">
+                            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                              <slide.icon className="h-5 w-5" aria-hidden="true" />
                             </span>
+                            <div className="min-w-0">
+                              <h3 className="text-base font-extrabold">{slide.title}</h3>
+                              <p className="mt-1 text-sm leading-7 text-muted-foreground">{slide.text}</p>
+                              <a
+                                href={slide.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="mt-2 inline-flex items-center gap-1 text-sm font-bold text-primary hover:underline"
+                              >
+                                {slide.cta}
+                                <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+                              </a>
+                            </div>
                           </div>
-                          <p className="mt-1 text-sm leading-7 text-muted-foreground">{slide.product.spec}</p>
-                          <TrackedLink
-                            href={slide.product.url}
-                            event="affiliate_click"
-                            params={{
-                              partner: slide.product.store,
-                              item: slide.product.id,
-                              article: "student-download-gate",
-                              location: "gate-step3",
-                            }}
-                            rel="sponsored nofollow noopener"
-                            className="mt-2 inline-flex items-center gap-1 text-sm font-bold text-primary hover:underline"
-                          >
-                            {AFFILIATE_STORES[slide.product.store].cta}
-                            <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-                          </TrackedLink>
-                        </div>
+                        ) : (
+                          <div className="flex items-start gap-4">
+                            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                              <Laptop className="h-5 w-5" aria-hidden="true" />
+                            </span>
+                            <div className="min-w-0">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <h3 className="text-base font-extrabold">{slide.product.title}</h3>
+                                <span className="shrink-0 rounded-md bg-primary/10 px-2 py-0.5 text-[0.68rem] font-bold text-primary">
+                                  {AFFILIATE_STORES[slide.product.store].name}
+                                </span>
+                              </div>
+                              <p className="mt-1 text-sm leading-7 text-muted-foreground">{slide.product.spec}</p>
+                              <TrackedLink
+                                href={slide.product.url}
+                                event="affiliate_click"
+                                params={{
+                                  partner: slide.product.store,
+                                  item: slide.product.id,
+                                  article: "student-download-gate",
+                                  location: "gate-step3",
+                                }}
+                                rel="sponsored nofollow noopener"
+                                className="mt-2 inline-flex items-center gap-1 text-sm font-bold text-primary hover:underline"
+                              >
+                                {AFFILIATE_STORES[slide.product.store].cta}
+                                <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+                              </TrackedLink>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                ))}
-                <div className="mt-4 flex justify-center gap-1.5" aria-hidden="true">
-                  {GATE_AD_SLIDES.map((slide, i) => (
-                    <span key={slideKey(slide, i)} className={`h-1.5 w-6 rounded-full transition-colors ${i === promoIdx ? "bg-primary" : "bg-border"}`} />
-                  ))}
-                </div>
+                    ))}
+                    <div className="mt-4 flex justify-center gap-1.5" aria-hidden="true">
+                      {GATE_AD_SLIDES.map((slide, i) => (
+                        <span key={slideKey(slide, i)} className={`h-1.5 w-6 rounded-full transition-colors ${i === promoIdx ? "bg-primary" : "bg-border"}`} />
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </div>
