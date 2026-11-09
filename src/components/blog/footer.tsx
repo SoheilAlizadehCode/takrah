@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Stethoscope } from "lucide-react";
 import { TrackedLink } from "@/components/blog/tracked-link";
 import { Route, Mail, Send, Bot, Sparkles, Wrench } from "lucide-react";
 import { categories, hrefs, siteConfig, staticPages } from "@/lib/site";
@@ -102,6 +103,13 @@ export function Footer() {
                 ربات جستجوی مقاله‌ها
               </TrackedLink>
             ) : null}
+            <Link
+              href="/start"
+              className="flex items-center gap-2 rounded-lg border border-amber-600/40 bg-amber-500/10 px-3 py-2 text-sm font-bold text-amber-800 transition-colors hover:bg-amber-500/20 dark:text-amber-300"
+            >
+              <Stethoscope className="h-4 w-4" aria-hidden="true" />
+              منشی و دستیار هوشمند مطب — سرویس اشتراکی تک‌راه
+            </Link>
           </div>
         </div>
 

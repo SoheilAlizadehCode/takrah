@@ -66,50 +66,6 @@ export const studentDownloads: DownloadFile[] = [
     badge: "هدیه تک‌راه",
     group: "tool",
   },
-  {
-    id: "lesson-ipv4-protocol-addressing",
-    title: "درس‌نامه: پروتکل اینترنت و آدرس‌دهی IPv4",
-    description:
-      "درس‌نامهٔ کلاسی شبکه و اینترنت دوازدهم (هنرستان سما) به قلم سبحان علیزاده — از مفهوم پروتکل و گره/میزبان تا ساختار IPv4، پنج کلاس آدرس، Loopback و Broadcast با مثال و تمرین.",
-    file: "ipv4-internet-protocol-addressing.pdf",
-    downloadName: "takrah-ipv4-protocol-addressing.pdf",
-    sizeLabel: "حدود ۶ مگابایت",
-    badge: "درس‌نامه",
-    group: "book",
-  },
-  {
-    id: "lesson-dhcp-dns-windows-server",
-    title: "درس‌نامه: خدمات DHCP و DNS در ویندوز سرور",
-    description:
-      "درس‌نامهٔ کلاسی به قلم سبحان علیزاده — فرایند DORA، ساخت Scope و رزرو/استثنا، رکوردهای DNS و کار هماهنگ DHCP+DNS با اسکرین‌شات واقعی ویندوز سرور؛ همراه ۳ سؤال تشریحی.",
-    file: "dhcp-dns-windows-server.pdf",
-    downloadName: "takrah-dhcp-dns-windows-server.pdf",
-    sizeLabel: "حدود ۷ مگابایت",
-    badge: "درس‌نامه",
-    group: "book",
-  },
-  {
-    id: "lesson-subnetting-resource-management",
-    title: "درس‌نامه: زیرشبکه‌سازی و مدیریت منابع در ویندوز سرور",
-    description:
-      "درس‌نامهٔ کلاسی به قلم سبحان علیزاده — Subnetting با قرض‌گرفتن بیت و مثال کامل، کاربران و گروه‌ها، اشتراک‌گذاری و قوانین ترکیب مجوزهای Share و NTFS با جدول‌های مرجع.",
-    file: "subnetting-resource-management.pdf",
-    downloadName: "takrah-subnetting-resource-management.pdf",
-    sizeLabel: "حدود ۷ مگابایت",
-    badge: "درس‌نامه",
-    group: "book",
-  },
-  {
-    id: "lesson-persona-customer-journey",
-    title: "درس‌نامه: پرسونا و نقشه سفر مشتری (کارآفرینی)",
-    description:
-      "درس‌نامهٔ کلاسی کارآفرینی دوازدهم به قلم سبحان علیزاده — پرسونا چیست، ۴ روش تحقیق، جدول ۸ خانه‌ای پرسونا با نمونهٔ کامل کافه و نقشه سفر ۵ مرحله‌ای مشتری + تکلیف سه‌بخشی.",
-    file: "persona-customer-journey.pdf",
-    downloadName: "takrah-persona-customer-journey.pdf",
-    sizeLabel: "حدود ۷٫۶ مگابایت",
-    badge: "درس‌نامه",
-    group: "book",
-  },
 ];
 
 export const getStudentDownload = (id: string): DownloadFile | undefined =>

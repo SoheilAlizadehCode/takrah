@@ -17,6 +17,7 @@ import {
   Library,
   BookOpen,
   Download,
+  Stethoscope,
 } from "lucide-react";
 import { categories, hrefs } from "@/lib/site";
 import { studentBooks } from "@/lib/student";
@@ -82,6 +83,14 @@ export function Header({ onOpenSearch }: HeaderProps) {
             </span>
             <Sparkles className="h-[18px] w-[18px]" aria-hidden="true" />
             پکیج‌ها
+          </Link>
+          {/* منشی هوشمند مطب — سرویس اشتراکی تکنار (مولتی‌تننت) */}
+          <Link
+            href="/start"
+            className="flex items-center gap-1.5 rounded-xl border border-amber-600/40 bg-gradient-to-l from-amber-500 to-amber-600 px-3 py-2 text-sm font-bold text-white shadow-sm transition-all hover:shadow-md hover:brightness-105"
+          >
+            <Stethoscope className="h-[18px] w-[18px]" aria-hidden="true" />
+            منشی هوشمند مطب
           </Link>
           {/* دایرهٔ ابزارها — خندق استراتژیک تک‌راه */}
           <Link href="/tools" className={navLink}>
@@ -231,6 +240,16 @@ export function Header({ onOpenSearch }: HeaderProps) {
               >
                 <Sparkles className="h-5 w-5" aria-hidden="true" />
                 پکیج‌ها و دموهای زنده
+              </Link>
+            </li>
+            <li className="col-span-2">
+              <Link
+                href="/start"
+                className="flex items-center gap-2 rounded-lg border border-amber-600/40 bg-gradient-to-l from-amber-500 to-amber-600 px-3 py-2.5 text-sm font-bold text-white shadow-sm"
+                onClick={() => setMenuOpen(false)}
+              >
+                <Stethoscope className="h-5 w-5" aria-hidden="true" />
+                منشی هوشمند مطب — ۱۴ روز رایگان بساز
               </Link>
             </li>
             <li className="col-span-2">
