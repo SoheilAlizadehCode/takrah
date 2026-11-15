@@ -10,8 +10,9 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const t = await getTenant(slug);
+  const title = t ? (t.plan === "site" ? `${t.name} | وب‌سایت رسمی` : `${t.name} | نوبت‌دهی آنلاین`) : "مطب یافت نشد";
   return {
-    title: t ? `${t.name} | نوبت‌دهی آنلاین` : "کلینیک یافت نشد",
+    title,
     description: t ? `${t.name} — رزرو نوبت آنلاین، پاسخگویی هوشمند و پرسش‌نامه‌ی پیش از ویزیت` : undefined,
   };
 }
@@ -62,6 +63,8 @@ export default async function TenantPage({
 
   const initial = t.name.trim().charAt(0) || "🏥";
   const kindLabel = t.type === "clinic" ? "کلینیک" : "مطب";
+  const hasBooking = t.plan !== "site"; // پلن «سایت مطب» نوبت‌دهی ندارد
+  const hasIntake = t.plan === "full"; // دستیار پزشک فقط در پلن کامل
 
   return (
     <div className="c-wrap">
@@ -97,9 +100,15 @@ export default async function TenantPage({
               <small>{t.tagline}</small>
             </div>
           </div>
-          <a className="c-cta" href="#book">
-            🗓 رزرو نوبت
-          </a>
+          {hasBooking ? (
+            <a className="c-cta" href="#book">
+              🗓 رزرو نوبت
+            </a>
+          ) : (
+            <a className="c-cta" href={`tel:${t.phone.replace(/\s/g, "")}`}>
+              ☎️ تماس با پذیرش
+            </a>
+          )}
         </nav>
       </div>
 
@@ -113,10 +122,20 @@ export default async function TenantPage({
           <div>
             <span className="c-pill">✨ منشی و دستیار هوشمند {kindLabel} — نوبت‌دهی آنلاین</span>
             <h1>
-              نوبت‌دهی آنلاین <span className="gold">{t.name}</span>
+              {hasBooking ? (
+                <>
+                  نوبت‌دهی آنلاین <span className="gold">{t.name}</span>
+                </>
+              ) : (
+                <>
+                  وب‌سایت رسمی <span className="gold">{t.name}</span>
+                </>
+              )}
             </h1>
             <p className="lead">
-              بدون تماس تلفنی و معطلی؛ روز و ساعت دلخواه‌تان را همین‌جا انتخاب کنید. نوبت شما فوراً برای منشی ثبت می‌شود.
+              {hasBooking
+                ? "بدون تماس تلفنی و معطلی؛ روز و ساعت دلخواه‌تان را همین‌جا انتخاب کنید. نوبت شما فوراً برای منشی ثبت می‌شود."
+                : "مشخصات پزشک، خدمات و ساعات کاری — برای رزرو، مستقیم با پذیرش تماس بگیرید یا پیام دهید."}
             </p>
             <div className="c-info-chips">
               <div className="c-chip">📍 {t.address}</div>
@@ -134,18 +153,31 @@ export default async function TenantPage({
               </div>
             </div>
             <div style={{ display: "flex", gap: 10, marginTop: 24, flexWrap: "wrap" }}>
-              <a className="c-cta ok" href="#book">
-                ✅ رزرو نوبت
-              </a>
-              <a className="c-cta ghost" style={{ background: "rgba(255,255,255,.1)", color: "#fff", border: "1px solid rgba(255,255,255,.3)" }} href={`/c/${t.slug}/intake`}>
-                📋 پرسش‌نامه‌ی پیش از ویزیت
-              </a>
+              {hasBooking ? (
+                <a className="c-cta ok" href="#book">
+                  ✅ رزرو نوبت
+                </a>
+              ) : (
+                <a className="c-cta ok" href={`tel:${t.phone.replace(/\s/g, "")}`}>
+                  ☎️ تماس با پذیرش
+                </a>
+              )}
+              {t.whatsapp && !hasIntake ? (
+                <a className="c-cta ghost" style={{ background: "rgba(255,255,255,.1)", color: "#fff", border: "1px solid rgba(255,255,255,.3)" }} href={`https://wa.me/${t.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noreferrer">
+                  💬 واتساپ
+                </a>
+              ) : null}
+              {hasIntake && (
+                <a className="c-cta ghost" style={{ background: "rgba(255,255,255,.1)", color: "#fff", border: "1px solid rgba(255,255,255,.3)" }} href={`/c/${t.slug}/intake`}>
+                  📋 پرسش‌نامه‌ی پیش از ویزیت
+                </a>
+              )}
             </div>
           </div>
           <div className="c-qr-card">
-            <img src={`/api/tenants/qr?slug=${t.slug}`} alt={`کد QR نوبت‌دهی ${t.name}`} />
+            <img src={`/api/tenants/qr?slug=${t.slug}`} alt={hasBooking ? `کد QR نوبت‌دهی ${t.name}` : `کد QR وب‌سایت ${t.name}`} />
             <b>{t.name}</b>
-            <small>اسکن کنید و مستقیم وارد صفحه‌ی نوبت شوید</small>
+            <small>{hasBooking ? "اسکن کنید و مستقیم وارد صفحه‌ی نوبت شوید" : "اسکن کنید و وارد وب‌سایت مطب شوید"}</small>
             <div style={{ marginTop: 12 }}>
               <span className="c-badge">⚡ powered by تکنار</span>
             </div>
@@ -172,27 +204,31 @@ export default async function TenantPage({
         </div>
       </section>
 
-      {/* booking */}
-      <section className="c-sec alt" id="book-section">
-        <div className="container">
-          <span className="c-kicker">🗓 نوبت‌دهی آنلاین</span>
-          <h2>رزرو نوبت در ۳۰ ثانیه</h2>
-          <p className="sub">پزشک و روز و ساعت را انتخاب کنید؛ باقی‌اش با ما.</p>
-          <BookingWidget slug={t.slug} slots={t.slots} doctors={t.doctors} />
+      {/* booking — فقط پلن‌های دارای نوبت‌دهی؛ پلن «سایت مطب» این بخش را ندارد */}
+      {hasBooking && (
+        <section className="c-sec alt" id="book-section">
+          <div className="container">
+            <span className="c-kicker">🗓 نوبت‌دهی آنلاین</span>
+            <h2>رزرو نوبت در ۳۰ ثانیه</h2>
+            <p className="sub">پزشک و روز و ساعت را انتخاب کنید؛ باقی‌اش با ما.</p>
+            <BookingWidget slug={t.slug} slots={t.slots} doctors={t.doctors} />
 
-          {/* دستیار پزشک */}
-          <div className="c-intake-strip">
-            <div className="ic">🩺</div>
-            <div style={{ flex: 1, minWidth: 220 }}>
-              <b>پرسش‌نامه‌ی پیش از ویزیت</b>
-              <p>فرم را پر کنید؛ خلاصه‌ی منظم وضعیت‌تان با صدای گوینده به پزشک‌تان در تلگرام می‌رسد — ویزیت سریع‌تر و دقیق‌تر می‌شود.</p>
-            </div>
-            <a className="c-cta" href={`/c/${t.slug}/intake`}>
-              پر کردن پرسش‌نامه
-            </a>
+            {/* دستیار پزشک — فقط پلن کامل */}
+            {hasIntake && (
+              <div className="c-intake-strip">
+                <div className="ic">🩺</div>
+                <div style={{ flex: 1, minWidth: 220 }}>
+                  <b>پرسش‌نامه‌ی پیش از ویزیت</b>
+                  <p>فرم را پر کنید؛ خلاصه‌ی منظم وضعیت‌تان با صدای گوینده به پزشک‌تان در تلگرام می‌رسد — ویزیت سریع‌تر و دقیق‌تر می‌شود.</p>
+                </div>
+                <a className="c-cta" href={`/c/${t.slug}/intake`}>
+                  پر کردن پرسش‌نامه
+                </a>
+              </div>
+            )}
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* footer */}
       <footer className="c-footer">

@@ -1,7 +1,7 @@
 "use client";
 // ─── صفحهٔ محصول واحد تکنار: «منشی و دستیار هوشمند مطب» ───
-// از ۱۴۰۴/۰۸ این صفحه تک‌محصولی است: نوبت‌دهی + منشی AI + دستیار پزشک در یک اشتراک.
-// پلن‌ها: آزمایشی (۱۴ روز) / پایه / حرفه‌ای × دورهٔ ۶ ماهه و یکساله —
+// از ۱۴۰۴/۰۸/۲۴ ساختار سه‌پلنی: سایت مطب / سایت + نوبت‌دهی / کامل + دستیار آوا —
+// انتخاب دکتر یا کلینیک ← ۳ پلن × دورهٔ ۶ ماهه و یکساله — بدون تریال رایگان —
 // دموی تعاملی داخل هر کارت (کامپوننت PlanDemo) و CTA به ویزارد /start.
 import Link from "next/link";
 import { useState } from "react";
@@ -20,6 +20,9 @@ import {
   Mic,
   ShieldCheck,
   QrCode,
+  Globe,
+  Stethoscope,
+  Building2,
 } from "lucide-react";
 
 const stats = [
@@ -53,19 +56,21 @@ const features = [
 ];
 
 type Period = 6 | 12;
-type PlanId = "trial" | "basic" | "pro";
+type PlanId = "site" | "booking" | "full";
+type BuyerKind = "matb" | "clinic";
 
 const PERIODS: { id: Period; label: string; note: string }[] = [
-  { id: 6, label: "۶ ماهه", note: "تخفیف شش‌ماهه" },
+  { id: 6, label: "۶ ماهه", note: "پرداخت یک‌جا" },
   { id: 12, label: "یکساله", note: "دو ماه رایگان" },
 ];
 
 const fa = (n: number) => n.toLocaleString("fa-IR");
 
 /** قیمت هر پلن به تفکیک دوره — تومان (با src/lib/billing.ts هماهنگ نگه داشته شود) */
-const PRICES: Record<Exclude<PlanId, "trial">, Record<Period, number>> = {
-  basic: { 6: 15_900_000, 12: 29_000_000 },
-  pro: { 6: 31_900_000, 12: 59_000_000 },
+const PRICES: Record<PlanId, Record<Period, number>> = {
+  site: { 6: 9_900_000, 12: 16_900_000 },
+  booking: { 6: 15_900_000, 12: 29_900_000 },
+  full: { 6: 31_900_000, 12: 59_000_000 },
 };
 
 interface Plan {
@@ -73,7 +78,7 @@ interface Plan {
   name: string;
   tagline: string;
   features: { icon: React.ElementType; text: string }[];
-  demoKind: "booking" | "assistant";
+  demoKind: "site" | "booking" | "assistant";
   demoHint: string;
   featured?: boolean;
   badge?: string;
@@ -81,39 +86,39 @@ interface Plan {
 
 const plans: Plan[] = [
   {
-    id: "trial",
-    name: "آزمایشی",
-    tagline: "۱۴ روز کامل، رایگان",
+    id: "site",
+    name: "سایت مطب",
+    tagline: "حضور آنلاین حرفه‌ای — بدون نوبت‌دهی",
     features: [
-      { icon: QrCode, text: "وب‌سایت نوبت‌دهی + کد QR اختصاصی" },
-      { icon: BellRing, text: "اعلان تلگرام نوبت‌ها" },
-      { icon: Bot, text: "۱۵ پرسش‌نامهٔ دستیار پزشک در ماه" },
-      { icon: ShieldCheck, text: "بدون نیاز به کارت بانکی" },
+      { icon: Globe, text: "وب‌سایت اختصاصی مطب + کد QR" },
+      { icon: Stethoscope, text: "مشخصات پزشک، خدمات و ساعات کاری" },
+      { icon: Phone, text: "دکمهٔ تماس و واتساپ برای بیمار" },
+      { icon: ShieldCheck, text: "لینک اختصاصی takrah.top/c/نام‌شما" },
     ],
-    demoKind: "booking",
-    demoHint: "همین سیستم واقعی — با دادهٔ نمونه",
+    demoKind: "site",
+    demoHint: "سایت اختصاصی مطب — بیمار با یک لمس تماس می‌گیرد",
   },
   {
-    id: "basic",
-    name: "پایه — نوبت‌دهی آنلاین",
+    id: "booking",
+    name: "سایت + نوبت‌دهی آنلاین",
     tagline: "برای مطبی که می‌خواهد هیچ تماسی از دست نرود",
     features: [
-      { icon: Check, text: "همهٔ امکانات پلن آزمایشی" },
-      { icon: CalendarCheck, text: "نوبت‌دهی نامحدود + رزرو هم‌زمان ممنوع" },
-      { icon: Bot, text: "۶۰ پرسش‌نامهٔ دستیار پزشک در ماه" },
-      { icon: BellRing, text: "اعلان تلگرام + گزارش ماهانهٔ رشد" },
+      { icon: Check, text: "همهٔ امکانات پلن «سایت مطب»" },
+      { icon: CalendarCheck, text: "نوبت‌دهی آنلاین ۲۴/۷ + جلوگیری از رزرو تکراری" },
+      { icon: BellRing, text: "اعلان لحظه‌ای تلگرام برای هر نوبت" },
+      { icon: QrCode, text: "کد QR پذیرش + گزارش ماهانهٔ رشد" },
     ],
     demoKind: "booking",
     demoHint: "نوبت‌دهی کامل + اعلان تلگرام",
   },
   {
-    id: "pro",
-    name: "حرفه‌ای — دستیار دکتر",
-    tagline: "منشی + دستیار پزشک، کاملاً هوشمند",
+    id: "full",
+    name: "کامل — با دستیار هوشمند «آوا»",
+    tagline: "منشی شبانهٔ هوشمند + دستیار پزشک",
     features: [
-      { icon: Check, text: "همهٔ امکانات پلن پایه" },
-      { icon: BrainCircuit, text: "۲۰۰ پرسش‌نامه + خلاصهٔ هوش مصنوعی بیمار" },
-      { icon: Mic, text: "وویس خلاصهٔ بیمار در چت تلگرام شما" },
+      { icon: Check, text: "همهٔ امکانات پلن «سایت + نوبت‌دهی»" },
+      { icon: BrainCircuit, text: "پرسش‌نامهٔ هوشمند بیمار — ۲۰۰ در ماه" },
+      { icon: Mic, text: "خلاصهٔ هوش مصنوعی + وویس در تلگرام شما" },
       { icon: ShieldCheck, text: "اولویت پشتیبانی — پاسخ در کمتر از یک ساعت" },
     ],
     demoKind: "assistant",
@@ -125,6 +130,7 @@ const plans: Plan[] = [
 
 export function PackagesView() {
   const [period, setPeriod] = useState<Period>(6);
+  const [kind, setKind] = useState<BuyerKind>("matb");
 
   return (
     <main className="mx-auto w-full max-w-6xl px-4 pb-16 pt-10 sm:px-6">
@@ -138,8 +144,8 @@ export function PackagesView() {
           منشی و دستیار هوشمند برای مطب خصوصی شما
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-sm leading-8 text-muted-foreground sm:text-base">
-          نوبت‌دهی آنلاین، منشی شبانهٔ هوش مصنوعی و دستیار پزشک — همه در یک اشتراک ساده.
-          <b className="text-foreground"> ۱۴ روز رایگان امتحان کنید، بدون نیاز به کارت بانکی</b>؛ بدون نصب،
+          نوبت‌دهی آنلاین، منشی شبانهٔ هوش مصنوعی و دستیار پزشک — سه پلن ساده، دو دورهٔ ۶ ماهه و یکساله.
+          <b className="text-foreground"> پلن را انتخاب کنید، پرداخت کنید و همان لحظه فعال شود</b>؛ بدون نصب،
           بدون سورس‌کد، فقط لینک و کد QR.
         </p>
 
@@ -176,8 +182,50 @@ export function PackagesView() {
       <section className="mt-14" aria-label="پلن‌ها و قیمت‌ها">
         <h2 className="text-center text-xl font-extrabold">پلن خود را انتخاب کنید</h2>
         <p className="mx-auto mt-2 max-w-xl text-center text-sm leading-7 text-muted-foreground">
-          با هر پلنی که شروع کنید، ۱۴ روز کامل رایگان است؛ بعد از آن دورهٔ انتخابی‌تان فعال می‌شود.
+          اول مشخص کنید برای چه استفاده می‌کنید، بعد پلن و دوره — پرداخت و فعال‌سازی همان لحظه انجام می‌شود.
         </p>
+
+        {/* انتخاب دکتر / کلینیک */}
+        <div className="mt-6 flex justify-center">
+          <div className="grid w-full max-w-lg grid-cols-2 gap-3">
+            {([
+              { id: "matb" as BuyerKind, icon: Stethoscope, title: "مطب خصوصی — یک پزشک", sub: "رایج‌ترین حالت" },
+              { id: "clinic" as BuyerKind, icon: Building2, title: "کلینیک چندپزشکه", sub: "تا ۵ پزشک" },
+            ]).map((k) => (
+              <button
+                key={k.id}
+                type="button"
+                onClick={() => setKind(k.id)}
+                className={`flex items-center gap-3 rounded-2xl border p-4 text-start transition-all ${
+                  kind === k.id
+                    ? "border-emerald-600/60 bg-emerald-600/[0.07] shadow-sm ring-1 ring-emerald-600/20"
+                    : "border-border/60 bg-card hover:bg-muted/30"
+                }`}
+              >
+                <span
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+                    kind === k.id
+                      ? "bg-emerald-600 text-white"
+                      : "bg-emerald-600/10 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-400"
+                  }`}
+                >
+                  <k.icon className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <span>
+                  <span className="block text-[13px] font-extrabold">{k.title}</span>
+                  <span className="mt-0.5 block text-[11px] text-muted-foreground">
+                    {kind === k.id ? "✓ انتخاب شد" : k.sub}
+                  </span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+        {kind === "clinic" && (
+          <p className="mx-auto mt-3 max-w-lg text-center text-xs leading-6 text-muted-foreground">
+            همین پلن‌ها با تنظیمات چندپزشکی (تا ۵ پزشک) فعال می‌شود؛ برای کلینیک بزرگ‌تر یا بیمارستان با ما تماس بگیرید.
+          </p>
+        )}
 
         {/* کلید دوره */}
         <div className="mt-6 flex justify-center">
@@ -225,23 +273,14 @@ export function PackagesView() {
 
               {/* قیمت */}
               <div className="mt-5">
-                {plan.id === "trial" ? (
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-2xl font-extrabold tracking-tight">رایگان</span>
-                    <span className="text-xs font-medium text-muted-foreground">۱۴ روز — بدون کارت بانکی</span>
-                  </div>
-                ) : (
-                  <div>
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="text-2xl font-extrabold tracking-tight">{fa(PRICES[plan.id][period])}</span>
-                      <span className="text-xs font-medium text-muted-foreground">تومان / {period === 6 ? "۶ ماه" : "سال"}</span>
-                    </div>
-                    <p className="mt-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">
-                      معادل ماهی {fa(Math.round(PRICES[plan.id][period] / period))} تومان
-                      {period === 12 ? " — دو ماه رایگان" : " — شش‌ماهه با تخفیف"}
-                    </p>
-                  </div>
-                )}
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-2xl font-extrabold tracking-tight">{fa(PRICES[plan.id][period])}</span>
+                  <span className="text-xs font-medium text-muted-foreground">تومان / {period === 6 ? "۶ ماه" : "سال"}</span>
+                </div>
+                <p className="mt-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                  معادل ماهی {fa(Math.round(PRICES[plan.id][period] / period))} تومان
+                  {period === 12 ? " — دو ماه رایگان" : " — پرداخت یک‌جا"}
+                </p>
               </div>
 
               <ul className="mt-5 space-y-3 border-t border-border/60 pt-5">
@@ -260,9 +299,9 @@ export function PackagesView() {
 
               <div className="mt-6">
                 <TrackedLink
-                  href="/start"
+                  href={`/start?plan=${plan.id}&type=${kind}`}
                   event="plan_start_click"
-                  params={{ plan: plan.id, period: String(period) }}
+                  params={{ plan: plan.id, period: String(period), kind }}
                   useExternal={false}
                   className={`group flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-transform active:scale-[0.98] ${
                     plan.featured
@@ -270,7 +309,7 @@ export function PackagesView() {
                       : "border border-border bg-muted/40 hover:bg-muted"
                   }`}
                 >
-                  {plan.id === "trial" ? "شروع رایگان ۱۴ روزه" : "۱۴ روز رایگان شروع کن"}
+                  انتخاب {plan.name} و شروع
                 </TrackedLink>
                 <p className="mt-2 text-center text-[11px] text-muted-foreground">
                   دمو: {plan.demoHint}
@@ -284,10 +323,10 @@ export function PackagesView() {
         <div className="mt-8 flex items-start gap-3 rounded-2xl border border-border/60 bg-muted/30 p-4 text-sm leading-7 text-muted-foreground">
           <Star className="mt-1 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
           <p>
-            <b className="text-foreground">کدام پلن برای مطب شما؟</b> برای شروع، «آزمایشی» بدون هیچ هزینه‌ای
-            محصول را در دست شما می‌گذارد؛ اگر فقط نوبت‌دهی می‌خواهید، «پایه» کامل است؛ و اگر می‌خواهید قبل از
-            ورود بیمار، خلاصهٔ پرونده‌اش با وویس در تلگرام‌تان باشد، «حرفه‌ای» همان «منشی + دستیار دکتر» است —
-            با هزینهٔ یک‌چهارم یک منشی واقعی.
+            <b className="text-foreground">کدام پلن برای {kind === "clinic" ? "کلینیک" : "مطب"} شما؟</b> اگر فقط
+            حضور آنلاین حرفه‌ای می‌خواهید، «سایت مطب» کافی است؛ اگر می‌خواهید هیچ تماسی از دست نرود و بیمار خودش
+            نوبت بگیرد، «سایت + نوبت‌دهی» کامل است؛ و اگر می‌خواهید قبل از ورود بیمار، خلاصهٔ پرونده‌اش با وویس
+            در تلگرام‌تان باشد، «کامل — دستیار آوا» همان «منشی + دستیار دکتر» است — با هزینهٔ کمتر از یک‌سوم یک منشی واقعی.
           </p>
         </div>
       </section>

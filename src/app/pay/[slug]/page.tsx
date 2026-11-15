@@ -46,8 +46,8 @@ export default async function PayPage({
   const statusLabel =
     t.status === "active"
       ? `✅ اشتراک فعال — اعتبار تا ${t.paidUntil ? faDate(t.paidUntil) : "نامحدود"}`
-      : t.status === "trial"
-        ? "⏳ دوره‌ی آزمایشی ۱۴ روزه"
+      : t.status === "pending"
+        ? "⏳ در انتظار پرداخت و فعال‌سازی"
         : "⛔ اشتراک منقضی شده";
 
   return (

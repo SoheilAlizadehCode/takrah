@@ -2,7 +2,7 @@
 // اگر ZARINPAL_MERCHANT_ID تنظیم نباشد: حالت دستی — خبر به ادمین، پاسخ manual برای نمایش راهنما
 import { ADMIN_CHAT_ID, SITE_URL, tg } from "@/lib/clinic-bot";
 import { PAYMENTS_LIVE, PLAN_LABEL, PRICES, savePendingPay, zarinpalRequest, type PayMonths } from "@/lib/billing";
-import { getTenant } from "@/lib/tenants";
+import { getTenant, normalizePlan } from "@/lib/tenants";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +15,9 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   const slug = (body.slug ?? "").trim().toLowerCase();
-  const plan = body.plan === "basic" || body.plan === "pro" ? body.plan : "";
+  // پلن‌های جدید site/booking/full + سازگاری با basic/pro قدیمی
+  const planRaw = (body.plan ?? "").trim();
+  const plan = ["site", "booking", "full", "basic", "pro"].includes(planRaw) ? normalizePlan(planRaw) : "";
   const months = (body.months === 1 || body.months === 6 || body.months === 12 ? body.months : 0) as PayMonths;
   if (!slug) return Response.json({ ok: false, err: "مطب یافت نشد" }, { status: 400 });
   if (!plan) return Response.json({ ok: false, err: "پلن را انتخاب کنید" }, { status: 400 });

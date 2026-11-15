@@ -24,6 +24,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ slug: s
   if (t.status === "expired" || t.status === "archived") {
     return Response.json({ ok: false, err: "اشتراک این کلینیک منقضی شده است" }, { status: 403 });
   }
+  // نوبت‌دهی آنلاین در پلن «سایت مطب» فعال نیست
+  if (t.plan === "site") {
+    return Response.json(
+      { ok: false, err: "نوبت‌دهی آنلاین در پلن «سایت مطب» فعال نیست — برای فعال‌سازی، اشتراک را به پلن «سایت + نوبت‌دهی» ارتقا دهید", upgrade: true },
+      { status: 403 },
+    );
+  }
 
   let body: { date?: string; slot?: string; doctorId?: string; name?: string; phone?: string; note?: string };
   try {

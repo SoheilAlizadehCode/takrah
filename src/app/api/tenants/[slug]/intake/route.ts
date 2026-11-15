@@ -1,7 +1,7 @@
 // ─── دستیار دکتر — پرسش‌نامه‌ی بیمار → خلاصه‌ی هوش مصنوعی → وویس → تلگرام پزشک ───
 // بیمار فرم را پر می‌کند؛ GLM خلاصه‌ی ساختاریافته می‌سازد؛ صدای دلارا همان خلاصه را
 // به وویس تبدیل می‌کند و هم وویس هم متن برای پزشک/منشی ارسال می‌شود.
-// سهمیه‌ی ماهانه بر اساس پلن کنترل می‌شود (trial 15 / basic 60 / pro 200).
+// دستیار پزشک فقط در پلن «کامل» (دستیار آوا) فعال است — سهمیه ۲۰۰ در ماه.
 import { ZAI_BASE, ZAI_KEY, ZAI_MODEL } from "@/lib/ai";
 import { logEvent, safeParse } from "@/lib/kv";
 import {
@@ -141,6 +141,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ slug: s
   const complaint = (body.complaint ?? "").trim().slice(0, 500);
   if (name.length < 2) return Response.json({ ok: false, err: "نام بیمار را بنویسید" }, { status: 400 });
   if (complaint.length < 5) return Response.json({ ok: false, err: "شرح شکایت خیلی کوتاه است" }, { status: 400 });
+
+  // دستیار پزشک فقط در پلن کامل — پلن‌های دیگر به پلن کامل ارتقا می‌دهند
+  if (t.plan !== "full") {
+    return Response.json(
+      { ok: false, err: "دستیار هوشمند فقط در پلن «کامل — دستیار آوا» فعال است — برای فعال‌سازی، اشتراک را به پلن کامل ارتقا دهید", upgrade: true },
+      { status: 403 },
+    );
+  }
 
   const used = await getUsage(slug);
   if (used >= PLAN_INTAKE_LIMIT[t.plan]) {

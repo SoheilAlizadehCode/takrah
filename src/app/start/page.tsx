@@ -1,7 +1,7 @@
 "use client";
-// ─── /start — ویزارد ثبت کلینیک: ۱۴ روز رایگان، بدون کارت بانکی ───
-// سه گام: اطلاعات کلینیک → پزشکان و آدرس صفحه → انتخاب پلن
-// خروجی: لینک اختصاصی /c/<slug> + کد QR — همین لحظه قابل اشتراک‌گذاری
+// ─── /start — ویزارد ثبت مطب/کلینیک: پلن را انتخاب کن، پرداخت کن، فعال شود ───
+// سه گام: اطلاعات مطب (دکتر/کلینیک) → پزشکان و آدرس صفحه → انتخاب پلن و دوره
+// خروجی: لینک اختصاصی /c/<slug> + کد QR — سپس پرداخت ۶ ماهه/یکساله
 import { useEffect, useState } from "react";
 
 interface DocRow {
@@ -10,29 +10,36 @@ interface DocRow {
   days: string;
 }
 
-type Plan = "trial" | "basic" | "pro";
+type Plan = "site" | "booking" | "full";
 type Kind = "matb" | "clinic";
 
-const PLANS: { id: Plan; name: string; desc: string; perks: string[]; prices?: Partial<Record<6 | 12, string>> }[] = [
+const PLAN_NAMES: Record<Plan, string> = {
+  site: "سایت مطب",
+  booking: "سایت + نوبت‌دهی",
+  full: "کامل — دستیار آوا",
+};
+
+const PLANS: { id: Plan; name: string; desc: string; perks: string[]; prices: Record<6 | 12, string> }[] = [
   {
-    id: "trial",
-    name: "آزمایشی",
-    desc: "بدون نیاز به کارت بانکی — کل امکانات به‌صورت محدود",
-    perks: ["وب‌سایت نوبت‌دهی + QR", "۱۵ پرسش‌نامه‌ی دستیار پزشک در ماه", "اعلان تلگرام نوبت‌ها"],
+    id: "site",
+    name: "سایت مطب",
+    desc: "حضور آنلاین حرفه‌ای — بدون نوبت‌دهی",
+    prices: { 6: "۹٬۹۰۰٬۰۰۰ تومان", 12: "۱۶٬۹۰۰٬۰۰۰ تومان" },
+    perks: ["وب‌سایت اختصاصی مطب + کد QR", "مشخصات پزشک، خدمات و ساعات کاری", "دکمهٔ تماس و واتساپ برای بیمار", "لینک اختصاصی takrah.top/c/نام‌شما"],
   },
   {
-    id: "basic",
-    name: "نوبت‌دهی آنلاین",
-    desc: "برای مطب‌هایی که فقط می‌خواهند نوبت بگیرند",
-    prices: { 6: "۱۵٬۹۰۰٬۰۰۰ تومان", 12: "۲۹٬۰۰۰٬۰۰۰ تومان" },
-    perks: ["وب‌سایت نوبت‌دهی + QR", "۶۰ پرسش‌نامه در ماه", "اعلان تلگرام + گزارش ماهانه", "پرداخت آنلاین ۶ ماهه / یکساله"],
+    id: "booking",
+    name: "سایت + نوبت‌دهی آنلاین",
+    desc: "برای مطبی که می‌خواهد هیچ تماسی از دست نرود",
+    prices: { 6: "۱۵٬۹۰۰٬۰۰۰ تومان", 12: "۲۹٬۹۰۰٬۰۰۰ تومان" },
+    perks: ["همهٔ امکانات پلن «سایت مطب»", "نوبت‌دهی آنلاین ۲۴/۷ + جلوگیری از رزرو تکراری", "اعلان لحظه‌ای تلگرام برای هر نوبت", "پرداخت آنلاین ۶ ماهه / یکساله"],
   },
   {
-    id: "pro",
-    name: "دستیار دکتر",
-    desc: "منشی + دستیار پزشک با خلاصه‌ی هوشمند",
+    id: "full",
+    name: "کامل — با دستیار هوشمند «آوا»",
+    desc: "منشی شبانهٔ هوشمند + دستیار پزشک با خلاصهٔ صوتی",
     prices: { 6: "۳۱٬۹۰۰٬۰۰۰ تومان", 12: "۵۹٬۰۰۰٬۰۰۰ تومان" },
-    perks: ["همه‌ی امکانات پلن استاندارد", "۲۰۰ پرسش‌نامه + خلاصه‌ی هوش مصنوعی", "وویس خلاصه‌ی بیمار در چت پزشک", "پرداخت آنلاین ۶ ماهه / یکساله"],
+    perks: ["همهٔ امکانات پلن «سایت + نوبت‌دهی»", "پرسش‌نامهٔ هوشمند بیمار — ۲۰۰ در ماه", "خلاصهٔ هوش مصنوعی + وویس در تلگرام شما", "اولویت پشتیبانی — پاسخ در کمتر از یک ساعت"],
   },
 ];
 
@@ -67,7 +74,7 @@ export default function StartPage() {
   const [slug, setSlug] = useState("");
   const [slugMsg, setSlugMsg] = useState("");
   const [slugOk, setSlugOk] = useState(false);
-  const [plan, setPlan] = useState<Plan>("trial");
+  const [plan, setPlan] = useState<Plan>("full");
   const [period, setPeriod] = useState<6 | 12>(6);
   const [refCode, setRefCode] = useState("");
   const [busy, setBusy] = useState(false);
@@ -76,8 +83,14 @@ export default function StartPage() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    const ref = new URLSearchParams(window.location.search).get("ref");
+    const q = new URLSearchParams(window.location.search);
+    const ref = q.get("ref");
     if (ref) setRefCode(ref);
+    // پیش‌انتخاب پلن و نوع مجموعه از لینک صفحهٔ پلن‌ها (/start?plan=full&type=clinic)
+    const qp = q.get("plan");
+    if (qp === "site" || qp === "booking" || qp === "full") setPlan(qp);
+    const qt = q.get("type");
+    if (qt === "clinic" || qt === "matb") setKind(qt);
   }, []);
 
   function nextFrom1() {
@@ -157,10 +170,12 @@ export default function StartPage() {
         </div>
 
         <h1 style={s.h1}>
-          {doneSlug ? "🎉 مطب شما آماده است!" : "مطب خود را ۱۴ روز رایگان بسازید"}
+          {doneSlug ? "🎉 مطب شما آماده است!" : "مطب خود را در ۳ دقیقه بسازید"}
         </h1>
         <p style={s.sub}>
-          {doneSlug ? "لینک و کد QR اختصاصی‌تان همین حالا فعال است" : "۱۴ روز کامل رایگان — بدون نیاز به کارت بانکی · در ۳ دقیقه"}
+          {doneSlug
+            ? "لینک و کد QR اختصاصی‌تان همین حالا فعال است"
+            : "وب‌سایت + نوبت‌دهی + دستیار هوشمند — پلن را انتخاب کنید، پرداخت کنید، همان لحظه فعال شود"}
         </p>
 
         {!doneSlug && (
@@ -193,26 +208,20 @@ export default function StartPage() {
                 <a style={s.btnGhost} href={`/c/${doneSlug}/intake`}>
                   🩺 دیدن پرسش‌نامه‌ی بیمار
                 </a>
-                {plan !== "trial" && (
-                  <a style={{ ...s.btn, width: "100%", justifyContent: "center" }} href={`/pay/${doneSlug}?new=1&plan=${plan}&months=${period}`}>
-                    💳 پرداخت و فعال‌سازی اشتراک {plan === "pro" ? "دستیار دکتر" : "نوبت‌دهی"}
-                  </a>
-                )}
+                <a style={{ ...s.btn, width: "100%", justifyContent: "center" }} href={`/pay/${doneSlug}?new=1&plan=${plan}&months=${period}`}>
+                  💳 پرداخت و فعال‌سازی اشتراک {PLAN_NAMES[plan]}
+                </a>
               </div>
               <p style={{ fontSize: 12, color: "#7a6a3d", marginTop: 18, lineHeight: 2 }}>
                 💡 همین لینک را در اینستاگرام و واتساپ مطب بگذارید تا بیمارها مستقیم نوبت بگیرند.
                 {ownerChatId ? " خلاصه‌ی بیمارها به تلگرام شما می‌آید." : " اگر چت‌آی‌دی تلگرام ندادید، برای دریافت خلاصه‌ی بیمارها با ما هماهنگ کنید."}
-                {plan !== "trial" ? (
-                  <>
-                    <br />
-                    💳 اشتراک اکنون در حالت آزمایشی است — با پرداختِ همان پلن، فعال‌سازی قطعی می‌شود.
-                  </>
-                ) : null}
+                <br />
+                💳 اشتراک فعلاً در حالت پیش‌نمایش است — با پرداختِ پلن «{PLAN_NAMES[plan]}» فعال‌سازی قطعی می‌شود.
               </p>
             </>
           ) : step === 1 ? (
             <>
-              <label style={s.label}>نوع مجموعه</label>
+              <label style={s.label}>نوع مجموعه — پلن‌ها برای هر دو فعال است</label>
               <div style={{ display: "flex", gap: 10 }}>
                 {(["matb", "clinic"] as Kind[]).map((k) => (
                   <div
@@ -344,9 +353,7 @@ export default function StartPage() {
                 <div key={p.id} style={{ ...s.planCard(plan === p.id), marginBottom: 12 }} onClick={() => setPlan(p.id)}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 6 }}>
                     <b style={{ fontSize: 14.5 }}>{p.name}</b>
-                    <span style={{ fontSize: 12.5, fontWeight: 900, color: "#8a6d00" }}>
-                      {p.id === "trial" ? "۱۴ روز رایگان" : p.prices?.[period]}
-                    </span>
+                    <span style={{ fontSize: 12.5, fontWeight: 900, color: "#8a6d00" }}>{p.prices[period]}</span>
                   </div>
                   <div style={{ fontSize: 12, color: "#7a6a3d", margin: "5px 0 8px" }}>{p.desc}</div>
                   <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
@@ -369,7 +376,7 @@ export default function StartPage() {
                 </button>
               </div>
               <p style={{ fontSize: 11.5, color: "#9a8a55", textAlign: "center", marginTop: 14, lineHeight: 2 }}>
-                ثبت نام یعنی موافقت با شرایط استفاده؛ دوره‌ی آزمایشی ۱۴ روزه است و بعد از آن می‌توانید پلن را تمدید کنید.
+                ثبت‌نام یعنی موافقت با شرایط استفاده؛ بعد از ثبت، پلن و دوره را پرداخت کنید تا اشتراک قطعی شود — ارتقا و تمدید همیشه آزاد است.
               </p>
             </>
           )}

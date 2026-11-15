@@ -1,6 +1,7 @@
 "use client";
 // ─── دموی زندهٔ تعاملی داخل کارت پلن‌ها ───
-// دو سناریو:
+// سه سناریو:
+//  kind="site"      → شبیه‌سازی سایت اختصاصی مطب (بیمار لینک را باز می‌کند → اطلاعات → تماس/واتساپ)
 //  kind="booking"   → شبیه‌سازی نوبت‌دهی بیمار (پزشک → روز → ساعت → ثبت → اعلان تلگرام)
 //  kind="assistant" → همان نوبت‌دهی + تب «دستیار پزشک»: پیام صوتی بیمار → تحلیل آوا →
 //                     خلاصهٔ تایپ‌شونده + نشان فوریت + پخش وویس واقعی (نمونهٔ صدای دیلارا)
@@ -39,7 +40,9 @@ function Waveform({ playing }: { playing: boolean }) {
 const fa2 = (n: number) =>
   n.toLocaleString("fa-IR", { minimumIntegerDigits: 2, useGrouping: false });
 
-export function PlanDemo({ kind }: { kind: "booking" | "assistant" }) {
+export type DemoKind = "site" | "booking" | "assistant";
+
+export function PlanDemo({ kind }: { kind: DemoKind }) {
   const [tab, setTab] = useState<"book" | "ai">("book");
   const [stage, setStage] = useState<Stage>(0);
   const [playing, setPlaying] = useState(false);
@@ -145,7 +148,13 @@ export function PlanDemo({ kind }: { kind: "booking" | "assistant" }) {
           className="hidden"
         />
         <div ref={bodyRef} className="relative h-[300px] overflow-y-auto scroll-smooth px-3 py-3">
-          {tab === "book" ? <BookingFlow stage={stage} setStage={setStage} /> : <AssistantFlow stage={stage} setStage={setStage} playing={playing} onTogglePlay={togglePlay} typed={typed} typingDone={typingDone} voiceSecs={voiceSecs} />}
+          {kind === "site" ? (
+            <SiteFlow stage={stage} setStage={setStage} />
+          ) : tab === "book" ? (
+            <BookingFlow stage={stage} setStage={setStage} />
+          ) : (
+            <AssistantFlow stage={stage} setStage={setStage} playing={playing} onTogglePlay={togglePlay} typed={typed} typingDone={typingDone} voiceSecs={voiceSecs} />
+          )}
 
           {/* اعلان تلگرام */}
           {((tab === "book" && stage === 5) || (tab === "ai" && typingDone)) && (
@@ -165,7 +174,11 @@ export function PlanDemo({ kind }: { kind: "booking" | "assistant" }) {
 
       <div className="mt-2 flex items-center justify-between px-1">
         <p className="text-[10.5px] leading-4 text-muted-foreground">
-          {tab === "ai" ? "بیمار پیام صوتی می‌دهد؛ آوا خلاصه می‌سازد و به تلگرام دکتر می‌فرستد." : "بیمار بدون تماس تلفنی، از اینستاگرام یا واتساپ نوبت می‌گیرد."}
+          {kind === "site"
+            ? "بیمار لینک مطب را باز می‌کند و با یک لمس تماس یا واتساپ می‌گیرد."
+            : tab === "ai"
+              ? "بیمار پیام صوتی می‌دهد؛ آوا خلاصه می‌سازد و به تلگرام دکتر می‌فرستد."
+              : "بیمار بدون تماس تلفنی، از اینستاگرام یا واتساپ نوبت می‌گیرد."}
         </p>
         <button
           type="button"
@@ -404,6 +417,73 @@ function AssistantFlow({
       </button>
       <p className="text-center text-[10px] text-muted-foreground">
         {typingDone ? "متن + وویس همین لحظه به تلگرام دکتر رفت ⬆️" : "خلاصه در حال نوشته‌شدن است…"}
+      </p>
+    </div>
+  );
+}
+
+// ─── دموی پلن «سایت مطب» — بیمار لینک را باز می‌کند و با یک لمس تماس می‌گیرد ───
+function SiteFlow({ stage, setStage }: { stage: Stage; setStage: (s: Stage) => void }) {
+  if (stage === 0) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center text-center">
+        <span className="text-3xl">🔗</span>
+        <p className="mt-2 text-sm font-extrabold">بیمار لینک را باز کرد</p>
+        <p className="mt-1 text-[11px] leading-5 text-muted-foreground">از اینستاگرام، واتساپ یا کد QR روی میز پذیرش</p>
+        <button
+          type="button"
+          onClick={() => setStage(1)}
+          className="mt-4 w-full rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-extrabold text-white shadow-sm transition-transform active:scale-[0.98]"
+        >
+          👁 مشاهدهٔ سایت مطب
+        </button>
+      </div>
+    );
+  }
+  if (stage === 1) {
+    return (
+      <div>
+        <p className="mb-2 text-[11px] font-extrabold text-foreground/80">وب‌سایت اختصاصی مطب شما</p>
+        <div className="rounded-xl border border-border/60 bg-muted/20 p-3">
+          <p className="text-xs font-extrabold">🩺 دکتر سارا محمدی</p>
+          <p className="mt-0.5 text-[10px] text-muted-foreground">دندانپزشکی زیبایی و ایمپلنت</p>
+          <div className="mt-2 space-y-1 text-[10px] leading-4 text-foreground/80">
+            <p>📍 رشت، گلسار، مجتمع پزشکان سلامت</p>
+            <p>🕘 شنبه تا پنجشنبه — ۹ تا ۲۰</p>
+            <p>🎓 متخصص با ۱۲ سال سابقه</p>
+          </div>
+        </div>
+        <div className="mt-2 grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => setStage(2)}
+            className="rounded-xl bg-emerald-600 px-3 py-2.5 text-[11px] font-extrabold text-white shadow-sm transition-transform active:scale-[0.98]"
+          >
+            ☎️ تماس با پذیرش
+          </button>
+          <button
+            type="button"
+            onClick={() => setStage(2)}
+            className="rounded-xl border border-emerald-600/40 bg-emerald-600/10 px-3 py-2.5 text-[11px] font-extrabold text-emerald-800 transition-transform active:scale-[0.98] dark:text-emerald-300"
+          >
+            💬 واتساپ
+          </button>
+        </div>
+        <div className="mt-2 rounded-xl border border-dashed border-border/70 p-2 text-center text-[10px] text-muted-foreground opacity-70">
+          🗓 نوبت‌دهی آنلاین (در پلن‌های بالاتر)
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="flex h-full flex-col items-center justify-center text-center">
+      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-600/15 text-2xl">📞</span>
+      <p className="mt-2 text-sm font-extrabold">بیمار تماس گرفت!</p>
+      <p className="mt-1 text-[11px] leading-5 text-muted-foreground">
+        بدون سایت، این بیمار شاید اصلاً شما را پیدا نمی‌کرد.
+      </p>
+      <p className="mt-2 rounded-lg bg-muted/40 px-3 py-1.5 text-[10px] leading-4 text-muted-foreground">
+        در پلن «سایت + نوبت‌دهی» همین بیمار بدون تماس، خودش نوبت می‌گیرد ⬆️
       </p>
     </div>
   );

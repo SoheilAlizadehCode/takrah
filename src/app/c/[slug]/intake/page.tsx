@@ -36,6 +36,23 @@ export default async function IntakePage({ params }: { params: Promise<{ slug: s
     );
   }
 
+  // دستیار پزشک فقط در پلن «کامل — دستیار آوا» فعال است
+  if (t.plan !== "full") {
+    return (
+      <div className="c-expired" style={{ padding: "140px 20px 60px" }}>
+        <style>{`.c-expired{font-family:Vazirmatn,Tahoma,sans-serif;color:#16324a}`}</style>
+        <div className="card">
+          <div style={{ fontSize: 40 }}>🤖</div>
+          <h2>دستیار هوشمند این مطب فعال نیست</h2>
+          <p>پرسش‌نامه‌ی هوشمند فقط در پلن «کامل — دستیار آوا» فعال می‌شود.</p>
+          <a className="c-cta" style={{ marginTop: 16 }} href={`/pay/${t.slug}`}>
+            💳 ارتقا به پلن کامل
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   const initial = t.name.trim().charAt(0) || "🏥";
 
   return (

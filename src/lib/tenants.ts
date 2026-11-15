@@ -20,8 +20,22 @@ export interface TDoctor {
   days: string;
 }
 
-export type TenantPlan = "trial" | "basic" | "pro";
-export type TenantStatus = "trial" | "active" | "expired" | "archived";
+// ─── سه پلن فروش — ۱۴۰۴/۰۸/۲۴ ───
+//  site    → «سایت مطب»: فقط وب‌سایت + QR + تماس/واتساپ (بدون نوبت‌دهی، بدون AI)
+//  booking → «سایت + نوبت‌دهی آنلاین»: بالا + نوبت‌دهی ۲۴/۷ و اعلان تلگرام
+//  full    → «کامل — دستیار هوشمند آوا»: بالا + پرسش‌نامه، خلاصهٔ AI و وویس
+export type TenantPlan = "site" | "booking" | "full";
+export type TenantStatus = "pending" | "active" | "expired" | "archived";
+
+/** سازگاری با مستأجرهای قدیمی: basic→booking / pro→full / trial→booking */
+export function normalizePlan(p: string | undefined | null): TenantPlan {
+  if (p === "site" || p === "booking" || p === "full") return p;
+  if (p === "pro") return "full";
+  return "booking"; // basic و trial → booking
+}
+
+/** پیش‌نمایش پس از ثبت‌نام — تبلیغ نمی‌شود، فقط سقف زمانی برای مستأجرهای پرداخت‌نشده */
+export const PENDING_DAYS = 7;
 
 export interface Tenant {
   slug: string;
@@ -36,7 +50,7 @@ export interface Tenant {
   plan: TenantPlan;
   status: TenantStatus;
   createdAt: number;
-  trialEnds: number; // timestamp — برای status==="trial"
+  trialEnds: number; // منسوخ — برای سازگاری با داده‌های قدیمی صفر می‌ماند
   ownerChatId: string; // چت‌آی‌دی پزشک/منشی برای اطلاع‌رسانی خودکار
   refCode: string;
   type: "matb" | "clinic"; // مطب خصوصی (پیش‌فرض — بازار اصلی) یا کلینیک چندپزشکه
@@ -74,13 +88,12 @@ export interface TenantIntake {
   t: number;
 }
 
-// ─── محدودیت مصرف «خلاصه‌ی دستیار پزشک» در هر ماه ───
+// ─── سهمیه‌ی ماهانه‌ی «دستیار پزشک» — فقط پلن کامل (دستیار آوا) ───
 export const PLAN_INTAKE_LIMIT: Record<TenantPlan, number> = {
-  trial: 15,
-  basic: 60,
-  pro: 200,
+  site: 0,
+  booking: 0,
+  full: 200,
 };
-export const TRIAL_DAYS = 14;
 const SLUG_RE = /^[a-z0-9][a-z0-9-]{1,31}$/;
 const cfgKey = (slug: string) => `t:${slug}:config`;
 
@@ -116,7 +129,7 @@ export async function ensureSeed(): Promise<void> {
       hours: CLINIC.hours,
       doctors: DOCTORS,
       slots: SLOTS,
-      plan: "pro",
+      plan: "full",
       status: "active",
       createdAt: Date.now(),
       trialEnds: 0,
@@ -180,9 +193,9 @@ export async function createTenant(input: CreateTenantInput): Promise<CreateResu
     .slice(0, 12);
   if (!doctors.length) return { ok: false, err: "حداقل یک پزشک با نام وارد کنید" };
 
-  const plan: TenantPlan = input.plan === "basic" || input.plan === "pro" ? input.plan : "trial";
+  // بدون تریال رایگان: مستأجر با وضعیت pending ثبت می‌شود و با پرداخت فعال می‌ماند
+  const plan: TenantPlan = normalizePlan(input.plan);
   const now = Date.now();
-  // پلن پرداختی هم با ۱۴ روز تریال شروع می‌شود؛ بعد از پرداخت زرین‌پال → active تا paidUntil
   const tenant: Tenant = {
     slug,
     name: name.slice(0, 80),
@@ -194,9 +207,9 @@ export async function createTenant(input: CreateTenantInput): Promise<CreateResu
     doctors,
     slots: (input.slots?.length ? input.slots : SLOTS).slice(0, 24),
     plan,
-    status: "trial",
+    status: "pending",
     createdAt: now,
-    trialEnds: now + TRIAL_DAYS * 86400_000,
+    trialEnds: 0,
     ownerChatId: (input.ownerChatId ?? "").replace(/\D/g, "").slice(0, 15),
     refCode: (input.refCode ?? "").trim().toLowerCase().slice(0, 24),
     type: input.type === "clinic" ? "clinic" : "matb",
@@ -208,7 +221,7 @@ export async function createTenant(input: CreateTenantInput): Promise<CreateResu
   return { ok: true, tenant };
 }
 
-/** خواندن مطب/کلینیک + انقضای خودکار تریال و اشتراک پرداختی */
+/** خواندن مطب/کلینیک + نرمال‌سازی داده‌های قدیمی + انقضای خودکار پیش‌نمایش و اشتراک */
 export async function getTenant(slug: string): Promise<Tenant | null> {
   await ensureSeed();
   const raw = await kvGet(cfgKey(slug));
@@ -217,14 +230,26 @@ export async function getTenant(slug: string): Promise<Tenant | null> {
   if (!t?.slug) return null;
   if (t.type === undefined) t.type = "clinic"; // سازگاری با مستأجرهای قدیمی
   if (t.paidUntil === undefined) t.paidUntil = 0;
+  const plan0 = normalizePlan(t.plan as unknown as string);
   const now = Date.now();
-  if (t.status === "trial" && t.trialEnds && now > t.trialEnds) {
+  let dirty = false;
+  if (plan0 !== t.plan) {
+    t.plan = plan0;
+    dirty = true;
+  }
+  if ((t.status as string) === "trial") {
+    // مستأجرهای قدیمیِ تریال → pending (اگر منقضی نشده باشد)
+    t.status = t.trialEnds && now > t.trialEnds ? "expired" : "pending";
+    dirty = true;
+  }
+  if (t.status === "pending" && now > t.createdAt + PENDING_DAYS * 86400_000) {
     t.status = "expired";
-    await kvSet(cfgKey(slug), JSON.stringify(t));
+    dirty = true;
   } else if (t.status === "active" && t.paidUntil && now > t.paidUntil) {
     t.status = "expired";
-    await kvSet(cfgKey(slug), JSON.stringify(t));
+    dirty = true;
   }
+  if (dirty) await kvSet(cfgKey(slug), JSON.stringify(t));
   return t;
 }
 

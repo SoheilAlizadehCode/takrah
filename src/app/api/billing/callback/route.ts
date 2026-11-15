@@ -3,6 +3,7 @@
 // موفق → ریدایرکت به /c/<slug>?paid=1 — ناموفق → /pay/<slug>?failed=1
 import { ADMIN_CHAT_ID, tg } from "@/lib/clinic-bot";
 import { activateSubscription, faDate, getPendingPay, MONTHS_LABEL, PLAN_LABEL, zarinpalVerify } from "@/lib/billing";
+import { normalizePlan, type TenantPlan } from "@/lib/tenants";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +30,8 @@ export async function GET(req: Request): Promise<Response> {
     return redirect(`/pay/${pending.slug}?failed=1`);
   }
 
-  const plan = pending.plan === "basic" || pending.plan === "pro" ? pending.plan : "pro";
+  // پلن از رکورد پرداخت در انتظار — با پلن‌های قدیمی هم سازگار است
+  const plan: TenantPlan = normalizePlan(pending.plan as unknown as string);
   const months = pending.months === 1 || pending.months === 6 || pending.months === 12 ? pending.months : 1;
   const act = await activateSubscription(pending.slug, plan, months, {
     authority,

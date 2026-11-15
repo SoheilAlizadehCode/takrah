@@ -1,26 +1,37 @@
 "use client";
 // ─── فرم انتخاب پلن × دوره → درگاه زرین‌پال ───
+// سه پلن (سایت / سایت+نوبت‌دهی / کامل+آوا) × دو دوره (۶ ماهه / یکساله)
 import { useState } from "react";
 
-type Plan = "basic" | "pro";
-type Months = 1 | 6 | 12;
+type Plan = "site" | "booking" | "full";
+type Months = 6 | 12;
 
 const PLANS: { id: Plan; name: string; desc: string }[] = [
-  { id: "basic", name: "نوبت‌دهی آنلاین", desc: "وب‌سایت نوبت + QR + اعلان تلگرام + ۶۰ پرسش‌نامه در ماه" },
-  { id: "pro", name: "دستیار دکتر", desc: "همه‌ی امکانات استاندارد + خلاصه‌ی هوشمند بیمار با وویس + ۲۰۰ پرسش‌نامه" },
+  { id: "site", name: "سایت مطب", desc: "وب‌سایت اختصاصی + QR + مشخصات پزشک و تماس/واتساپ — بدون نوبت‌دهی" },
+  { id: "booking", name: "سایت + نوبت‌دهی", desc: "همه‌ی امکانات سایت + نوبت‌دهی آنلاین ۲۴/۷ + اعلان تلگرام هر نوبت" },
+  { id: "full", name: "کامل — دستیار آوا", desc: "همه‌ی امکانات + پرسش‌نامه‌ی بیمار + خلاصه‌ی هوشمند با وویس در تلگرام شما" },
 ];
 
 const MONTHS: { m: Months; label: string; note: string }[] = [
-  { m: 6, label: "۶ ماهه", note: "تخفیف شش‌ماهه" },
+  { m: 6, label: "۶ ماهه", note: "پرداخت یک‌جا" },
   { m: 12, label: "یکساله", note: "دو ماه رایگان" },
 ];
 
 const PRICES: Record<Plan, Record<Months, number>> = {
-  basic: { 1: 2_900_000, 6: 15_900_000, 12: 29_000_000 },
-  pro: { 1: 5_900_000, 6: 31_900_000, 12: 59_000_000 },
+  site: { 6: 9_900_000, 12: 16_900_000 },
+  booking: { 6: 15_900_000, 12: 29_900_000 },
+  full: { 6: 31_900_000, 12: 59_000_000 },
 };
 
 const fa = (n: number) => n.toLocaleString("fa-IR");
+
+/** پلن از query ویزارد می‌آید — سازگار با پلن‌های قدیمی basic/pro */
+function parseInitialPlan(v?: string): Plan {
+  if (v === "site") return "site";
+  if (v === "booking" || v === "basic") return "booking";
+  if (v === "full" || v === "pro") return "full";
+  return "full";
+}
 
 export function PayForm({
   slug,
@@ -33,7 +44,7 @@ export function PayForm({
   initialPlan?: string;
   initialMonths?: number;
 }) {
-  const [plan, setPlan] = useState<Plan>(initialPlan === "pro" ? "pro" : "basic");
+  const [plan, setPlan] = useState<Plan>(parseInitialPlan(initialPlan));
   const [months, setMonths] = useState<Months>(initialMonths === 12 ? 12 : 6);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");

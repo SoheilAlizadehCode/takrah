@@ -6,23 +6,28 @@
 //   ZARINPAL_SANDBOX=1   → برای تست با مرچنت صفر (پرداخت آزمایشی، بدون پول واقعی)
 import { kvGet, kvSet, kvAppendCapped, safeParse } from "./kv";
 import { SITE_URL } from "./clinic-bot";
-import { updateTenant, type Tenant, type TenantPlan } from "./tenants";
+import { updateTenant, normalizePlan, type Tenant, type TenantPlan } from "./tenants";
 
 export const ZARINPAL_MERCHANT = (process.env.ZARINPAL_MERCHANT_ID ?? "").trim();
 const SANDBOX = process.env.ZARINPAL_SANDBOX === "1";
 export const PAYMENTS_LIVE = Boolean(ZARINPAL_MERCHANT) || SANDBOX;
 
-// ─── قیمت‌ها به تومان — ۱۴۰۴/۰۸ به‌روزرسانی: قیمت واقعی بازار (منشی واقعی ۱۳–۱۸ میلیون/ماه)
-// دوره‌های فروش: فقط ۶ ماهه و یکساله (۱ ماهه فقط برای سازگاری API باقی است)
+// ─── قیمت‌ها به تومان — ۱۴۰۴/۰۸/۲۴ ساختار سه‌پلنی (سایت / نوبت‌دهی / کامل+آوا)
+// مرجع قیمت: منشی واقعی ۱۳–۱۸ میلیون/ماه؛ دوره‌های فروش فقط ۶ ماهه و یکساله
+// (۱ ماهه فقط برای سازگاری API باقی است و در UI نشان داده نمی‌شود)
 export type PayMonths = 1 | 6 | 12;
-export const PRICES: Record<"basic" | "pro", Record<PayMonths, number>> = {
-  // تومان — معادل ماهانه‌ی پایه: basic ۲٫۹م / pro ۵٫۹م
-  basic: { 1: 2_900_000, 6: 15_900_000, 12: 29_000_000 },
-  pro: { 1: 5_900_000, 6: 31_900_000, 12: 59_000_000 },
+export const PRICES: Record<TenantPlan, Record<PayMonths, number>> = {
+  // سایت مطب: ماهی ۱٫۹م — شش‌ماهه ۹٫۹م (۱٫۶۵م/ماه) — یکساله ۱۶٫۹م (۱٫۴۱م/ماه ≈ سه ماه رایگان)
+  site: { 1: 1_900_000, 6: 9_900_000, 12: 16_900_000 },
+  // سایت + نوبت‌دهی: ماهی ۲٫۹م — شش‌ماهه ۱۵٫۹م (۲٫۶۵م/ماه) — یکساله ۲۹٫۹م (۲٫۴۹م/ماه ≈ دو ماه رایگان)
+  booking: { 1: 2_900_000, 6: 15_900_000, 12: 29_900_000 },
+  // کامل + دستیار آوا: ماهی ۵٫۹م — شش‌ماهه ۳۱٫۹م (۵٫۳۲م/ماه) — یکساله ۵۹م (۴٫۹۲م/ماه ≈ دو ماه رایگان)
+  full: { 1: 5_900_000, 6: 31_900_000, 12: 59_000_000 },
 };
-export const PLAN_LABEL: Record<"basic" | "pro", string> = {
-  basic: "نوبت‌دهی آنلاین",
-  pro: "دستیار دکتر",
+export const PLAN_LABEL: Record<TenantPlan, string> = {
+  site: "سایت مطب",
+  booking: "سایت + نوبت‌دهی",
+  full: "کامل — دستیار آوا",
 };
 export const MONTHS_LABEL: Record<PayMonths, string> = {
   1: "یک‌ماهه",
@@ -156,9 +161,8 @@ export async function activateSubscription(
   const base = cur.paidUntil && cur.paidUntil > Date.now() ? cur.paidUntil : Date.now();
   const paidUntil = addMonths(base, months);
   const next = await updateTenant(slug, {
-    plan: plan === "trial" ? cur.plan : plan,
+    plan: normalizePlan(plan as unknown as string),
     status: "active",
-    trialEnds: cur.trialEnds,
     paidUntil,
   });
   if (!next) return null;
