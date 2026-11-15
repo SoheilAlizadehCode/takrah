@@ -1,7 +1,7 @@
 // ─── نسخه‌ی سامانه — اثبات اینکه همه‌چیز نسخه‌بندی و در گیت‌هاب ثبت است ───
 export const dynamic = "force-dynamic";
 
-const VERSION = "3.1.0";
+const VERSION = "3.2.0";
 
 export async function GET() {
   return Response.json({

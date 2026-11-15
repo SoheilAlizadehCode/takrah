@@ -12,12 +12,13 @@ export const ZARINPAL_MERCHANT = (process.env.ZARINPAL_MERCHANT_ID ?? "").trim()
 const SANDBOX = process.env.ZARINPAL_SANDBOX === "1";
 export const PAYMENTS_LIVE = Boolean(ZARINPAL_MERCHANT) || SANDBOX;
 
-// ─── قیمت‌ها به تومان — خرید ۶ ماهه = یک ماه رایگان، سالانه = دو ماه رایگان ───
+// ─── قیمت‌ها به تومان — ۱۴۰۴/۰۸ به‌روزرسانی: قیمت واقعی بازار (منشی واقعی ۱۳–۱۸ میلیون/ماه)
+// دوره‌های فروش: فقط ۶ ماهه و یکساله (۱ ماهه فقط برای سازگاری API باقی است)
 export type PayMonths = 1 | 6 | 12;
 export const PRICES: Record<"basic" | "pro", Record<PayMonths, number>> = {
-  // تومان
-  basic: { 1: 990_000, 6: 4_950_000, 12: 9_900_000 },
-  pro: { 1: 1_990_000, 6: 9_950_000, 12: 19_900_000 },
+  // تومان — معادل ماهانه‌ی پایه: basic ۲٫۹م / pro ۵٫۹م
+  basic: { 1: 2_900_000, 6: 15_900_000, 12: 29_000_000 },
+  pro: { 1: 5_900_000, 6: 31_900_000, 12: 59_000_000 },
 };
 export const PLAN_LABEL: Record<"basic" | "pro", string> = {
   basic: "نوبت‌دهی آنلاین",
@@ -25,7 +26,7 @@ export const PLAN_LABEL: Record<"basic" | "pro", string> = {
 };
 export const MONTHS_LABEL: Record<PayMonths, string> = {
   1: "یک‌ماهه",
-  6: "شش‌ماهه (یک ماه رایگان)",
+  6: "شش‌ماهه",
   12: "سالانه (دو ماه رایگان)",
 };
 

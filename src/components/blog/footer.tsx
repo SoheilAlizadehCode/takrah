@@ -50,7 +50,7 @@ export function Footer() {
                     className="flex items-center gap-1.5 text-sm font-bold text-emerald-700 transition-colors hover:text-emerald-600 dark:text-emerald-400"
                   >
                     <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-                    پکیج‌ها و دموهای زنده
+                    منشی هوشمند مطب — پلن‌ها و دموی زنده
                   </Link>
                 </li>
                 <li>

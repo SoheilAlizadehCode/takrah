@@ -11,7 +11,6 @@ import {
   Sun,
   Moon,
   Home,
-  Sparkles,
   Wrench,
   ChevronDown,
   Library,
@@ -72,23 +71,15 @@ export function Header({ onOpenSearch }: HeaderProps) {
               خانه
             </span>
           </Link>
-          {/* پکیج‌ها — آیتم ویژه ناوبری */}
+          {/* منشی هوشمند مطب — تک‌محصول تکنار (ادغام پکیج‌ها + ثبت‌نام در یک صفحه) */}
           <Link
             href="/packages"
-            className="group relative flex items-center gap-1.5 rounded-xl border border-emerald-600/30 bg-emerald-600/10 px-3 py-2 text-sm font-bold text-emerald-800 transition-colors hover:bg-emerald-600/20 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-300 dark:hover:bg-emerald-400/20"
+            className="group relative flex items-center gap-1.5 rounded-xl border border-amber-600/40 bg-gradient-to-l from-amber-500 to-amber-600 px-3 py-2 text-sm font-bold text-white shadow-sm transition-all hover:shadow-md hover:brightness-105"
           >
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" aria-hidden="true" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-70" aria-hidden="true" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-white" aria-hidden="true" />
             </span>
-            <Sparkles className="h-[18px] w-[18px]" aria-hidden="true" />
-            پکیج‌ها
-          </Link>
-          {/* منشی هوشمند مطب — سرویس اشتراکی تکنار (مولتی‌تننت) */}
-          <Link
-            href="/start"
-            className="flex items-center gap-1.5 rounded-xl border border-amber-600/40 bg-gradient-to-l from-amber-500 to-amber-600 px-3 py-2 text-sm font-bold text-white shadow-sm transition-all hover:shadow-md hover:brightness-105"
-          >
             <Stethoscope className="h-[18px] w-[18px]" aria-hidden="true" />
             منشی هوشمند مطب
           </Link>
@@ -235,21 +226,11 @@ export function Header({ onOpenSearch }: HeaderProps) {
             <li className="col-span-2">
               <Link
                 href="/packages"
-                className="flex items-center gap-2 rounded-lg border border-emerald-600/30 bg-emerald-600/10 px-3 py-2.5 text-sm font-bold text-emerald-800 hover:bg-emerald-600/20 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-300"
-                onClick={() => setMenuOpen(false)}
-              >
-                <Sparkles className="h-5 w-5" aria-hidden="true" />
-                پکیج‌ها و دموهای زنده
-              </Link>
-            </li>
-            <li className="col-span-2">
-              <Link
-                href="/start"
                 className="flex items-center gap-2 rounded-lg border border-amber-600/40 bg-gradient-to-l from-amber-500 to-amber-600 px-3 py-2.5 text-sm font-bold text-white shadow-sm"
                 onClick={() => setMenuOpen(false)}
               >
                 <Stethoscope className="h-5 w-5" aria-hidden="true" />
-                منشی هوشمند مطب — ۱۴ روز رایگان بساز
+                منشی هوشمند مطب — پلن‌ها و دموی زنده
               </Link>
             </li>
             <li className="col-span-2">

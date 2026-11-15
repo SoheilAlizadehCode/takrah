@@ -10,22 +10,31 @@ const PLANS: { id: Plan; name: string; desc: string }[] = [
   { id: "pro", name: "دستیار دکتر", desc: "همه‌ی امکانات استاندارد + خلاصه‌ی هوشمند بیمار با وویس + ۲۰۰ پرسش‌نامه" },
 ];
 
-const MONTHS: { m: Months; label: string }[] = [
-  { m: 1, label: "۱ ماهه" },
-  { m: 6, label: "۶ ماهه" },
-  { m: 12, label: "۱۲ ماهه" },
+const MONTHS: { m: Months; label: string; note: string }[] = [
+  { m: 6, label: "۶ ماهه", note: "تخفیف شش‌ماهه" },
+  { m: 12, label: "یکساله", note: "دو ماه رایگان" },
 ];
 
 const PRICES: Record<Plan, Record<Months, number>> = {
-  basic: { 1: 990_000, 6: 4_950_000, 12: 9_900_000 },
-  pro: { 1: 1_990_000, 6: 9_950_000, 12: 19_900_000 },
+  basic: { 1: 2_900_000, 6: 15_900_000, 12: 29_000_000 },
+  pro: { 1: 5_900_000, 6: 31_900_000, 12: 59_000_000 },
 };
 
 const fa = (n: number) => n.toLocaleString("fa-IR");
 
-export function PayForm({ slug, live }: { slug: string; live: boolean }) {
-  const [plan, setPlan] = useState<Plan>("basic");
-  const [months, setMonths] = useState<Months>(6);
+export function PayForm({
+  slug,
+  live,
+  initialPlan,
+  initialMonths,
+}: {
+  slug: string;
+  live: boolean;
+  initialPlan?: string;
+  initialMonths?: number;
+}) {
+  const [plan, setPlan] = useState<Plan>(initialPlan === "pro" ? "pro" : "basic");
+  const [months, setMonths] = useState<Months>(initialMonths === 12 ? 12 : 6);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
@@ -80,7 +89,7 @@ export function PayForm({ slug, live }: { slug: string; live: boolean }) {
       </div>
 
       <label className="c-label">۲. دوره‌ی اشتراک</label>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 8 }}>
         {MONTHS.map((x) => (
           <button
             key={x.m}
@@ -89,9 +98,7 @@ export function PayForm({ slug, live }: { slug: string; live: boolean }) {
             style={months === x.m ? { border: "none", background: "linear-gradient(225deg,#1a4a7a,#2d6fb5)", color: "#fff" } : {}}
           >
             <b style={{ fontSize: 12.5 }}>{x.label}</b>
-            <small style={months === x.m ? { color: "rgba(255,255,255,.8)" } : {}}>
-              {x.m === 6 ? "یک ماه رایگان" : x.m === 12 ? "دو ماه رایگان" : "بدون تخفیف"}
-            </small>
+            <small style={months === x.m ? { color: "rgba(255,255,255,.8)" } : {}}>{x.note}</small>
           </button>
         ))}
       </div>

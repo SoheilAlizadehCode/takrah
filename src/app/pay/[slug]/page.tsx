@@ -21,7 +21,7 @@ export default async function PayPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ failed?: string; new?: string; err?: string }>;
+  searchParams: Promise<{ failed?: string; new?: string; err?: string; plan?: string; months?: string }>; // ← plan/months از ویزارد /start می‌آید
 }) {
   const { slug } = await params;
   const sp = await searchParams;
@@ -78,7 +78,7 @@ export default async function PayPage({
           </div>
         )}
 
-        <PayForm slug={t.slug} live={PAYMENTS_LIVE} />
+        <PayForm slug={t.slug} live={PAYMENTS_LIVE} initialPlan={sp.plan} initialMonths={sp.months === "12" ? 12 : sp.months === "6" ? 6 : undefined} />
 
         <p className="c-note" style={{ background: "#fff", border: "1px solid #d9e6f2" }}>
           🔒 پرداخت امن زرین‌پال · فعال‌سازی خودکار همان لحظه · بدون نیاز به نصب یا سورس‌کد · قابل لغو در پایان دوره ·

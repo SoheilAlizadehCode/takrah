@@ -13,27 +13,26 @@ interface DocRow {
 type Plan = "trial" | "basic" | "pro";
 type Kind = "matb" | "clinic";
 
-const PLANS: { id: Plan; name: string; price: string; desc: string; perks: string[] }[] = [
+const PLANS: { id: Plan; name: string; desc: string; perks: string[]; prices?: Partial<Record<6 | 12, string>> }[] = [
   {
     id: "trial",
     name: "آزمایشی",
-    price: "۱۴ روز رایگان",
-    desc: "بدون کارت بانکی — کل امکانات به‌صورت محدود",
+    desc: "بدون نیاز به کارت بانکی — کل امکانات به‌صورت محدود",
     perks: ["وب‌سایت نوبت‌دهی + QR", "۱۵ پرسش‌نامه‌ی دستیار پزشک در ماه", "اعلان تلگرام نوبت‌ها"],
   },
   {
     id: "basic",
     name: "نوبت‌دهی آنلاین",
-    price: "۹۹۰ هزار تومان / ماه",
     desc: "برای مطب‌هایی که فقط می‌خواهند نوبت بگیرند",
-    perks: ["وب‌سایت نوبت‌دهی + QR", "۶۰ پرسش‌نامه در ماه", "اعلان تلگرام + گزارش ماهانه", "پرداخت آنلاین ۱/۶/۱۲ ماهه"],
+    prices: { 6: "۱۵٬۹۰۰٬۰۰۰ تومان", 12: "۲۹٬۰۰۰٬۰۰۰ تومان" },
+    perks: ["وب‌سایت نوبت‌دهی + QR", "۶۰ پرسش‌نامه در ماه", "اعلان تلگرام + گزارش ماهانه", "پرداخت آنلاین ۶ ماهه / یکساله"],
   },
   {
     id: "pro",
     name: "دستیار دکتر",
-    price: "۱٬۹۹۰ هزار تومان / ماه",
     desc: "منشی + دستیار پزشک با خلاصه‌ی هوشمند",
-    perks: ["همه‌ی امکانات پلن استاندارد", "۲۰۰ پرسش‌نامه + خلاصه‌ی هوش مصنوعی", "وویس خلاصه‌ی بیمار در چت پزشک", "پرداخت آنلاین ۱/۶/۱۲ ماهه"],
+    prices: { 6: "۳۱٬۹۰۰٬۰۰۰ تومان", 12: "۵۹٬۰۰۰٬۰۰۰ تومان" },
+    perks: ["همه‌ی امکانات پلن استاندارد", "۲۰۰ پرسش‌نامه + خلاصه‌ی هوش مصنوعی", "وویس خلاصه‌ی بیمار در چت پزشک", "پرداخت آنلاین ۶ ماهه / یکساله"],
   },
 ];
 
@@ -69,6 +68,7 @@ export default function StartPage() {
   const [slugMsg, setSlugMsg] = useState("");
   const [slugOk, setSlugOk] = useState(false);
   const [plan, setPlan] = useState<Plan>("trial");
+  const [period, setPeriod] = useState<6 | 12>(6);
   const [refCode, setRefCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
@@ -160,7 +160,7 @@ export default function StartPage() {
           {doneSlug ? "🎉 مطب شما آماده است!" : "مطب خود را ۱۴ روز رایگان بسازید"}
         </h1>
         <p style={s.sub}>
-          {doneSlug ? "لینک و کد QR اختصاصی‌تان همین حالا فعال است" : "منشی و دستیار هوشمند برای مطب خصوصی · بدون کارت بانکی · در ۳ دقیقه"}
+          {doneSlug ? "لینک و کد QR اختصاصی‌تان همین حالا فعال است" : "۱۴ روز کامل رایگان — بدون نیاز به کارت بانکی · در ۳ دقیقه"}
         </p>
 
         {!doneSlug && (
@@ -194,7 +194,7 @@ export default function StartPage() {
                   🩺 دیدن پرسش‌نامه‌ی بیمار
                 </a>
                 {plan !== "trial" && (
-                  <a style={{ ...s.btn, width: "100%", justifyContent: "center" }} href={`/pay/${doneSlug}?new=1`}>
+                  <a style={{ ...s.btn, width: "100%", justifyContent: "center" }} href={`/pay/${doneSlug}?new=1&plan=${plan}&months=${period}`}>
                     💳 پرداخت و فعال‌سازی اشتراک {plan === "pro" ? "دستیار دکتر" : "نوبت‌دهی"}
                   </a>
                 )}
@@ -318,11 +318,35 @@ export default function StartPage() {
             </>
           ) : (
             <>
+              <div style={{ fontSize: 12.5, color: "#7a6a3d", textAlign: "center", marginBottom: 12 }}>
+                دوره‌ی پرداخت (برای پلن‌های پولی):
+                <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 8 }}>
+                  {([6, 12] as const).map((m) => (
+                    <div
+                      key={m}
+                      onClick={() => setPeriod(m)}
+                      style={{
+                        border: period === m ? "2px solid #c9a227" : "1.5px solid #e2d8bc",
+                        borderRadius: 12,
+                        padding: "7px 18px",
+                        cursor: "pointer",
+                        background: period === m ? "#fffbea" : "#fff",
+                        fontWeight: 800,
+                        fontSize: 12.5,
+                      }}
+                    >
+                      {m === 6 ? "۶ ماهه" : "یکساله — دو ماه رایگان"}
+                    </div>
+                  ))}
+                </div>
+              </div>
               {PLANS.map((p) => (
                 <div key={p.id} style={{ ...s.planCard(plan === p.id), marginBottom: 12 }} onClick={() => setPlan(p.id)}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 6 }}>
                     <b style={{ fontSize: 14.5 }}>{p.name}</b>
-                    <span style={{ fontSize: 12.5, fontWeight: 900, color: "#8a6d00" }}>{p.price}</span>
+                    <span style={{ fontSize: 12.5, fontWeight: 900, color: "#8a6d00" }}>
+                      {p.id === "trial" ? "۱۴ روز رایگان" : p.prices?.[period]}
+                    </span>
                   </div>
                   <div style={{ fontSize: 12, color: "#7a6a3d", margin: "5px 0 8px" }}>{p.desc}</div>
                   <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
